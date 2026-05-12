@@ -19,6 +19,6 @@ ENV ASPNETCORE_URLS=http://+:5001
 EXPOSE 5001
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -s -o /dev/null http://localhost:5001/ || exit 1
+  CMD curl -f http://localhost:5001/health || exit 1
 
 ENTRYPOINT ["dotnet", "Sentinel.CodeQuality.Service.dll"]

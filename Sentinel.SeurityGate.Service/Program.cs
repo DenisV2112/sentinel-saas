@@ -1,7 +1,5 @@
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog;
-using Serilog.Formatting.Compact;
 using Sentinel.SecurityGate.Service.BackgroundServices;
 using Sentinel.SecurityGate.Service.Configuration;
 using Sentinel.SecurityGate.Service.Services;
@@ -16,8 +14,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.UseSerilog();
 
 builder.Host.UseSerilog();
 
@@ -66,6 +62,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowJavaBFF");
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "security-gate-service" }));
 
 app.Logger.LogInformation("Sentinel SecurityGate Service iniciado");
 

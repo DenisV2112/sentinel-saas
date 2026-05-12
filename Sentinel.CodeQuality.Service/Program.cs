@@ -1,7 +1,5 @@
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog;
-using Serilog.Formatting.Compact;
 using Sentinel.CodeQuality.Service.Publishers;
 using Sentinel.CodeQuality.Service.Services;
 
@@ -18,8 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
-builder.Host.UseSerilog();
-
 builder.Services.AddControllers();
 
 builder.Services.AddSingleton<IReportPublisher, ReportPublisher>();
@@ -33,5 +29,6 @@ builder.Services.AddScoped<QualityGateEvaluator>();
 var app = builder.Build();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "code-quality-service" }));
 
 app.Run();
