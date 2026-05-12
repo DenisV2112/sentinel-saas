@@ -1,7 +1,7 @@
 version: '3.8'
 
 # =============================================================================
-# Logging anchors — referenced by all services via YAML merge
+# Logging anchors ΓÇö referenced by all services via YAML merge
 # =============================================================================
 x-logging: &default-logging
   driver: "json-file"
@@ -47,7 +47,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 448M
+          memory: 512M
     networks:
       - sentinel-network
 
@@ -75,7 +75,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
@@ -108,7 +108,7 @@ services:
     networks:
       - sentinel-network
 
-  # MailHog — SMTP mock for email testing
+  # MailHog ΓÇö SMTP mock for email testing
   mailhog:
     image: mailhog/mailhog
     container_name: sentinel-mailhog
@@ -151,7 +151,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
@@ -183,7 +183,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 448M
+          memory: 512M
     networks:
       - sentinel-network
 
@@ -204,7 +204,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
@@ -218,7 +218,7 @@ services:
       KONG_PG_HOST: kong-db
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong123
-      # Silence access logs — they're noise in local dev
+      # Silence access logs ΓÇö they're noise in local dev
       KONG_PROXY_ACCESS_LOG: /dev/null
       KONG_ADMIN_ACCESS_LOG: /dev/null
       KONG_PROXY_ERROR_LOG: /dev/stderr
@@ -245,12 +245,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
 
-  # Konga DB — PostgreSQL 11 for Konga (pg driver v7 needs PG11's r.consrc column)
+  # Konga DB ΓÇö PostgreSQL 11 for Konga (pg driver v7 needs PG11's r.consrc column)
   konga-db:
     image: postgres:11-alpine
     container_name: sentinel-konga-db
@@ -273,12 +273,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
 
-  # Konga — Kong Admin UI
+  # Konga ΓÇö Kong Admin UI
   konga:
     image: pantsel/konga:latest
     container_name: sentinel-konga
@@ -307,7 +307,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.5'
           memory: 256M
     networks:
       - sentinel-network
@@ -352,17 +352,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      mongodb:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
+      mailhog:
         condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
@@ -495,7 +487,7 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "false"
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "false"
     ports:
-      - "8088:8083"   # External:Internal — app listens on 8083
+      - "8088:8083"   # External:Internal ΓÇö app listens on 8083
     depends_on:
       postgres:
         condition: service_healthy
@@ -746,7 +738,7 @@ services:
     networks:
       - sentinel-network
 
-  # Code Quality Service (worker — no HTTP API, only RabbitMQ)
+  # Code Quality Service (worker ΓÇö no HTTP API, only RabbitMQ)
   code-quality-service:
     build:
       context: ./Sentinel.CodeQuality.Service
@@ -782,7 +774,7 @@ services:
     networks:
       - sentinel-network
 
-  # Vulnerability Service (worker — no HTTP API, only RabbitMQ)
+  # Vulnerability Service (worker ΓÇö no HTTP API, only RabbitMQ)
   vulnerability-service:
     build:
       context: ./Sentinel.Vulnerability.Service

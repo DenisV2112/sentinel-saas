@@ -253,7 +253,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       # Database
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -268,6 +268,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       
       # Service URLs
       SERVICES_TENANT_URL: http://tenant-service:8082
@@ -309,14 +310,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
       interval: 30s
@@ -339,13 +332,14 @@ services:
     ports:
       - "8082:8082"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       SERVICES_USER_MGMT_URL: http://user-management-service:8083
     depends_on:
@@ -353,14 +347,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
       interval: 30s
@@ -383,27 +369,20 @@ services:
     ports:
       - "8083:8083"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
       interval: 30s
@@ -426,27 +405,20 @@ services:
     ports:
       - "8086:8086"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8086/actuator/health || exit 1"]
       interval: 30s
@@ -469,13 +441,14 @@ services:
     ports:
       - "8087:8087"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_db?authSource=admin
     depends_on:
@@ -485,14 +458,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8087/actuator/health || exit 1"]
       interval: 30s
@@ -515,27 +480,20 @@ services:
     ports:
       - "8088:8083" # External:Internal (App listens on 8083)
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
       interval: 30s
@@ -558,7 +516,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -566,6 +524,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
       
       # Service URLs
@@ -589,14 +548,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
@@ -619,7 +570,7 @@ services:
     ports:
       - "8084:8084"
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -627,6 +578,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SERVER_PORT: 8084
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       LOGGING_LEVEL_COM_SENTINEL_BILLING: DEBUG
@@ -639,14 +591,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
       interval: 30s
@@ -680,14 +624,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
       interval: 30s
@@ -720,14 +656,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
       interval: 30s
@@ -760,14 +688,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      auth-service:
-        condition: service_started
-      tenant-service:
-        condition: service_started
-      project-service:
-        condition: service_started
-      billing-service:
-        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
       interval: 30s
