@@ -169,8 +169,9 @@ export function useVulnerabilityTrends(
     const fetchTrends = async () => {
       try {
         setLoading(true);
+        const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
         const res = await fetch(
-          `${API}/api/dashboard/vulnerabilities/trends?range=${range}`
+          `${API}/api/bff/analytics/vulnerabilities?days=${days}`
         );
         if (!res.ok) throw new Error("Failed to load vulnerability trends");
         const json = await res.json();
@@ -322,7 +323,7 @@ export function useDashboardNotifications(): ApiState<
       try {
         setLoading(true);
         const res = await fetch(
-          `${API}/api/notifications?scope=dashboard`
+          `${API}/api/bff/notifications?type=dashboard`
         );
         if (!res.ok) throw new Error("Failed to load notifications");
         const json = await res.json();

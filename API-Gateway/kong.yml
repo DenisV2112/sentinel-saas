@@ -24,6 +24,13 @@ services:
         protocols:
           - http
           - https
+      - name: bff-dashboard-proxy
+        paths:
+          - /api/dashboard
+        strip_path: false
+        protocols:
+          - http
+          - https
       - name: bff-scans
         paths:
           - /api/bff/scans
@@ -196,7 +203,7 @@ services:
       - name: security-gate-routes
         paths:
           - /api/security-gate
-        strip_path: false
+        strip_path: true
         protocols:
           - http
           - https
@@ -212,7 +219,7 @@ services:
       - name: code-quality-routes
         paths:
           - /api/code-quality
-        strip_path: false
+        strip_path: true
         protocols:
           - http
           - https
@@ -228,7 +235,7 @@ services:
       - name: vulnerability-routes
         paths:
           - /api/vulnerabilities
-        strip_path: false
+        strip_path: true
         protocols:
           - http
           - https
