@@ -1,0 +1,180 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel123
+      POSTGRES_DB: sentinel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sentinel-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: sentinel
+      RABBITMQ_DEFAULT_PASS: sentinel123
+    ports:
+      - "5672:5672"
+    networks:
+      - sentinel-network
+
+  # MongoDB
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sentinel
+      MONGO_INITDB_ROOT_PASSWORD: sentinel123
+      MONGO_INITDB_DATABASE: admin
+    ports:
+      - "27017:27017"
+    networks:
+      - sentinel-network
+
+  # n8n (Optional - for workflows)
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - WEBHOOK_URL=http://localhost:5678
+    ports:
+      - "5678:5678"
+    networks:
+      - sentinel-network
+
+  # Kong API Gateway
+  kong-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong123
+      POSTGRES_DB: kong
+    ports:
+      - "5433:5432"
+    networks:
+      - sentinel-network
+
+  kong-migration:
+    image: kong:alpine
+    restart: no
+    command: kong migrations bootstrap
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong123
+    depends_on:
+      kong-db:
+        condition: service_started
+    networks:
+      - sentinel-network
+
+  kong:
+    image: kong:alpine
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong123
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+    volumes:
+      - ./API-Gateway/kong.yml:/etc/kong/kong.yml:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      kong-migration:
+        condition: service_completed
+    networks:
+      - sentinel-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service-java
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx128m -XX:+UseG1GC"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
+      SPRING_DATASOURCE_USERNAME: sentinel
+      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: sentinel
+      SPRING_RABBITMQ_PASSWORD: sentinel123
+      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      SPRING_PROFILES_ACTIVE: local
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sentinel-network
+
+  # BFF Service
+  backend-for-frontend-service:
+    build:
+      context: ./backend-for-frontend-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx128m -XX:+UseG1GC"
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
+      SPRING_DATASOURCE_USERNAME: sentinel
+      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: sentinel
+      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
+      SERVICES_AUTH_URL: http://auth-service:8081
+      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mongodb
+    networks:
+      - sentinel-network
+
+  # Frontend
+  sentinel-front:
+    build:
+      context: ./sentinel_front
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - kong
+    networks:
+      - sentinel-network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  rabbitmq_data:
+  kong_db_data:
+  n8n_data:
+
+networks:
+  sentinel-network:
+    driver: bridge

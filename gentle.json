@@ -1,0 +1,118 @@
+{
+  "$schema": "https://gentle-ai.dev/schemas/gentle.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "sentinel-deployment",
+    "description": "Multi-service SaaS security scanner platform — Java, .NET, and React microservices on Docker",
+    "stack": {
+      "backend-java": {
+        "language": "Java 17",
+        "framework": "Spring Boot 3.4",
+        "build": "Maven",
+        "services": [
+          "auth-service",
+          "tenant-service",
+          "project-service",
+          "user-management-service",
+          "billing-service",
+          "backend-for-frontend",
+          "scaner-orchestrator",
+          "results-aggregator"
+        ]
+      },
+      "backend-dotnet": {
+        "language": "C#",
+        "framework": ".NET 8 / ASP.NET Core",
+        "services": [
+          "Sentinel.SecurityGate",
+          "Sentinel.CodeQuality",
+          "Sentinel.Vulnerability"
+        ]
+      },
+      "frontend": {
+        "language": "TypeScript",
+        "framework": "React 19 + Vite 7",
+        "ui": "Bulma CSS",
+        "directory": "sentinel_front"
+      }
+    },
+    "infrastructure": {
+      "databases": ["PostgreSQL 15 (app)", "PostgreSQL 15 (Kong)", "MongoDB 7"],
+      "messaging": "RabbitMQ 3-management",
+      "gateway": "Kong API Gateway (port 8000)",
+      "workflow": "n8n (port 5678)",
+      "mail": "MailHog (local mock, port 8025)",
+      "containers": "Docker Compose"
+    }
+  },
+  "gentle": {
+    "skills": [
+      {
+        "name": "clean-code-js-ts",
+        "trigger": "Writing, reviewing, or refactoring JavaScript or TypeScript code including React components, hooks, services, and utilities",
+        "scope": ["sentinel_front/**/*.ts", "sentinel_front/**/*.tsx", "sentinel_front/**/*.js", "sentinel_front/**/*.jsx"]
+      },
+      {
+        "name": "solid-dotnet-principles",
+        "trigger": "Writing, reviewing, or refactoring C# / .NET / ASP.NET Core code including controllers, services, repositories, middleware, and DTOs",
+        "scope": [
+          "Sentinel.SecurityGate.Service/**/*.cs",
+          "Sentinel.CodeQuality.Service/**/*.cs",
+          "Sentinel.Vulnerability.Service/**/*.cs"
+        ]
+      },
+      {
+        "name": "ui-ux-pro-max",
+        "trigger": "Designing UI components, layouts, styling with Bulma, and improving user experience flow",
+        "scope": ["sentinel_front/src/components/**/*.tsx", "sentinel_front/src/pages/**/*.tsx"]
+      },
+      {
+        "name": "frontend-logic-pro",
+        "trigger": "Architecting React state, custom hooks, and business logic separation in the frontend",
+        "scope": ["sentinel_front/src/hooks/**/*.ts", "sentinel_front/src/services/**/*.ts"]
+      }
+    ],
+    "engram": {
+      "connected": true,
+      "project": "no.learn.dev",
+      "backend": "local",
+      "mode": "agent"
+    },
+    "sdd": {
+      "initialized": true,
+      "artifact_store": "engram",
+      "delivery_strategy": "ask-on-risk",
+      "chain_strategy": "stacked-to-main"
+    },
+    "conventions": {
+      "jwt_secret_consistency": "JWT_SECRET must be identical across ALL services. Hardcoded in local compose; env var in production.",
+      "spring_profiles": "local for docker-compose.local, prod for production, docker for base compose.",
+      "service_discovery": "Services reference each other by Docker container name (e.g., http://auth-service:8081), NOT localhost.",
+      "java_memory_local": "-Xms64m -Xmx128m via JAVA_TOOL_OPTIONS in local compose.",
+      "java_memory_base": "-Xms128m -Xmx256m in base compose.",
+      "env_files": ".env.local and .env.production are gitignored. Template at .env.production.template.",
+      "csharp_internal_port": "All C# services listen on port 5001 internally. External ports 5001/5002/5003 map to internal 5001.",
+      "user_management_port": "External 8088 → Internal 8083. The app listens on 8083, mapped to 8088 externally."
+    }
+  },
+  "ports": {
+    "frontend": { "external": 3000, "internal": 80, "note": "nginx in container" },
+    "kong-proxy": { "external": 8000, "internal": 8000 },
+    "kong-admin": { "external": 8001, "internal": 8001 },
+    "konga": { "external": 1337, "internal": 1337 },
+    "bff": { "external": 8080, "internal": 8080 },
+    "auth": { "external": 8081, "internal": 8081 },
+    "tenant": { "external": 8082, "internal": 8082 },
+    "project": { "external": 8083, "internal": 8083 },
+    "billing": { "external": 8084, "internal": 8084 },
+    "orchestrator": { "external": 8086, "internal": 8086 },
+    "results-aggregator": { "external": 8087, "internal": 8087 },
+    "user-management": { "external": 8088, "internal": 8083, "note": "Port mismatch — app listens on 8083" },
+    "security-gate": { "external": 5001, "internal": 5001 },
+    "code-quality": { "external": 5002, "internal": 5001, "note": "Internal always 5001" },
+    "vulnerability": { "external": 5003, "internal": 5001, "note": "Internal always 5001" },
+    "rabbitmq-mgmt": { "external": 15672, "internal": 15672 },
+    "n8n": { "external": 5678, "internal": 5678 },
+    "mailhog": { "external": 8025, "internal": 8025 }
+  }
+}

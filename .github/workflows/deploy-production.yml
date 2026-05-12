@@ -1,0 +1,122 @@
+name: Deploy to Production VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  DEPLOY_PATH: /home/samuel/sentinel-deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 🔐 Setup SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: ☕ Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: 🧪 Run Java Tests
+      run: |
+        echo "Running tests for auth-service-java..."
+        cd auth-service-java && mvn test -q && cd ..
+        echo "Running tests for tenant-service..."
+        cd tenant-service && mvn test -q && cd ..
+        echo "Running tests for project-service..."
+        cd project-service && mvn test -q && cd ..
+        echo "Running tests for user-management-service..."
+        cd user-management-service && mvn test -q && cd ..
+        echo "Running tests for Billings..."
+        cd Billings && mvn test -q && cd ..
+        echo "Running tests for backend-for-frontend-service..."
+        cd backend-for-frontend-service && mvn test -q && cd ..
+        echo "Running tests for scaner-orchestrator-service..."
+        cd scaner-orchestrator-service && mvn test -q && cd ..
+        echo "Running tests for results-aggregator-service..."
+        cd results-aggregator-service && mvn test -q && cd ..
+
+    - name: 💠 Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: 🧪 Run .NET Tests
+      run: |
+        echo "Running tests for Sentinel.SeurityGate.Service..."
+        dotnet test Sentinel.SeurityGate.Service --verbosity quiet
+        echo "Running tests for Sentinel.CodeQuality.Service..."
+        dotnet test Sentinel.CodeQuality.Service --verbosity quiet
+        echo "Running tests for Sentinel.Vulnerability.Service..."
+        dotnet test Sentinel.Vulnerability.Service --verbosity quiet
+
+    - name: 📦 Deploy to VPS
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'EOF'
+          set -e
+          
+          cd ${{ env.DEPLOY_PATH }}
+          
+          echo "🛑 Stopping all services..."
+          docker-compose -f docker-compose.yml --env-file .env.production down --remove-orphans 2>/dev/null || true
+          
+          echo "🗑️ Force removing sentinel containers..."
+          docker ps -a --filter "name=sentinel" -q | xargs -r docker rm -f 2>/dev/null || true
+          
+          echo "🧹 Cleaning up networks..."
+          docker network prune -f || true
+          
+          echo "🔄 Pulling latest code..."
+          git fetch origin main
+          git reset --hard origin/main
+          
+          echo "🔨 Building Docker images..."
+          docker-compose -f docker-compose.yml --env-file .env.production build --no-cache
+          
+          echo "🚀 Deploying containers..."
+          docker-compose -f docker-compose.yml --env-file .env.production up -d
+          
+          echo "⏳ Waiting for services to start..."
+          sleep 20
+          
+          echo "🧹 Cleaning up unused images..."
+          docker image prune -f
+          
+          echo "✅ Deployment complete!"
+          docker ps --filter "name=sentinel" --format "table {{.Names}}\t{{.Status}}"
+        EOF
+
+    - name: 🔍 Health Check
+      run: |
+        echo "Waiting 30 seconds for services to start..."
+        sleep 30
+        
+        echo "Checking API health..."
+        curl -f https://service.sentinel.crudzaso.com/health || echo "API health check failed (might be OK if /health endpoint doesn't exist)"
+        
+        echo "Checking Frontend..."
+        curl -f https://sentinel.crudzaso.com || exit 1
+
+    - name: 📊 Deployment Summary
+      if: always()
+      run: |
+        echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** \`${{ job.status }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend:** https://sentinel.crudzaso.com" >> $GITHUB_STEP_SUMMARY
+        echo "- **API:** https://service.sentinel.crudzaso.com" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Deployed at:** $(date -u)" >> $GITHUB_STEP_SUMMARY

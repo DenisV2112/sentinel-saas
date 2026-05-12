@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "INICIO",
+    "about": "SOBRE SENTINEL",
+    "services": "SOLUCIONES",
+    "contact": "CONTACTO"
+  },
+  "hero": {
+    "title": "SENTINEL\nSECURITY",
+    "description": "Sentinel ofrece escaneo continuo de seguridad y visibilidad de riesgos en tus aplicaciones e infraestructura. Detecta vulnerabilidades a tiempo, prioriza amenazas reales y fortalece tu postura de seguridad con total confianza.",
+    "cta": "SOLICITAR DEMO"
+  },
+  "tagline": {
+    "part1": "Transformamos",
+    "highlight1": "la exposición",
+    "part2": "en",
+    "highlight2": "control"
+  },
+  "services": {
+    "title": {
+      "part1": "ofrecemos",
+      "highlight": "seguridad",
+      "part2": "de",
+      "part3": "nueva generación"
+    },
+    "items": {
+      "content": "Escaneo de\nSeguridad de\nAplicaciones",
+      "social": "Monitoreo de\nRiesgos de\nInfraestructura",
+      "analytics": "Análisis de\nAmenazas y\nCumplimiento",
+      "advertising": "Auditorías de\nSeguridad\nContinuas"
+    }
+  }
+}
