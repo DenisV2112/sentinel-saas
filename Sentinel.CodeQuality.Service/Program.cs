@@ -3,14 +3,16 @@ using Serilog.Formatting.Compact;
 using Sentinel.CodeQuality.Service.Publishers;
 using Sentinel.CodeQuality.Service.Services;
 
-Log.Logger = new LoggerConfiguration()
+var loggerConfig = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .Enrich.FromLogContext()
-    .WriteTo.Console(
-        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
-            ? new CompactJsonFormatter()
-            : null)
-    .CreateLogger();
+    .Enrich.FromLogContext();
+
+if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+    loggerConfig.WriteTo.Console(new CompactJsonFormatter());
+else
+    loggerConfig.WriteTo.Console();
+
+Log.Logger = loggerConfig.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
