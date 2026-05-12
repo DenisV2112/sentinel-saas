@@ -31,7 +31,7 @@ public class AccountUnlockScheduler {
      * Cron: Cada 5 minutos
      * ASYNC: Runs in background thread to avoid blocking main application.
      */
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     @Async
     @Transactional
     public void unlockExpiredAccounts() {

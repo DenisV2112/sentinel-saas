@@ -47,7 +47,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 512M
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -75,7 +75,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -103,8 +103,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -151,7 +151,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -183,7 +183,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 512M
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -204,7 +204,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -245,7 +245,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -273,7 +273,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -307,7 +307,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: '0.25'
           memory: 256M
     networks:
       - sentinel-network
@@ -324,10 +324,10 @@ services:
     container_name: sentinel-auth-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: sentinel123
@@ -335,6 +335,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       APP_URL: http://localhost:3000
       APP_CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:5174
@@ -373,8 +374,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -386,10 +387,10 @@ services:
     container_name: sentinel-tenant-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -397,6 +398,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     ports:
       - "8082:8082"
@@ -415,8 +417,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -428,10 +430,10 @@ services:
     container_name: sentinel-project-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -439,6 +441,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     ports:
       - "8083:8083"
@@ -457,8 +460,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -470,10 +473,10 @@ services:
     container_name: sentinel-user-management-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -481,6 +484,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       # Mail (MailHog)
       SPRING_MAIL_HOST: mailhog
@@ -507,8 +511,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -520,10 +524,10 @@ services:
     container_name: sentinel-bff-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -531,6 +535,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
       # Service URLs (kebab-case for APP_SERVICES, underscore for legacy SERVICES)
       APP_SERVICES_AUTH-URL: http://auth-service:8081
@@ -561,8 +566,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -574,10 +579,10 @@ services:
     container_name: sentinel-billing
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -585,6 +590,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SERVER_PORT: 8084
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       APP_URL: http://localhost:3000
@@ -606,8 +612,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -619,10 +625,10 @@ services:
     container_name: sentinel-results-aggregator
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -630,6 +636,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
       SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_db?authSource=admin
     ports:
@@ -651,8 +658,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -664,10 +671,10 @@ services:
     container_name: sentinel-scaner-orchestrator
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "15000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "15000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -675,6 +682,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: sentinel123
+      MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
     ports:
       - "8086:8086"
@@ -693,8 +701,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -733,8 +741,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -769,8 +777,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
@@ -805,8 +813,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '0.25'
+          memory: 448M
     networks:
       - sentinel-network
 
