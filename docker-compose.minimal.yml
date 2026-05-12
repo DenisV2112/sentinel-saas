@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: sentinel
-      POSTGRES_PASSWORD: sentinel123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sentinel123}
       POSTGRES_DB: sentinel_db
     ports:
       - "5432:5432"
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: sentinel
-      RABBITMQ_DEFAULT_PASS: sentinel123
+      RABBITMQ_DEFAULT_PASS: ${DB_PASSWORD:-sentinel123}
     ports:
       - "5672:5672"
     networks:
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: sentinel
-      MONGO_INITDB_ROOT_PASSWORD: sentinel123
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MONGO_INITDB_DATABASE: admin
     ports:
       - "27017:27017"
@@ -111,11 +111,11 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx128m -XX:+UseG1GC"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
       SPRING_PROFILES_ACTIVE: local
     ports:
       - "8081:8081"
@@ -136,13 +136,13 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
-      SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
+      SPRING_DATA_MONGODB_URI: mongodb://sentinel:${DB_PASSWORD:-sentinel123}@mongodb:27017/sentinel_bff_cache?authSource=admin
       SERVICES_AUTH_URL: http://auth-service:8081
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
     ports:
       - "8080:8080"
     depends_on:

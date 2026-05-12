@@ -85,7 +85,7 @@ services:
     container_name: sentinel-konga
     environment:
       NODE_ENV: production
-      TOKEN_SECRET: sentinel_konga_secret_2025
+      TOKEN_SECRET: ${KONGA_TOKEN_SECRET:-sentinel_konga_secret_2025}
     ports:
       - "1337:1337"
     depends_on:

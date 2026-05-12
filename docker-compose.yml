@@ -8,7 +8,7 @@ services:
     command: postgres -c 'shared_buffers=64MB' -c 'max_connections=100'
     environment:
       POSTGRES_USER: sentinel
-      POSTGRES_PASSWORD: sentinel123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sentinel123}
       POSTGRES_DB: sentinel_db
     ports:
       - "5432:5432"
@@ -34,7 +34,7 @@ services:
     command: mongod --wiredTigerCacheSizeGB 0.25 --bind_ip_all
     environment:
       MONGO_INITDB_ROOT_USERNAME: sentinel
-      MONGO_INITDB_ROOT_PASSWORD: sentinel123
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MONGO_INITDB_DATABASE: sentinel_db
     ports:
       - "27017:27017"
@@ -80,7 +80,7 @@ services:
     container_name: sentinel-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: sentinel
-      RABBITMQ_DEFAULT_PASS: sentinel123
+      RABBITMQ_DEFAULT_PASS: ${DB_PASSWORD:-sentinel123}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -257,7 +257,7 @@ services:
       # Database
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       
       # Proxy & Headers
@@ -267,7 +267,7 @@ services:
       # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       
       # Service URLs
@@ -276,10 +276,10 @@ services:
       SERVICES_PROJECT_URL: http://project-service:8083
       
       # JWT
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
       JWT_EXPIRATION_MS: 86400000
       # Spring Boot property mappings (lowercase with dots)
-      jwt.secret: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      jwt.secret: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
       jwt.expiration: "3600000"
       
       # Auth Events
@@ -335,12 +335,12 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
       SERVICES_USER_MGMT_URL: http://user-management-service:8083
     depends_on:
       postgres:
@@ -372,12 +372,12 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
     depends_on:
       postgres:
         condition: service_healthy
@@ -408,12 +408,12 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
     depends_on:
       postgres:
         condition: service_healthy
@@ -444,13 +444,13 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
-      MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_db?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
+      MONGODB_URI: mongodb://sentinel:${DB_PASSWORD:-sentinel123}@mongodb:27017/sentinel_db?authSource=admin
     depends_on:
       postgres:
         condition: service_healthy
@@ -483,12 +483,12 @@ services:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
     depends_on:
       postgres:
         condition: service_healthy
@@ -520,12 +520,12 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://sentinel:${DB_PASSWORD:-sentinel123}@mongodb:27017/sentinel_bff_cache?authSource=admin
       
       # Service URLs
       APP_SERVICES_BILLING-URL: http://billing-service:8084
@@ -540,7 +540,7 @@ services:
       SERVICES_BILLING_URL: http://billing-service:8084
       
       # JWT
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
     depends_on:
       postgres:
         condition: service_healthy
@@ -574,17 +574,17 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-sentinel123}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${DB_PASSWORD:-sentinel123}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SERVER_PORT: 8084
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
       LOGGING_LEVEL_COM_SENTINEL_BILLING: DEBUG
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
       # MercadoPago Sandbox Token
-      MERCADOPAGO_ACCESS_TOKEN: TEST-8162214220028576-121612-f6de21e1e57afe4ee3ca69253d301e31-1045991941
+      MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN:-TEST-8162214220028576-121612-f6de21e1e57afe4ee3ca69253d301e31-1045991941}
       APP_URL: http://localhost:3001
     depends_on:
       postgres:
@@ -615,10 +615,10 @@ services:
       - "5001:5001"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD:-sentinel123};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${DB_PASSWORD:-sentinel123}
     depends_on:
       postgres:
         condition: service_healthy
@@ -647,10 +647,10 @@ services:
       - "5002:5001"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD:-sentinel123};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${DB_PASSWORD:-sentinel123}
     depends_on:
       postgres:
         condition: service_healthy
@@ -679,10 +679,10 @@ services:
       - "5003:5001"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD:-sentinel123};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${DB_PASSWORD:-sentinel123}
     depends_on:
       postgres:
         condition: service_healthy

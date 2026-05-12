@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: sentinel
-      POSTGRES_PASSWORD: sentinel123
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: sentinel_db
     ports:
       - "5432:5432"
@@ -59,7 +59,7 @@ services:
     command: ["--bind_ip_all"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: sentinel
-      MONGO_INITDB_ROOT_PASSWORD: sentinel123
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: admin
     ports:
       - "27017:27017"
@@ -87,7 +87,7 @@ services:
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: sentinel
-      RABBITMQ_DEFAULT_PASS: sentinel123
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -330,13 +330,13 @@ services:
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
       APP_URL: http://localhost:3000
       APP_CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:5174
       # Mail (MailHog)
@@ -386,12 +386,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8082:8082"
     depends_on:
@@ -429,12 +429,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8083:8083"
     depends_on:
@@ -472,12 +472,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
       # Mail (MailHog)
       SPRING_MAIL_HOST: mailhog
       SPRING_MAIL_PORT: 1025
@@ -523,12 +523,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_bff_cache?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://sentinel:${MONGO_PASSWORD}@mongodb:27017/sentinel_bff_cache?authSource=admin
       # Service URLs (kebab-case for APP_SERVICES, underscore for legacy SERVICES)
       APP_SERVICES_AUTH-URL: http://auth-service:8081
       APP_SERVICES_TENANT-URL: http://tenant-service:8082
@@ -538,7 +538,7 @@ services:
       SERVICES_TENANT_URL: http://tenant-service:8082
       SERVICES_PROJECT_URL: http://project-service:8083
       SERVICES_BILLING_URL: http://billing-service:8084
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
     depends_on:
@@ -578,15 +578,15 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       SERVER_PORT: 8084
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
       APP_URL: http://localhost:3000
-      MERCADOPAGO_ACCESS_TOKEN: TEST-8162214220028576-121612-f6de21e1e57afe4ee3ca69253d301e31-1045991941
+      MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
     ports:
       - "8084:8084"
     depends_on:
@@ -624,13 +624,13 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
-      SPRING_DATA_MONGODB_URI: mongodb://sentinel:sentinel123@mongodb:27017/sentinel_db?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+      SPRING_DATA_MONGODB_URI: mongodb://sentinel:${MONGO_PASSWORD}@mongodb:27017/sentinel_db?authSource=admin
     ports:
       - "8087:8087"
     depends_on:
@@ -670,12 +670,12 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
-      SPRING_DATASOURCE_PASSWORD: sentinel123
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
-      SPRING_RABBITMQ_PASSWORD: sentinel123
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
-      JWT_SECRET: X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8086:8086"
     depends_on:
@@ -712,10 +712,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5001
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
     ports:
       - "5001:5001"
     depends_on:
@@ -748,10 +748,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5001
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
     ports:
       - "5002:5001"   # All C# services use 5001 internally
     depends_on:
@@ -784,10 +784,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5001
-      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=sentinel123;"
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=sentinel;Password=${DB_PASSWORD};"
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
-      RabbitMQ__Password: sentinel123
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
     ports:
       - "5003:5001"   # All C# services use 5001 internally
     depends_on:
