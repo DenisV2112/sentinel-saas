@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /* ======================================================
    COMMON
@@ -58,7 +58,7 @@ export function useDashboardSummary(): ApiState<DashboardSummary | null> {
         // Transform BFF response to dashboard summary format
         if (mounted) {
           const scans = json.recentScans ?? [];
-          const completedScans = scans.filter((s: any) => s.status === 'COMPLETED' || s.qualityGate);
+          const completedScans = scans.filter((s: any) => s.status === 'COMPLETED');
           const passedScans = completedScans.filter(
             (s: any) => s.qualityGatePassed || s.qualityGate === 'PASS'
           );
@@ -98,11 +98,12 @@ export function useDashboardSummary(): ApiState<DashboardSummary | null> {
 ====================================================== */
 
 export interface ActiveScan {
-  id: string;
-  project: string;
-  type: "SAST" | "DAST" | "CONTAINER";
+  scanId: string;
+  projectName: string;
+  scanType: string;
   status: string;
-  elapsed: string;
+  statusMessage: string;
+  elapsedTime: string;
 }
 
 export function useActiveScans(): ApiState<ActiveScan[]> {
@@ -208,11 +209,11 @@ export function useVulnerabilityTrends(
 ====================================================== */
 
 export interface RecentScan {
-  id: string;
-  project: string;
-  type: string;
-  qualityGate: "PASS" | "FAIL";
-  vulnerabilities: string;
+  scanId: string;
+  projectName: string;
+  scanType: string;
+  status: string;
+  qualityGatePassed: boolean;
   completedAt: string;
 }
 

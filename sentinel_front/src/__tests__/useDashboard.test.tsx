@@ -1,21 +1,21 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useDashboardSummary, useActiveScans, useRecentScans } from '@hooks/useDashboard';
 
-// Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
 const mockToken = 'test-jwt-token';
+let mockFetch: jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers();
+  mockFetch = jest.fn();
+  global.fetch = mockFetch;
   localStorage.setItem('accessToken', mockToken);
 });
 
 afterEach(() => {
   jest.useRealTimers();
   localStorage.clear();
+  (global.fetch as any) = undefined;
 });
 
 describe('useDashboardSummary', () => {
@@ -51,10 +51,6 @@ describe('useDashboardSummary', () => {
 
     const { result } = renderHook(() => useDashboardSummary());
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
-    });
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
@@ -79,10 +75,6 @@ describe('useDashboardSummary', () => {
 
     const { result } = renderHook(() => useDashboardSummary());
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
-    });
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
@@ -95,15 +87,43 @@ describe('useDashboardSummary', () => {
 
     const { result } = renderHook(() => useDashboardSummary());
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
-    });
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
     expect(result.current.error).toBe('Network error');
+    expect(result.current.data).toBeNull();
+  });
+
+  it('handles non-200 HTTP response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
+
+    const { result } = renderHook(() => useDashboardSummary());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Failed to load dashboard summary');
+    expect(result.current.data).toBeNull();
+  });
+
+  it('handles 404 HTTP response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+    });
+
+    const { result } = renderHook(() => useDashboardSummary());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Failed to load dashboard summary');
     expect(result.current.data).toBeNull();
   });
 
@@ -115,12 +135,12 @@ describe('useDashboardSummary', () => {
 
     renderHook(() => useDashboardSummary());
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled();
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/bff/dashboard'),
+      expect.stringMatching(/\/api\/bff\/dashboard(?:\?|$)/),
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: `Bearer ${mockToken}`,
@@ -143,10 +163,6 @@ describe('useActiveScans', () => {
 
     const { result } = renderHook(() => useActiveScans());
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
-    });
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
@@ -160,6 +176,35 @@ describe('useActiveScans', () => {
       statusMessage: 'Scanning...',
       elapsedTime: '02:30',
     });
+  });
+
+  it('handles fetch error gracefully', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+    const { result } = renderHook(() => useActiveScans());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Network error');
+    expect(result.current.data).toHaveLength(0);
+  });
+
+  it('handles non-200 HTTP response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
+
+    const { result } = renderHook(() => useActiveScans());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Failed to load active scans');
+    expect(result.current.data).toHaveLength(0);
   });
 });
 
@@ -176,10 +221,6 @@ describe('useRecentScans', () => {
 
     const { result } = renderHook(() => useRecentScans(3));
 
-    await act(async () => {
-      jest.advanceTimersByTime(0);
-    });
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
@@ -193,5 +234,34 @@ describe('useRecentScans', () => {
       qualityGatePassed: true,
       completedAt: '2026-01-01',
     });
+  });
+
+  it('handles fetch error gracefully', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+    const { result } = renderHook(() => useRecentScans(3));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Network error');
+    expect(result.current.data).toHaveLength(0);
+  });
+
+  it('handles non-200 HTTP response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
+
+    const { result } = renderHook(() => useRecentScans(3));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Failed to load recent scans');
+    expect(result.current.data).toHaveLength(0);
   });
 });
