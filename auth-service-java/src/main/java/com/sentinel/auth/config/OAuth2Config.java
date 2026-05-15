@@ -23,9 +23,12 @@ public class OAuth2Config {
     @Value("${spring.security.oauth2.client.registration.microsoft.client-id:}")
     private String microsoftClientId;
 
-    // Por ahora, Spring Boot auto-configura todo desde application.properties
-    // No necesitamos beans custom todavía
-    
-    // TODO: Implementar custom OAuth2AuthenticationSuccessHandler
-    // TODO: Implementar custom OAuth2AuthenticationFailureHandler
+    // Spring Boot auto-configures OAuth2 from application.properties.
+    // Custom beans below will be needed when OAuth2 login is activated:
+    //
+    // TODO: OAuth2AuthenticationSuccessHandler — on success: generate JWT, redirect to frontend
+    //       with token, auto-create tenant if first login. See class-level Javadoc for full flow.
+    //
+    // TODO: OAuth2AuthenticationFailureHandler — on failure: redirect to frontend login page
+    //       with error parameter, log failure reason for monitoring.
 }

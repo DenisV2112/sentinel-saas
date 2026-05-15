@@ -17,9 +17,9 @@ type ApiState<T> = {
 ====================================================== */
 
 export interface DashboardSummary {
-  exposedPorts: number;
-  criticalFindingsOpen: number;
-  qualityGatePassRate: number;
+  exposedPorts?: number;          // Requires BFF to aggregate from results-aggregator (DAST/Container scan findings)
+  criticalFindingsOpen?: number;  // Requires BFF to aggregate from results-aggregator (vulnerability counts by status)
+  qualityGatePassRate?: number;   // Calculated client-side from recentScans until BFF provides it
   projectsMonitored: number;
 }
 
@@ -57,10 +57,20 @@ export function useDashboardSummary(): ApiState<DashboardSummary | null> {
 
         // Transform BFF response to dashboard summary format
         if (mounted) {
+          const scans = json.recentScans ?? [];
+          const completedScans = scans.filter((s: any) => s.status === 'COMPLETED' || s.qualityGate);
+          const passedScans = completedScans.filter(
+            (s: any) => s.qualityGatePassed || s.qualityGate === 'PASS'
+          );
+
           setData({
-            exposedPorts: 0, // TODO: Add to BFF response
-            criticalFindingsOpen: 0, // TODO: Add to BFF response from scans
-            qualityGatePassRate: 85, // TODO: Calculate from scans
+            // Requires BFF enhancement to include from results-aggregator
+            exposedPorts: undefined,
+            criticalFindingsOpen: undefined,
+            // Derived client-side from available recentScans data
+            qualityGatePassRate: completedScans.length > 0
+              ? Math.round((passedScans.length / completedScans.length) * 100)
+              : undefined,
             projectsMonitored: json.stats?.totalProjects ?? json.projects?.length ?? 0,
           });
         }

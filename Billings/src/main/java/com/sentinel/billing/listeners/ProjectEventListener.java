@@ -45,7 +45,7 @@ public class ProjectEventListener {
         String tenantId = (String) payload.get("tenantId");
         
         log.info("✅ Proyecto creado registrado: projectId={}, tenantId={}", projectId, tenantId);
-        // TODO: Registrar en base de datos de auditoría de billing si es necesario
+        // Future: persist audit event to billing_audit table for compliance tracking
     }
 
     private void handleProjectDeleted(Map<String, Object> payload) {
@@ -53,7 +53,7 @@ public class ProjectEventListener {
         String tenantId = (String) payload.get("tenantId");
         
         log.info("✅ Proyecto eliminado registrado: projectId={}, tenantId={}", projectId, tenantId);
-        // TODO: Limpiar registros asociados si es necesario
+        // Future: cascade-delete billing records associated with this project
     }
 
     private void handleDomainAdded(Map<String, Object> payload) {

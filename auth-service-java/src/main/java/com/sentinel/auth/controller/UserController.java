@@ -19,15 +19,14 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * Admin: List all users
+     * Admin: List all users. Restricted to SUPER_ADMIN only.
      * GET /api/users
      */
     @GetMapping
-    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        // TODO: Validate SUPER_ADMIN role
         log.info("Fetching ALL users (admin)");
         return ResponseEntity.ok(userService.getAllUsers(
                 PageRequest.of(page, size, Sort.by("createdAt").descending())));
@@ -46,11 +45,11 @@ public class UserController {
     }
 
     /**
-     * Admin: Update user
+     * Admin: Update user. Restricted to SUPER_ADMIN only.
      * PUT /api/users/{id}
      */
     @PutMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable java.util.UUID id,
             @RequestBody com.sentinel.auth.dto.request.RegisterRequest request) { // Reusing RegisterRequest for

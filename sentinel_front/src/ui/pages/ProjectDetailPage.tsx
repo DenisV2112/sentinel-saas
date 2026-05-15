@@ -67,18 +67,9 @@ export const ProjectDetailPage = () => {
     }, [projectId, currentTenantId]);
 
     useEffect(() => {
-        console.log('ProjectDetailPage - Effect triggered', {
-            projectId,
-            currentTenantId,
-            projectsLoading,
-            projectsCount: projects.length,
-            projects: projects.map(p => ({ id: p.id, name: p.name }))
-        });
-
         if (projectId && currentTenantId && !projectsLoading) {
             // Find project from loaded projects
             const foundProject = projects.find((p: any) => p.id === projectId);
-            console.log('ProjectDetailPage - Found project:', foundProject);
 
             if (foundProject) {
                 setProject(foundProject);
@@ -107,7 +98,6 @@ export const ProjectDetailPage = () => {
 
         // Robust ID retrieval
         const tenantIdToUse = currentTenantId || project?.tenantId;
-        console.log('Start Scan clicked', { projectId, tenantIdToUse, scanForm });
 
         if (!projectId) {
             alert('Error: Project ID is missing');

@@ -35,6 +35,9 @@ public class PaymentService {
 
         private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
+        /** Mock tenant ID used when no real tenant context is available (development/testing only). */
+        private static final String MOCK_TENANT_ID = "00000000-0000-0000-0000-000000000000";
+
         private final BillingEventPublisher billingEventPublisher;
         private final PaymentRepository paymentRepository;
         private final SubscriptionRepository subscriptionRepository;
@@ -55,15 +58,23 @@ public class PaymentService {
          * Por compatibilidad mantiene el plan "STANDARD", pero:
          * - Toma el precio real desde la tabla "plans".
          */
+        /**
+         * Mock payment with default STANDARD plan. Uses mock tenant when no real context.
+         * For production: use {@link #confirmMockPayment(String, String, String, String)} with real tenantId.
+         */
         public void confirmMockPayment(String provider, String userId) {
-                // TODO: info real tenant
-                String mockTenantId = "00000000-0000-0000-0000-000000000000";
-                processMockPayment(provider, "STANDARD", userId, mockTenantId);
+                processMockPayment(provider, "STANDARD", userId, MOCK_TENANT_ID);
         }
 
         public void confirmMockPayment(String provider, String planId, String userId) {
-                String mockTenantId = "00000000-0000-0000-0000-000000000000";
-                processMockPayment(provider, planId, userId, mockTenantId);
+                processMockPayment(provider, planId, userId, MOCK_TENANT_ID);
+        }
+
+        /**
+         * Mock payment with explicit tenantId. Use when tenant context is known.
+         */
+        public void confirmMockPayment(String provider, String planId, String userId, String tenantId) {
+                processMockPayment(provider, planId, userId, tenantId);
         }
 
         private void processMockPayment(String provider, String planId, String userId, String tenantId) {

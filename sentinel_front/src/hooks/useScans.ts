@@ -68,9 +68,6 @@ export const useScans = () => {
                 projectId: request.projectId,
             };
 
-            console.log('Starting scan with payload:', backendRequest);
-            console.log('Headers:', { 'X-Tenant-Id': tenantId, 'X-User-Id': userId });
-
             const response = await axios.post(`${API_URL}/api/scans`, backendRequest, {
                 headers: {
                     Authorization: `Bearer ${token}`,

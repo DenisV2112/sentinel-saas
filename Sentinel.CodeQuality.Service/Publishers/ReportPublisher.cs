@@ -71,12 +71,18 @@ public class ReportPublisher : IReportPublisher, IDisposable
                     {
                         _channel?.Close();
                     }
-                    catch { /* ignore */ }
+                    catch (Exception ex)
+                    {
+                        _logger.LogDebug(ex, "Non-critical: failed to close previous channel during reconnect");
+                    }
                     try
                     {
                         _connection?.Close();
                     }
-                    catch { /* ignore */ }
+                    catch (Exception ex)
+                    {
+                        _logger.LogDebug(ex, "Non-critical: failed to close previous connection during reconnect");
+                    }
 
                     _connection = _factory.CreateConnection();
                     _channel = _connection.CreateModel();
@@ -190,8 +196,8 @@ public class ReportPublisher : IReportPublisher, IDisposable
     {
         lock (_syncRoot)
         {
-            try { _channel?.Close(); } catch { }
-            try { _connection?.Close(); } catch { }
+            try { _channel?.Close(); } catch (Exception ex) { _logger.LogDebug(ex, "Non-critical: failed to close channel during invalidation"); }
+            try { _connection?.Close(); } catch (Exception ex) { _logger.LogDebug(ex, "Non-critical: failed to close connection during invalidation"); }
             _channel = null;
             _connection = null;
         }
@@ -202,8 +208,8 @@ public class ReportPublisher : IReportPublisher, IDisposable
         if (_disposed) return;
         lock (_syncRoot)
         {
-            try { _channel?.Close(); } catch { }
-            try { _connection?.Close(); } catch { }
+            try { _channel?.Close(); } catch (Exception ex) { _logger.LogDebug(ex, "Non-critical: failed to close channel during dispose"); }
+            try { _connection?.Close(); } catch (Exception ex) { _logger.LogDebug(ex, "Non-critical: failed to close connection during dispose"); }
             _channel?.Dispose();
             _connection?.Dispose();
             _disposed = true;

@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TenantServiceImpl implements TenantService {
 
+    /**
+     * Plans that include AI-powered analysis features.
+     * Synced with auth-service UserPlan enum. Update if billing plans change.
+     */
+    private static final Set<String> AI_ENABLED_PLANS = Set.of("BUSINESS", "ENTERPRISE");
+
     private final TenantRepository tenantRepository;
     private final TenantMemberRepository memberRepository;
     private final TenantEventPublisher eventPublisher;
@@ -633,7 +639,7 @@ public class TenantServiceImpl implements TenantService {
                         .maxDomains(entity.getMaxDomains())
                         .maxRepos(entity.getMaxRepos())
                         .blockchainEnabled(entity.isBlockchainEnabled())
-                        .aiEnabled(false) // TODO: obtener de billing si el plan incluye AI
+                        .aiEnabled(entity.getPlanId() != null && AI_ENABLED_PLANS.contains(entity.getPlanId()))
                         .build())
                 .usage(TenantDTO.TenantUsageDTO.builder()
                         .currentUsers(entity.getCurrentUsers())

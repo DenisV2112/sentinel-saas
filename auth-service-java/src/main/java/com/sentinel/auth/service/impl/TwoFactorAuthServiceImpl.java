@@ -213,8 +213,8 @@ public class TwoFactorAuthServiceImpl implements TwoFactorAuthService {
             codes.add(code);
         }
         
-        // TODO: Guardar hashes de estos códigos en BD para validación futura
-        // Por ahora solo los generamos
+        // Future: persist bcrypt hashes of backup codes to DB (user_backup_codes table)
+        // for one-time use validation. Currently codes are only returned to the user once.
         
         return codes;
     }

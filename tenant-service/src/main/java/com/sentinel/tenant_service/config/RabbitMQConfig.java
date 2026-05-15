@@ -57,10 +57,40 @@ public class RabbitMQConfig {
     // AUTH USER REGISTERED (for UserRegisteredListener)
     // -------------------------------
 
+    private static final String AUTH_USER_REGISTERED_QUEUE = "auth.user.registered.queue";
+    private static final String AUTH_USER_REGISTERED_DLX = "auth.user.registered.dlx";
+    private static final String AUTH_USER_REGISTERED_DLQ = "auth.user.registered.dlq";
+
     @Bean
     @Lazy
     public Queue authUserRegisteredQueue() {
-        return QueueBuilder.durable("auth.user.registered.queue").build();
+        return QueueBuilder.durable(AUTH_USER_REGISTERED_QUEUE)
+                .withArgument("x-dead-letter-exchange", AUTH_USER_REGISTERED_DLX)
+                .withArgument("x-dead-letter-routing-key", AUTH_USER_REGISTERED_DLQ)
+                .build();
+    }
+
+    @Bean
+    @Lazy
+    public DirectExchange authUserRegisteredDlx() {
+        return new DirectExchange(AUTH_USER_REGISTERED_DLX, true, false);
+    }
+
+    @Bean
+    @Lazy
+    public Queue authUserRegisteredDlq() {
+        return QueueBuilder.durable(AUTH_USER_REGISTERED_DLQ)
+                .withArgument("x-message-ttl", 60000) // Keep dead letters for 60s for inspection
+                .build();
+    }
+
+    @Bean
+    @Lazy
+    public Binding authUserRegisteredDlqBinding() {
+        return BindingBuilder
+                .bind(authUserRegisteredDlq())
+                .to(authUserRegisteredDlx())
+                .with(AUTH_USER_REGISTERED_DLQ);
     }
 
     @Bean

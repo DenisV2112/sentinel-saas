@@ -162,7 +162,10 @@ namespace Sentinel.SecurityGate.Service.Services
                         }
                     }
                 }
-                catch { /* ignore parse errors and fallback to default */ }
+                catch (Exception ex)
+                {
+                    _logger.LogDebug(ex, "Failed to infer routing key from payload JSON, using fallback 'scan.unknown.completed'");
+                }
 
                 var properties = _channel!.CreateBasicProperties();
                 properties.Persistent = true;

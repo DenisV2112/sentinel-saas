@@ -67,8 +67,8 @@ public class UserRegisteredListener {
 
         } catch (Exception e) {
             log.error("Error processing auth.user.registered event: {}", e.getMessage(), e);
-            // TODO: Implementar retry logic o dead letter queue
-            throw e; // Re-lanzar para que RabbitMQ maneje el retry
+            // Re-throw triggers RabbitMQ NACK → retry with backoff, then routes to DLQ (auth.user.registered.dlq)
+            throw e;
         }
     }
 }
