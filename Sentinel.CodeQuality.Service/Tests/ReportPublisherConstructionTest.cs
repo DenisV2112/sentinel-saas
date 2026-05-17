@@ -22,7 +22,7 @@ public class ReportPublisherConstructionTest
         // Arrange: minimal config without RabbitMQ (port 9999 = no server)
         var configData = new Dictionary<string, string?>
         {
-            { "RabbitMQ:Host", "localhost" },
+            { "RabbitMQ:HostName", "localhost" },
             { "RabbitMQ:Port", "9999" },
             { "RabbitMQ:Username", "guest" },
             { "RabbitMQ:Password", "guest" },
@@ -57,7 +57,7 @@ public class ReportPublisherConstructionTest
         // Arrange: unreachable host (255.255.255.255)
         var configData = new Dictionary<string, string?>
         {
-            { "RabbitMQ:Host", "255.255.255.255" },
+            { "RabbitMQ:HostName", "255.255.255.255" },
             { "RabbitMQ:Port", "5672" },
             { "RabbitMQ:Username", "guest" },
             { "RabbitMQ:Password", "guest" },

@@ -28,7 +28,7 @@ public class ReportPublisher : IReportPublisher, IDisposable
 
         _factory = new ConnectionFactory
         {
-            HostName = configuration["RabbitMQ:Host"] ?? "localhost",
+            HostName = configuration["RabbitMQ:HostName"] ?? "localhost",
             Port = configuration.GetValue<int?>("RabbitMQ:Port") ?? 5672,
             UserName = configuration["RabbitMQ:Username"] ?? "guest",
             Password = configuration["RabbitMQ:Password"] ?? "guest",
