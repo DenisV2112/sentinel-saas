@@ -788,6 +788,7 @@ services:
       RabbitMQ__HostName: rabbitmq
       RabbitMQ__Username: sentinel
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      VulnerabilityScan__ResultsBasePath: /mnt/vulnerability/results
     ports:
       - "5003:5001"   # All C# services use 5001 internally
     depends_on:
