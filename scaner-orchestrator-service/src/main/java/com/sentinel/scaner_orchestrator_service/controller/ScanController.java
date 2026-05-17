@@ -53,9 +53,10 @@ public class ScanController {
     @GetMapping("/my-scans")
     public ResponseEntity<Page<ScanResponseDTO>> listMyScans(
             @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-Tenant-Id") UUID tenantId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(scanService.getScansByUser(userId,
+        return ResponseEntity.ok(scanService.getScansByUser(userId, tenantId,
                 PageRequest.of(page, size, Sort.by("createdAt").descending())));
     }
 

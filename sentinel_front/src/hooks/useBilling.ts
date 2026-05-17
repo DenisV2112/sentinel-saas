@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000"; // Kong Gateway
+import { getPlans, getMySubscription, getPaymentHistory, createCheckout } from "../api/billing.api";
 
 type ApiState<T> = {
     data: T;
@@ -53,9 +52,8 @@ export function usePlans(): ApiState<Plan[]> {
     const fetchPlans = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${API}/api/billing/plans`);
-            if (!res.ok) throw new Error("Failed to load plans");
-            const json = await res.json();
+            const res = await getPlans();
+            const json = res.data;
             const rawData = Array.isArray(json) ? json : (json.content || []);
 
             // Map backend DTO to Frontend Interface
@@ -134,15 +132,8 @@ export function useSubscription(): ApiState<Subscription | null> {
     const fetchSubscription = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
-            const res = await fetch(`${API}/api/billing/subscriptions/me`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!res.ok) throw new Error("Failed to load subscription");
-            const json = await res.json();
+            const res = await getMySubscription();
+            const json = res.data;
             setData(json);
         } catch (e: any) {
             setError(e.message);
@@ -172,16 +163,9 @@ export function usePaymentHistory(): ApiState<Payment[]> {
     const fetchPayments = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             // Fixed URL: /api/payments-history/me (matches PaymentsHistoryController)
-            const res = await fetch(`${API}/api/payments-history/me`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!res.ok) throw new Error("Failed to load payment history");
-            const json = await res.json();
+            const res = await getPaymentHistory();
+            const json = res.data;
             // Ensure array safety
             setData(Array.isArray(json) ? json : (json.content || []));
         } catch (e: any) {
@@ -212,24 +196,11 @@ export function useUpgradePlan() {
         try {
             setLoading(true);
             setError(null);
-            const token = localStorage.getItem("accessToken");
 
             // Call checkout endpoint (SubscriptionsController)
-            const res = await fetch(`${API}/api/subscriptions/checkout`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ planId }),
-            });
+            const res = await createCheckout(planId);
+            const checkoutData = res.data;
 
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || `Failed to create checkout: ${res.status}`);
-            }
-
-            const checkoutData = await res.json();
             return checkoutData;
 
         } catch (e: any) {

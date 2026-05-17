@@ -21,31 +21,48 @@ public class JwtUtils {
      * Extract userId from JWT token
      */
     public String extractUserId(String authorizationHeader) {
+        Claims claims = parseClaims(authorizationHeader);
+        if (claims == null) return null;
+
+        // Try different claim names
+        String userId = claims.get("userId", String.class);
+        if (userId == null) {
+            userId = claims.get("sub", String.class);
+        }
+        if (userId == null) {
+            userId = claims.get("user_id", String.class);
+        }
+
+        log.debug("Extracted userId from JWT: {}", userId);
+        return userId;
+    }
+
+    /**
+     * Extract tenantId from JWT token
+     */
+    public String extractTenantId(String authorizationHeader) {
+        Claims claims = parseClaims(authorizationHeader);
+        if (claims == null) return null;
+
+        String tenantId = claims.get("tenantId", String.class);
+        log.debug("Extracted tenantId from JWT: {}", tenantId);
+        return tenantId;
+    }
+
+    private Claims parseClaims(String authorizationHeader) {
         try {
             String token = authorizationHeader.replace("Bearer ", "");
 
             byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
             SecretKey key = new SecretKeySpec(keyBytes, "HmacSHA256");
 
-            Claims claims = Jwts.parser()
+            return Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-
-            // Try different claim names
-            String userId = claims.get("userId", String.class);
-            if (userId == null) {
-                userId = claims.get("sub", String.class);
-            }
-            if (userId == null) {
-                userId = claims.get("user_id", String.class);
-            }
-
-            log.debug("Extracted userId from JWT: {}", userId);
-            return userId;
         } catch (Exception e) {
-            log.error("Failed to extract userId from JWT: {}", e.getMessage());
+            log.error("Failed to parse JWT: {}", e.getMessage());
             return null;
         }
     }

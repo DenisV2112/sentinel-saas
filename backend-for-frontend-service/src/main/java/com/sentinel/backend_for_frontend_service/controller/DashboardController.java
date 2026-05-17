@@ -33,7 +33,8 @@ public class DashboardController {
         log.info("🔍 BFF: Aggregating Dashboard Data...");
 
         String userId = jwtUtils.extractUserId(token);
-        log.info("Extracted userId: {}", userId);
+        String tenantId = jwtUtils.extractTenantId(token);
+        log.info("Extracted userId: {}, tenantId: {}", userId, tenantId);
 
         // Execute calls in parallel using CompletableFuture
         CompletableFuture<List<Map<String, Object>>> tenantsFuture = CompletableFuture.supplyAsync(() -> {
@@ -56,7 +57,7 @@ public class DashboardController {
 
         CompletableFuture<Map<String, Object>> scansFuture = CompletableFuture.supplyAsync(() -> {
             try {
-                return scanClient.getMyScans(token);
+                return scanClient.getMyScans(token, userId, tenantId);
             } catch (Exception e) {
                 log.error("Failed to fetch scans", e);
                 return Map.of("content", List.of());

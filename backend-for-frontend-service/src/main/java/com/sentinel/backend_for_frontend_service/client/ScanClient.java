@@ -11,5 +11,8 @@ public interface ScanClient {
 
     // Returns a Page object (Map)
     @GetMapping("/api/scans/my-scans")
-    Map<String, Object> getMyScans(@RequestHeader("Authorization") String token);
+    Map<String, Object> getMyScans(
+            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-Tenant-Id") String tenantId);
 }

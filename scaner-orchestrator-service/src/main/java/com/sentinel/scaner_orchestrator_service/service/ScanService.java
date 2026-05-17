@@ -74,8 +74,8 @@ public class ScanService {
                 .map(this::mapToDTO);
     }
 
-    public Page<ScanResponseDTO> getScansByUser(UUID userId, Pageable pageable) {
-        return scanJobRepository.findByUserId(userId, pageable)
+    public Page<ScanResponseDTO> getScansByUser(UUID userId, UUID tenantId, Pageable pageable) {
+        return scanJobRepository.findByUserIdAndTenantId(userId, tenantId, pageable)
                 .map(this::mapToDTO);
     }
 

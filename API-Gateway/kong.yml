@@ -75,6 +75,34 @@ services:
         protocols:
           - http
           - https
+      - name: bff-billing-api
+        paths:
+          - /api/billing
+        strip_path: false
+        protocols:
+          - http
+          - https
+      - name: bff-plans-api
+        paths:
+          - /api/plans
+        strip_path: false
+        protocols:
+          - http
+          - https
+      - name: bff-subscriptions-api
+        paths:
+          - /api/subscriptions
+        strip_path: false
+        protocols:
+          - http
+          - https
+      - name: bff-payments-history-api
+        paths:
+          - /api/payments-history
+        strip_path: false
+        protocols:
+          - http
+          - https
 
   # Auth Service
   - name: auth-service
@@ -119,25 +147,6 @@ services:
       - name: project-routes
         paths:
           - /api/projects
-        strip_path: false
-        protocols:
-          - http
-          - https
-
-  # Billing Service
-  - name: billing-service
-    url: http://billing-service:8084
-    protocol: http
-    tags:
-      - sentinel
-      - billing
-    routes:
-      - name: billing-routes
-        paths:
-          - /api/billing
-          - /api/plans
-          - /api/subscriptions
-          - /api/payments-history
         strip_path: false
         protocols:
           - http

@@ -13,4 +13,6 @@ public interface ScanJobRepository extends JpaRepository<ScanJob, UUID> {
     Page<ScanJob> findByTenantId(UUID tenantId, Pageable pageable);
 
     Page<ScanJob> findByUserId(UUID userId, Pageable pageable);
+
+    Page<ScanJob> findByUserIdAndTenantId(UUID userId, UUID tenantId, Pageable pageable);
 }

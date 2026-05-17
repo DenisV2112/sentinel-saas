@@ -264,10 +264,10 @@ namespace Sentinel.SecurityGate.Service.Services
                 RedactSensitiveFields(node);
                 return node?.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) ?? json;
             }
-            catch (Exception ex)
+            catch
             {
                 // If parsing fails, return the original (don't break logging)
-                _logger.LogDebug(ex, "Failed to sanitize payload for logging, returning raw JSON");
+                // Note: _logger unavailable — this is a static utility method
                 return json;
             }
         }

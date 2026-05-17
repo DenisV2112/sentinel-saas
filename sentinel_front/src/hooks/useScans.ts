@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { getScans, startScan, getScan } from '../api/scans.api';
 
 export interface ScanRequest {
     projectId: string;
@@ -31,14 +29,7 @@ export const useScans = () => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/scans`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'X-Tenant-Id': tenantId,
-                },
-                params: { page: 0, size: 50 },
-            });
+            const response = await getScans(tenantId);
             setScans(response.data.content || response.data);
         } catch (err: any) {
             console.error('Failed to fetch scans:', err);
@@ -48,11 +39,10 @@ export const useScans = () => {
         }
     };
 
-    const startScan = async (request: ScanRequest, tenantId: string) => {
+    const startScanFn = async (request: ScanRequest, tenantId: string) => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('accessToken');
             const userId = localStorage.getItem('userId');
 
             if (!userId) {
@@ -68,13 +58,7 @@ export const useScans = () => {
                 projectId: request.projectId,
             };
 
-            const response = await axios.post(`${API_URL}/api/scans`, backendRequest, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'X-Tenant-Id': tenantId,
-                    'X-User-Id': userId || '',
-                },
-            });
+            const response = await startScan(backendRequest, tenantId, userId || '');
             return response.data;
         } catch (err: any) {
             console.error('Failed to start scan:', err);
@@ -85,16 +69,11 @@ export const useScans = () => {
         }
     };
 
-    const getScan = async (scanId: string) => {
+    const getScanById = async (scanId: string) => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('accessToken');
-            const response = await axios.get(`${API_URL}/api/scans/${scanId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await getScan(scanId);
             return response.data;
         } catch (err: any) {
             console.error('Failed to fetch scan:', err);
@@ -110,7 +89,7 @@ export const useScans = () => {
         loading,
         error,
         fetchScans,
-        startScan,
-        getScan,
+        startScan: startScanFn,
+        getScan: getScanById,
     };
 };

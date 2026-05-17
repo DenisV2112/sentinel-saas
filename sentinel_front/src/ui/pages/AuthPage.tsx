@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/commons/Navbar";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"; // Kong Gateway
+import { login, register, getGoogleOAuthUrl } from "@/api/auth.api";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -46,24 +45,8 @@ export default function AuthPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        let errorMessage = errorData.message || "Login failed";
-
-        if (errorData.errors) {
-          errorMessage = Object.values(errorData.errors).join(", ");
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      const response = await login(loginData);
+      const data = response.data;
 
       // Store tokens
       localStorage.setItem("accessToken", data.accessToken || data.token);
@@ -95,22 +78,7 @@ export default function AuthPage() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        let errorMessage = errorData.message || "Registration failed";
-
-        if (errorData.errors) {
-          errorMessage = Object.values(errorData.errors).join("\n");
-        }
-
-        throw new Error(errorMessage);
-      }
+      await register(registerData);
 
       // Registration successful - switch to login
       setActive(false);
@@ -125,7 +93,7 @@ export default function AuthPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API_URL}/api/auth/oauth2/authorization/google`;
+    window.location.href = getGoogleOAuthUrl();
   };
 
   return (

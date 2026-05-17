@@ -30,8 +30,10 @@ public class AnalyticsController {
                         @RequestParam(defaultValue = "30") int days,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("🛡️ BFF: Get vulnerability analytics - Days: {}, ProjectId: {}", days, projectId);
-                return ResponseEntity.ok(resultsClient.getVulnerabilityAnalytics(projectId, days, token));
+                log.info("🛡️ BFF: Get vulnerability analytics - Days: {}, ProjectId: {}, TenantId: {}", days, projectId,
+                                tenantId);
+                return ResponseEntity
+                                .ok(resultsClient.getVulnerabilityAnalytics(projectId, days, token, tenantId));
         }
 
         /**
@@ -44,8 +46,9 @@ public class AnalyticsController {
                         @RequestParam(defaultValue = "30") int days,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("📈 BFF: Get code quality analytics - Days: {}, ProjectId: {}", days, projectId);
-                return ResponseEntity.ok(resultsClient.getCodeQualityAnalytics(projectId, days, token));
+                log.info("📈 BFF: Get code quality analytics - Days: {}, ProjectId: {}, TenantId: {}", days, projectId,
+                                tenantId);
+                return ResponseEntity.ok(resultsClient.getCodeQualityAnalytics(projectId, days, token, tenantId));
         }
 
         /**
@@ -58,7 +61,8 @@ public class AnalyticsController {
                         @RequestParam(defaultValue = "GDPR,PCI-DSS,HIPAA") String standards,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("✅ BFF: Get compliance analytics - Standards: {}, ProjectId: {}", standards, projectId);
-                return ResponseEntity.ok(resultsClient.getComplianceAnalytics(projectId, standards, token));
+                log.info("✅ BFF: Get compliance analytics - Standards: {}, ProjectId: {}, TenantId: {}", standards,
+                                projectId, tenantId);
+                return ResponseEntity.ok(resultsClient.getComplianceAnalytics(projectId, standards, token, tenantId));
         }
 }

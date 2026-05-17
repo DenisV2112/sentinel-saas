@@ -8,9 +8,6 @@ import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
 	plugins: [tsconfigPaths(), react(), svgr()],
-	define: {
-		'import.meta.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8000'),
-	},
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),

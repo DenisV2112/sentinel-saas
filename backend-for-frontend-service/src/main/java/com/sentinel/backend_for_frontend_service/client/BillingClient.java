@@ -47,9 +47,19 @@ public interface BillingClient {
                         @RequestHeader("X-User-Id") String userId,
                         @RequestBody Map<String, Object> request);
 
-        @PostMapping("/api/webhooks/mercadopago/test")
-        Map<String, Object> testWebhook(
-                        @RequestParam("paymentId") String paymentId,
-                        @RequestParam("planId") String planId,
-                        @RequestParam("userId") String userId);
+    @GetMapping("/api/payments-history/me")
+    List<Map<String, Object>> getPaymentHistory(
+            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId);
+
+    @GetMapping("/api/payments-history/history")
+    List<Map<String, Object>> getAllPaymentHistory(
+            @RequestHeader("Authorization") String token,
+            @RequestHeader("X-User-Id") String userId);
+
+    @PostMapping("/api/webhooks/mercadopago/test")
+    Map<String, Object> testWebhook(
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("planId") String planId,
+            @RequestParam("userId") String userId);
 }
