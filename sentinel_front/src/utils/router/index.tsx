@@ -8,6 +8,7 @@ import ScansPage from "../../ui/pages/ScanPanel";
 import WorkspacesPage from "../../ui/pages/WorkspacesPage";
 import WorkspaceDetailsPage from "../../ui/pages/WorkspaceDetailsPage";
 import { ProjectDetailPage } from "../../ui/pages/ProjectDetailPage";
+import ProjectPanel from "../../ui/pages/ProjectPanel";
 import FindingsPage from "../../ui/pages/FindingPanel";
 import SettingsPage from "../../ui/pages/SettingsPage";
 import BillingPage from "../../ui/pages/BillingPage";
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       // ====== PRIVATE PAGES ======
       { path: "dashboard", element: <Dashboard /> },
       { path: "scans", element: <ScansPage /> },
+      { path: "projects", element: <ProjectPanel /> },
       { path: "workspaces", element: <WorkspacesPage /> },
       { path: "workspaces/:id", element: <WorkspaceDetailsPage /> },
       { path: "projects/:projectId", element: <ProjectDetailPage /> },

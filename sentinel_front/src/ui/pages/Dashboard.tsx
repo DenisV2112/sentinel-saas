@@ -26,8 +26,6 @@ import {
   useRecentScans,
   useTopRiskProjects,
 } from "@hooks/useDashboard";
-import { i } from "framer-motion/client";
-
 /* ========================================================= */
 /* ====================== DASHBOARD ======================== */
 /* ========================================================= */
@@ -39,6 +37,7 @@ export default function Dashboard() {
   const { data: activeScans } = useActiveScans();
   const { data: recentScans } = useRecentScans();
   const { data: riskProjects } = useTopRiskProjects();
+  const { data: trends, loading: trendsLoading } = useVulnerabilityTrends("30d");
 
   return (
     <div className="app" style={{ background: theme.colors.background }}>
@@ -149,12 +148,88 @@ export default function Dashboard() {
                     height: 180,
                     background: theme.colors.background,
                     borderRadius: 12,
-                    display: "grid",
-                    placeItems: "center",
+                    display: "flex",
+                    alignItems: "flex-end",
+                    gap: 8,
+                    padding: "12px 16px",
                     color: theme.colors.text.tertiary,
                   }}
                 >
-                  Chart Placeholder
+                  {trendsLoading ? (
+                    <span>Loading...</span>
+                  ) : !trends || trends.length === 0 ? (
+                    <span>No data available</span>
+                  ) : (
+                    trends.map((t, i) => {
+                      const maxVal = Math.max(
+                        trends.reduce(
+                          (m, x) =>
+                            Math.max(
+                              m,
+                              x.critical + x.high + x.medium + x.low
+                            ),
+                          0
+                        ),
+                        1
+                      );
+                      const barHeight = ((t.critical + t.high + t.medium + t.low) / maxVal) * 120;
+                      return (
+                        <div
+                          key={t.date ?? i}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column-reverse",
+                              width: "100%",
+                              maxWidth: 32,
+                              height: 120,
+                              gap: 1,
+                            }}
+                          >
+                            <div
+                              style={{
+                                height: `${((t.low / maxVal) * 120) || 0}px`,
+                                background: theme.colors.info ?? "#58a6ff",
+                                borderRadius: "2px 2px 0 0",
+                              }}
+                            />
+                            <div
+                              style={{
+                                height: `${((t.medium / maxVal) * 120) || 0}px`,
+                                background: theme.colors.warning ?? "#d29922",
+                                borderRadius: "2px 2px 0 0",
+                              }}
+                            />
+                            <div
+                              style={{
+                                height: `${((t.high / maxVal) * 120) || 0}px`,
+                                background: theme.colors.danger ?? "#f85149",
+                                borderRadius: "2px 2px 0 0",
+                              }}
+                            />
+                            <div
+                              style={{
+                                height: `${((t.critical / maxVal) * 120) || 0}px`,
+                                background: theme.colors.critical ?? "#da3633",
+                                borderRadius: "2px 2px 0 0",
+                              }}
+                            />
+                          </div>
+                          <span style={{ fontSize: 10 }}>
+                            {t.date ? t.date.slice(5) : ""}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </section>
 
@@ -314,11 +389,11 @@ export default function Dashboard() {
                 <ul className="risk">
                   {(riskProjects ?? []).map((project) => {
                     const isSafe =
-                      project.criticalFindings === 0 &&
-                      project.highFindings === 0;
+                      project.critical === 0 &&
+                      project.high === 0;
 
                     return (
-                      <li key={project.projectName}>
+                      <li key={project.project}>
                         <div
                           style={{
                             display: "flex",
@@ -331,7 +406,7 @@ export default function Dashboard() {
                               size={16}
                               color={theme.colors.success}
                             />
-                          ) : project.criticalFindings > 0 ? (
+                          ) : project.critical > 0 ? (
                             <Flame size={16} color={theme.colors.danger} />
                           ) : (
                             <AlertTriangle
@@ -341,7 +416,7 @@ export default function Dashboard() {
                           )}
 
                           <strong style={{ color: theme.colors.text.primary }}>
-                            {project.projectName}
+                            {project.project}
                           </strong>
                         </div>
 
@@ -353,10 +428,10 @@ export default function Dashboard() {
                           ) : (
                             <>
                               <div style={{ color: theme.colors.danger }}>
-                                {project.criticalFindings} Critical
+                                {project.critical} Critical
                               </div>
                               <div style={{ color: theme.colors.warning }}>
-                                {project.highFindings} High
+                                {project.high} High
                               </div>
                             </>
                           )}
