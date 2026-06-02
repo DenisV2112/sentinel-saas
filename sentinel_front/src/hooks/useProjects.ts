@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000"; // Kong Gateway
+import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 export interface Project {
     id: string;
@@ -20,11 +20,8 @@ export function useProjects(tenantId: string | null) {
         if (!tenantId) return;
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/projects?tenantId=${tenantId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: getAuthHeaders(),
             });
             if (!res.ok) throw new Error("Failed to load projects");
             const json = await res.json();
@@ -48,14 +45,9 @@ export function useProjects(tenantId: string | null) {
         if (!tenantId) throw new Error("No tenant selected");
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/projects`, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                    "X-Tenant-Id": tenantId,
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(data),
             });
             if (!res.ok) throw new Error("Failed to create project");
@@ -73,13 +65,9 @@ export function useProjects(tenantId: string | null) {
     const updateProject = async (projectId: string, data: { name: string; description?: string }) => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/projects/${projectId}`, {
                 method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(data),
             });
             if (!res.ok) throw new Error("Failed to update project");
@@ -97,12 +85,9 @@ export function useProjects(tenantId: string | null) {
     const deleteProject = async (projectId: string) => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/projects/${projectId}`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: getAuthHeaders(),
             });
             if (!res.ok) throw new Error("Failed to delete project");
             setProjects(projects.filter(p => p.id !== projectId));
@@ -114,5 +99,7 @@ export function useProjects(tenantId: string | null) {
         }
     };
 
-    return { projects, loading, error, createProject, updateProject, deleteProject, refetch: fetchProjects };
+    const projectsMap = new Map(projects.map(p => [p.id, p] as [string, Project]));
+
+    return { projects, projectsMap, loading, error, createProject, updateProject, deleteProject, refetch: fetchProjects };
 }

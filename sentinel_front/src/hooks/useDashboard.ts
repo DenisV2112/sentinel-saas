@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 /* ======================================================
    COMMON
@@ -45,12 +44,8 @@ export function useDashboardSummary(): ApiState<DashboardSummary | null> {
     const fetchSummary = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("accessToken");
         const res = await fetch(`${API}/api/bff/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
         });
         if (!res.ok) throw new Error("Failed to load dashboard summary");
         const json: DashboardData = await res.json();
@@ -117,12 +112,8 @@ export function useActiveScans(): ApiState<ActiveScan[]> {
     const fetchActiveScans = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("accessToken");
         const res = await fetch(`${API}/api/bff/scans?status=RUNNING`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
         });
         if (!res.ok) throw new Error("Failed to load active scans");
         const json = await res.json();
@@ -228,14 +219,10 @@ export function useRecentScans(limit = 5): ApiState<RecentScan[]> {
     const fetchRecentScans = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("accessToken");
         const res = await fetch(
           `${API}/api/bff/scans?size=${limit}&sort=createdAt,desc`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
           }
         );
         if (!res.ok) throw new Error("Failed to load recent scans");
@@ -288,10 +275,38 @@ export function useTopRiskProjects(): ApiState<TopRiskProject[]> {
     const fetchTopRisk = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API}/api/dashboard/top-risk-projects`);
-        if (!res.ok) throw new Error("Failed to load top risk projects");
+        // Compute client-side from scan results rather than depending on backend endpoint
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${API}/api/bff/scans?size=100&sort=createdAt,desc`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!res.ok) throw new Error("Failed to load scans for risk analysis");
         const json = await res.json();
-        if (mounted) setData(json);
+        const scans = json.content ?? json.items ?? json ?? [];
+
+        // Aggregate risk by project from completed scans with findings
+        const projectRisk: Record<string, { project: string; critical: number; high: number }> = {};
+
+        for (const scan of scans) {
+          if (scan.status !== "COMPLETED") continue;
+          const projectName = scan.projectName ?? scan.project ?? "Unknown";
+          if (!projectRisk[projectName]) {
+            projectRisk[projectName] = { project: projectName, critical: 0, high: 0 };
+          }
+          // Count from scan-level severity counts if available
+          if (scan.criticalCount) projectRisk[projectName].critical += Number(scan.criticalCount);
+          if (scan.highCount) projectRisk[projectName].high += Number(scan.highCount);
+        }
+
+        // Sort by (critical * 2 + high) descending, take top 5
+        const ranked = Object.values(projectRisk)
+          .sort((a, b) => (b.critical * 2 + b.high) - (a.critical * 2 + a.high))
+          .slice(0, 5);
+
+        if (mounted) setData(ranked);
       } catch (e: any) {
         if (mounted) setError(e.message);
       } finally {

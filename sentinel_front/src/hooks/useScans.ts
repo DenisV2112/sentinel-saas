@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { getScans, startScan, getScan } from '../api/scans.api';
 
 export interface ScanRequest {
@@ -24,8 +24,10 @@ export const useScans = () => {
     const [scans, setScans] = useState<Scan[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const lastTenantIdRef = useRef<string | null>(null);
 
     const fetchScans = async (tenantId: string) => {
+        lastTenantIdRef.current = tenantId;
         setLoading(true);
         setError(null);
         try {
@@ -39,17 +41,16 @@ export const useScans = () => {
         }
     };
 
-    const startScanFn = async (request: ScanRequest, tenantId: string) => {
+    const refetchScans = async () => {
+        if (lastTenantIdRef.current) {
+            await fetchScans(lastTenantIdRef.current);
+        }
+    };
+
+    const startScanFn = async (request: ScanRequest, _tenantId?: string) => {
         setLoading(true);
         setError(null);
         try {
-            const userId = localStorage.getItem('userId');
-
-            if (!userId) {
-                alert('DEBUG ERROR: User ID not found in localStorage. Please Logout and Login again.');
-                console.error('User ID missing');
-            }
-
             // Map frontend request to backend DTO
             const backendRequest = {
                 type: request.scanType,
@@ -58,7 +59,7 @@ export const useScans = () => {
                 projectId: request.projectId,
             };
 
-            const response = await startScan(backendRequest, tenantId, userId || '');
+            const response = await startScan(backendRequest);
             return response.data;
         } catch (err: any) {
             console.error('Failed to start scan:', err);
@@ -89,6 +90,7 @@ export const useScans = () => {
         loading,
         error,
         fetchScans,
+        refetchScans,
         startScan: startScanFn,
         getScan: getScanById,
     };

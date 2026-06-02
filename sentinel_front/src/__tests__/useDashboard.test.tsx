@@ -264,4 +264,49 @@ describe('useRecentScans', () => {
     expect(result.current.error).toBe('Failed to load recent scans');
     expect(result.current.data).toHaveLength(0);
   });
+
+  it('sends X-Tenant-Id header when tenantId is in localStorage', async () => {
+    localStorage.setItem('tenantId', 'tenant-uuid-123');
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ content: [] }),
+    });
+
+    renderHook(() => useRecentScans(3));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'X-Tenant-Id': 'tenant-uuid-123',
+        }),
+      }),
+    );
+  });
+
+  it('does NOT send X-Tenant-Id header when tenantId is absent', async () => {
+    // Ensure tenantId is NOT in localStorage
+    localStorage.removeItem('tenantId');
+    expect(localStorage.getItem('tenantId')).toBeNull();
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ content: [] }),
+    });
+
+    renderHook(() => useRecentScans(3));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    const [, callOptions] = mockFetch.mock.calls[0];
+    const headers = callOptions?.headers ?? {};
+    expect(headers['X-Tenant-Id']).toBeUndefined();
+  });
 });
