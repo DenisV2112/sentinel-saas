@@ -13,6 +13,7 @@ import FindingsPage from "../../ui/pages/FindingPanel";
 import SettingsPage from "../../ui/pages/SettingsPage";
 import BillingPage from "../../ui/pages/BillingPage";
 import MockCheckoutPage from "../../ui/pages/MockCheckoutPage";
+import ScanDetailPage from "../../ui/pages/ScanDetailPage";
 import NotFoundPage from "../../ui/pages/NotFoundPage";
 
 export const router = createBrowserRouter([
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       // ====== PRIVATE PAGES ======
       { path: "dashboard", element: <Dashboard /> },
       { path: "scans", element: <ScansPage /> },
+      { path: "scans/:scanId", element: <ScanDetailPage /> },
       { path: "projects", element: <ProjectPanel /> },
       { path: "workspaces", element: <WorkspacesPage /> },
       { path: "workspaces/:id", element: <WorkspaceDetailsPage /> },
