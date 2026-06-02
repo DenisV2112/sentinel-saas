@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
 import {
@@ -57,6 +58,7 @@ function computeChartData(recentScans: any[]) {
 
 export default function ScansPage() {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [showNewScan, setShowNewScan] = useState(false);
   const [scanForm, setScanForm] = useState({
@@ -78,8 +80,8 @@ export default function ScansPage() {
     loading: recentLoading,
     error: recentError,
   } = useRecentScans(10);
-  const { projects } = useProjects(tenantId);
-  const { startScan, getScan } = useScans();
+  const { projects, projectsMap } = useProjects(tenantId);
+  const { startScan, getScan, refetchScans } = useScans();
 
   const isLoading = activeLoading || recentLoading;
   const combinedError = activeError || recentError;
@@ -97,7 +99,7 @@ export default function ScansPage() {
 
   const recentRows = ((recentScansData) ?? []).map((s) => ({
     id: s.scanId,
-    project: s.projectName,
+    project: projectsMap.get(s.projectId)?.name ?? s.projectName ?? "—",
     type: s.scanType,
     time: s.completedAt
       ? new Date(s.completedAt).toLocaleDateString("en-US", {
@@ -147,6 +149,7 @@ export default function ScansPage() {
         },
         tenantId || ""
       );
+      refetchScans();
       setShowNewScan(false);
       setScanForm({
         projectId: "",
@@ -160,11 +163,7 @@ export default function ScansPage() {
   };
 
   const handleViewReport = async (scanId: string) => {
-    try {
-      await getScan(scanId);
-    } catch (e: any) {
-      console.error("Failed to fetch scan details:", e);
-    }
+    navigate(`/scans/${scanId}`);
   };
 
   return (
@@ -304,6 +303,12 @@ export default function ScansPage() {
               />
             </div>
 
+            {!scanForm.projectId && (
+              <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>
+                Select a project first
+              </span>
+            )}
+
             {formError && (
               <span style={{ color: theme.colors.danger, fontSize: 13 }}>
                 {formError}
@@ -316,8 +321,11 @@ export default function ScansPage() {
                 style={{
                   background: theme.colors.primary,
                   color: theme.colors.onPrimary,
+                  opacity: !scanForm.projectId ? 0.5 : 1,
+                  cursor: !scanForm.projectId ? "not-allowed" : "pointer",
                 }}
                 onClick={handleNewScan}
+                disabled={!scanForm.projectId}
               >
                 Start New Scan
               </button>
