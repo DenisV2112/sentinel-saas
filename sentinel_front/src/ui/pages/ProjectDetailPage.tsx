@@ -4,12 +4,13 @@ import Sidebar from '@/components/commons/Sidebar';
 import { useProjects } from '@/hooks/useProjects';
 import { useScans } from '@/hooks/useScans';
 import { useTheme } from '@/utils/store/themeContext';
+import { API, getAuthHeaders } from '@/api/fetch-helpers';
 
 export const ProjectDetailPage = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { theme } = useTheme();
-    const currentTenantId = localStorage.getItem('selectedTenantId');
+    const currentTenantId = localStorage.getItem('tenantId');
 
     const { projects, loading: projectsLoading, updateProject, deleteProject } = useProjects(currentTenantId || '');
     const { scans, loading: scansLoading, fetchScans, startScan } = useScans();
@@ -18,73 +19,73 @@ export const ProjectDetailPage = () => {
     const [project, setProject] = useState<any>(null);
     const [startingScan, setStartingScan] = useState(false);
     const [loadingProject, setLoadingProject] = useState(true);
+    const [projectError, setProjectError] = useState<string | null>(null);
+    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [editName, setEditName] = useState('');
     const [editDescription, setEditDescription] = useState('');
     const [saving, setSaving] = useState(false);
 
-    // Fetch project directly if we don't have tenantId in localStorage
-    useEffect(() => {
-        const fetchProjectDirectly = async () => {
-            if (!projectId) return;
+    // Fetch project directly — centralized handler for all states
+    const fetchProjectDirectly = async () => {
+        if (!projectId) return;
 
-            try {
-                setLoadingProject(true);
-                const token = localStorage.getItem("accessToken");
-                const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        try {
+            setLoadingProject(true);
+            setProjectError(null);
+            setErrorStatus(null);
+            const res = await fetch(`${API}/api/projects/${projectId}`, {
+                headers: getAuthHeaders(),
+            });
 
-                const res = await fetch(`${API}/api/projects/${projectId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+            if (res.ok) {
+                const projectData = await res.json();
+                setProject(projectData);
 
-                if (res.ok) {
-                    const projectData = await res.json();
-                    setProject(projectData);
-
-                    // Set tenantId in localStorage for future use
-                    if (projectData.tenantId) {
-                        localStorage.setItem('selectedTenantId', projectData.tenantId);
-                        // Fetch scans for this tenant
-                        fetchScans(projectData.tenantId);
-                    }
-                } else {
-                    console.error('Failed to fetch project');
+                // Cache tenantId for future use via canonical key
+                if (projectData.tenantId) {
+                    localStorage.setItem('tenantId', projectData.tenantId);
+                    fetchScans(projectData.tenantId);
                 }
-            } catch (error) {
-                console.error('Error fetching project:', error);
-            } finally {
-                setLoadingProject(false);
+            } else {
+                setProject(null);
+                if (res.status === 404) {
+                    setProjectError('Project not found or access denied.');
+                    setErrorStatus(404);
+                } else {
+                    setProjectError(`Failed to load project (status ${res.status})`);
+                    setErrorStatus(res.status);
+                }
             }
-        };
-
-        // If we don't have currentTenantId, fetch project directly
-        if (!currentTenantId && projectId) {
-            fetchProjectDirectly();
+        } catch (error: any) {
+            setProject(null);
+            setProjectError(error.message || 'Network error. Please check your connection.');
+            setErrorStatus(null);
+        } finally {
+            setLoadingProject(false);
         }
-    }, [projectId, currentTenantId]);
+    };
 
+    // Fetch project on mount
     useEffect(() => {
-        if (projectId && currentTenantId && !projectsLoading) {
-            // Find project from loaded projects
+        fetchProjectDirectly();
+    }, [projectId]);
+
+    // Also check useProjects cache if tenantId exists
+    useEffect(() => {
+        if (projectId && currentTenantId && !projectsLoading && !project) {
             const foundProject = projects.find((p: any) => p.id === projectId);
 
             if (foundProject) {
                 setProject(foundProject);
+                setProjectError(null);
+                setErrorStatus(null);
                 setLoadingProject(false);
-                // Fetch scans for this tenant
                 fetchScans(currentTenantId);
-            } else {
-                console.error('ProjectDetailPage - Project not found!', {
-                    lookingFor: projectId,
-                    availableProjects: projects.map(p => p.id)
-                });
-                setLoadingProject(false);
             }
         }
-    }, [projectId, currentTenantId, projects, projectsLoading]);
+    }, [projectId, currentTenantId, projects, projectsLoading, project]);
 
     const [showScanModal, setShowScanModal] = useState(false);
     const [scanForm, setScanForm] = useState({
@@ -173,7 +174,8 @@ export const ProjectDetailPage = () => {
     }, [showEditModal, project]);
 
 
-    if (loadingProject || !project) {
+    // ── Loading state ──────────────────────────────────────────
+    if (loadingProject) {
         return (
             <Sidebar>
                 <div style={{
@@ -199,6 +201,106 @@ export const ProjectDetailPage = () => {
             </Sidebar>
         );
     }
+
+    // ── Error state: 404 Not Found ─────────────────────────────
+    if (projectError && errorStatus === 404) {
+        return (
+            <Sidebar>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '100vh',
+                    background: theme.colors.background,
+                    padding: 24,
+                }}>
+                    <div style={{
+                        background: theme.colors.surface,
+                        borderRadius: 12,
+                        padding: 32,
+                        maxWidth: 480,
+                        width: '100%',
+                        textAlign: 'center',
+                        border: `1px solid ${theme.colors.border}`,
+                    }}>
+                        <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0, marginBottom: 12 }}>
+                            Project not found
+                        </h2>
+                        <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                            {projectError}
+                        </p>
+                        <button
+                            onClick={() => navigate('/workspaces')}
+                            style={{
+                                padding: '10px 24px',
+                                background: theme.colors.primary,
+                                color: theme.colors.onPrimary,
+                                border: 'none',
+                                borderRadius: 8,
+                                cursor: 'pointer',
+                                fontSize: 14,
+                                fontWeight: 500,
+                            }}
+                        >
+                            ← Back to Projects
+                        </button>
+                    </div>
+                </div>
+            </Sidebar>
+        );
+    }
+
+    // ── Error state: Network / other errors ────────────────────
+    if (projectError) {
+        return (
+            <Sidebar>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '100vh',
+                    background: theme.colors.background,
+                    padding: 24,
+                }}>
+                    <div style={{
+                        background: theme.colors.surface,
+                        borderRadius: 12,
+                        padding: 32,
+                        maxWidth: 480,
+                        width: '100%',
+                        textAlign: 'center',
+                        border: `1px solid ${theme.colors.border}`,
+                    }}>
+                        <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0, marginBottom: 12 }}>
+                            Network error
+                        </h2>
+                        <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                            {projectError}
+                        </p>
+                        <button
+                            onClick={() => fetchProjectDirectly()}
+                            style={{
+                                padding: '10px 24px',
+                                background: theme.colors.primary,
+                                color: theme.colors.onPrimary,
+                                border: 'none',
+                                borderRadius: 8,
+                                cursor: 'pointer',
+                                fontSize: 14,
+                                fontWeight: 500,
+                            }}
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            </Sidebar>
+        );
+    }
+
+    // ── Project loaded: normal rendering ───────────────────────
 
     const projectScans = scans.filter((scan: any) => scan.projectId === projectId);
 
