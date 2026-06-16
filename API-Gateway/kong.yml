@@ -283,10 +283,12 @@ plugins:
         - Authorization
         - X-Auth-Token
         - X-Tenant-Id
+        - X-User-Id
         - X-Request-ID
       exposed_headers:
         - X-Auth-Token
         - X-Total-Count
+        - X-User-Id
         - X-Request-ID
       credentials: true
       max_age: 3600

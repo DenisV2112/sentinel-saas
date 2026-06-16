@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 
-@FeignClient(name = "scan-orchestrator-service", url = "${services.scanner.url:http://localhost:8086}")
+@FeignClient(name = "scan-orchestrator-service", url = "${app.services.orchestrator-url:http://scaner-orchestrator-service:8086}")
 public interface ScanClient {
 
     // Returns a Page object (Map)

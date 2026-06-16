@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000"; // Kong Gateway
+import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 type ApiState<T> = {
     data: T;
@@ -36,12 +35,8 @@ export function useWorkspaces(): ApiState<Workspace[]> {
     const fetchWorkspaces = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/bff/dashboard`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
             });
             if (!res.ok) throw new Error("Failed to load workspaces");
             const json = await res.json();
@@ -87,13 +82,9 @@ export function useCreateWorkspace() {
             setLoading(true);
             setError(null);
             setUpgradeRequired(false);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/tenants`, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     name: data.name,
                     type: "PERSONAL", // Defaulting to PERSONAL for simplified flow

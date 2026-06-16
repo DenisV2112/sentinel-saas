@@ -118,11 +118,11 @@ public class UserLimitsService {
      */
     public int getMaxTenantsForPlan(String userPlan) {
         if (userPlan == null) {
-            return 0; // FREE plan por defecto
+            return 1; // FREE plan por defecto — 1 workspace
         }
 
         return switch (userPlan.toUpperCase()) {
-            case "FREE" -> 0; // Solo puede ser invitado, no puede crear workspaces
+            case "FREE" -> 1; // 1 workspace gratuito
             case "PRO", "PROFESSIONAL" -> 3; // 3 workspaces
             case "ENTERPRISE" -> 6; // 6 workspaces
             default -> 0;
@@ -134,11 +134,11 @@ public class UserLimitsService {
      */
     public int getMaxProjectsPerTenantForPlan(String userPlan) {
         if (userPlan == null) {
-            return 0;
+            return 1; // FREE plan por defecto — 1 proyecto
         }
 
         return switch (userPlan.toUpperCase()) {
-            case "FREE" -> 0; // No puede crear proyectos
+            case "FREE" -> 1; // 1 proyecto gratuito
             case "PRO", "PROFESSIONAL" -> 6; // 6 proyectos por workspace
             case "ENTERPRISE" -> 12; // 12 proyectos por workspace
             default -> 0;
@@ -147,7 +147,7 @@ public class UserLimitsService {
 
     private int getMaxTenants(String plan) {
         return switch (plan.toUpperCase()) {
-            case "FREE" -> 0; // FREE: cannot create tenants
+            case "FREE" -> 1; // FREE: 1 tenant
             case "PROFESSIONAL" -> 3; // PROFESSIONAL: 3 tenants
             case "ENTERPRISE" -> 6; // ENTERPRISE: 6 tenants
             // Legacy plan support
@@ -159,7 +159,7 @@ public class UserLimitsService {
 
     private int getMaxProjects(String plan) {
         return switch (plan.toUpperCase()) {
-            case "FREE" -> 0; // FREE: cannot create projects
+            case "FREE" -> 1; // FREE: 1 project
             case "PROFESSIONAL" -> 6; // PROFESSIONAL: 6 projects total
             case "ENTERPRISE" -> 12; // ENTERPRISE: 12 projects total
             // Legacy plan support

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "results-aggregator-client", url = "${app.services.results-aggregator-url:http://localhost:8087}")
+@FeignClient(name = "results-aggregator-client", url = "${app.services.results-aggregator-url:http://results-aggregator-service:8087}")
 public interface ResultsAggregatorClient {
 
         @GetMapping("/api/results/{scanId}")
@@ -30,25 +30,25 @@ public interface ResultsAggregatorClient {
                         @RequestParam(required = false, value = "projectId") String projectId,
                         @RequestParam(value = "days") int days,
                         @RequestHeader("Authorization") String token,
-                        @RequestHeader("X-Tenant-Id") String tenantId);
+                        @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
 
         @GetMapping("/api/results/analytics/code-quality")
         Map<String, Object> getCodeQualityAnalytics(
                         @RequestParam(required = false, value = "projectId") String projectId,
                         @RequestParam(value = "days") int days,
                         @RequestHeader("Authorization") String token,
-                        @RequestHeader("X-Tenant-Id") String tenantId);
+                        @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
 
         @GetMapping("/api/results/analytics/compliance")
         Map<String, Object> getComplianceAnalytics(
                         @RequestParam(required = false, value = "projectId") String projectId,
                         @RequestParam(value = "standards") String standards,
                         @RequestHeader("Authorization") String token,
-                        @RequestHeader("X-Tenant-Id") String tenantId);
+                        @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
 
         @GetMapping("/api/results/analytics/top-risk-projects")
         List<Map<String, Object>> getTopRiskProjects(
                         @RequestHeader("Authorization") String token,
-                        @RequestHeader("X-Tenant-Id") String tenantId,
+                        @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId,
                         @RequestParam(defaultValue = "5") int limit);
 }

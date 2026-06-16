@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies (--ignore-scripts avoids esbuild ETXTBSY on Docker Desktop Windows)
+ARG CACHE_BUST=1
 RUN npm ci --ignore-scripts
 
 # Copy source code

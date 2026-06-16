@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "project-client", url = "${app.services.project-url:http://localhost:8083}")
+@FeignClient(name = "project-client", url = "${app.services.project-url:http://project-service:8083}")
 public interface ProjectClient {
 
         @GetMapping("/api/projects")
-        Page<ProjectDto> listProjects(
-                        Pageable pageable,
+        List<ProjectDto> listProjects(
                         @RequestHeader("Authorization") String token,
-                        @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
+                        @RequestParam("tenantId") String tenantId);
 
         @GetMapping("/api/projects/{projectId}")
         ProjectDto getProjectDetails(
@@ -51,14 +50,4 @@ public interface ProjectClient {
                         @PathVariable String projectId,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
-
-        // Legacy method for Dashboard (compatibility)
-        @GetMapping("/api/projects")
-        List<Map<String, Object>> getMyProjects(@RequestHeader("Authorization") String token);
-
-        // New method for tenant-specific projects
-        @GetMapping("/api/projects")
-        List<Map<String, Object>> getProjectsByTenant(
-                        @RequestHeader("Authorization") String token,
-                        @RequestParam("tenantId") String tenantId);
 }

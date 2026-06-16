@@ -1,0 +1,111 @@
+# =============================================================================
+# ROOT .dockerignore — Sentinel Deployment
+# Optimiza el build context para docker-compose y builds desde raíz.
+# =============================================================================
+
+# ── Git ──────────────────────────────────────────────────────────────────
+.git/
+.gitattributes
+.gitmodules
+.gitignore
+
+# ── IDE / Editor ─────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+*~
+
+# ── OS junk ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ── Env files (keep templates, ignore real ones) ────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ── Logs & temp ─────────────────────────────────────────────────────────
+*.log
+*.pid
+*.seed
+*.pid.lock
+tmp/
+temp/
+logs/
+
+# ── Scripts (one-off, not part of deployment) ────────────────────────────
+add_logging_limits.py
+add-logging.ps1
+
+# ── GitHub (workflows stay for reference, not needed in image) ───────────
+.github/
+
+# ── Engram / ATL artifacts (not needed in Docker) ────────────────────────
+.atl/
+
+# ── Compose files (not needed inside containers) ─────────────────────────
+docker-compose*.yml
+docker-compose*.yaml
+
+# ── Documentation ────────────────────────────────────────────────────────
+*.md
+!README.md
+
+# ── Node (frontend handled by sentinel_front/.dockerignore) ──────────────
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# ── Java / Maven ─────────────────────────────────────────────────────────
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# ── .NET ─────────────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+TestResults/
+packages/
+
+# ── Python ───────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ── Docker ───────────────────────────────────────────────────────────────
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+docker-compose*.yaml

@@ -82,19 +82,22 @@ public class BillingProxyController {
             return ResponseEntity.ok(subscription);
         } catch (feign.FeignException e) {
             if (e.status() == 404) {
-                // No subscription found - return empty/default
                 return ResponseEntity.ok(Map.of(
                         "plan", "FREE",
                         "status", "ACTIVE",
                         "message", "No paid subscription - using FREE plan"));
             }
-            log.error("❌ Error fetching subscription: {} {}", e.status(), e.getMessage());
-            return ResponseEntity.status(e.status())
-                    .body(Map.of("error", "Failed to fetch subscription", "message", e.getMessage()));
+            log.warn("⚠️ Billing service unavailable ({}), returning FREE plan default", e.status());
+            return ResponseEntity.ok(Map.of(
+                    "plan", "FREE",
+                    "status", "ACTIVE",
+                    "message", "Billing service temporarily unavailable"));
         } catch (Exception e) {
-            log.error("❌ Unexpected error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Internal server error", "message", e.getMessage()));
+            log.warn("⚠️ Billing service unreachable, returning FREE plan default: {}", e.getMessage());
+            return ResponseEntity.ok(Map.of(
+                    "plan", "FREE",
+                    "status", "ACTIVE",
+                    "message", "Billing service temporarily unavailable"));
         }
     }
 
@@ -193,8 +196,17 @@ public class BillingProxyController {
     @GetMapping("/payments-history/me")
     public ResponseEntity<?> getPaymentHistory(@RequestHeader(value = "Authorization", required = false) String token) {
         log.info("💰 BFF: Getting user's payment history...");
-        // Return empty list - no payment history yet
-        return ResponseEntity.ok(List.of());
+        try {
+            String userId = jwtUtils.extractUserId(token != null ? token : "");
+            if (userId == null) {
+                return ResponseEntity.ok(List.of());
+            }
+            List<Map<String, Object>> history = billingClient.getPaymentHistory(token, userId);
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            log.error("❌ Error fetching payment history", e);
+            return ResponseEntity.ok(List.of());
+        }
     }
 
     /**

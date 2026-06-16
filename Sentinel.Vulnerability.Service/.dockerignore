@@ -1,0 +1,17 @@
+# .NET service .dockerignore
+bin/
+obj/
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.user
+*.suo
+*.log
+.vs/
+.DS_Store
+Dockerfile
+.dockerignore
+TestResults/
+packages/

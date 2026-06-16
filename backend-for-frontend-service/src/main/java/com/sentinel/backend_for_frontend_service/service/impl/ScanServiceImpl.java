@@ -5,6 +5,7 @@ import com.sentinel.backend_for_frontend_service.client.ResultsAggregatorClient;
 import com.sentinel.backend_for_frontend_service.dto.ScanRequestDto;
 import com.sentinel.backend_for_frontend_service.dto.ScanResponseDto;
 import com.sentinel.backend_for_frontend_service.service.ScanService;
+import com.sentinel.backend_for_frontend_service.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,13 +25,26 @@ public class ScanServiceImpl implements ScanService {
 
     private final OrchestratorClient orchestratorClient;
     private final ResultsAggregatorClient resultsAggregatorClient;
+    private final JwtUtils jwtUtils;
 
     @Override
     public ScanResponseDto requestScan(ScanRequestDto requestDto, String token, String tenantId) {
         log.info("📋 Service: Requesting scan for project: {}", requestDto.getProjectId());
         try {
+            String userId = jwtUtils.extractUserId(token);
+            // Map BFF DTO to Orchestrator-compatible format
+            Map<String, Object> orchestrationPayload = new java.util.HashMap<>();
+            orchestrationPayload.put("projectId", requestDto.getProjectId());
+            // Use type directly from the DTO (matches frontend field name)
+            String scanType = requestDto.getType() != null
+                    ? requestDto.getType().toUpperCase()
+                    : "SAST";
+            orchestrationPayload.put("type", scanType);
+            orchestrationPayload.put("targetUrl", requestDto.getTargetUrl());
+            orchestrationPayload.put("targetRepo", requestDto.getTargetRepo());
+            orchestrationPayload.put("gitToken", requestDto.getClientGitToken());
             // Forward request to Orchestrator Service
-            Map<String, Object> response = orchestratorClient.requestScan(requestDto, token, tenantId);
+            Map<String, Object> response = orchestratorClient.requestScan(orchestrationPayload, token, tenantId, userId);
             
             return ScanResponseDto.builder()
                     .scanId((String) response.getOrDefault("scanId", UUID.randomUUID().toString()))
@@ -56,11 +70,33 @@ public class ScanServiceImpl implements ScanService {
         try {
             // Forward request to Orchestrator Service
             Page<Map<String, Object>> scans = orchestratorClient.listScans(pageable, status, type, startDate, endDate, token, tenantId);
-            return scans;
+            // REQ-NEW-5: Map orchestrator fields to frontend-friendly names
+            // targetRepo → branch, id → scanId
+            List<Map<String, Object>> mappedContent = scans.getContent().stream()
+                    .map(ScanServiceImpl::mapOrchestratorFields)
+                    .toList();
+            return new PageImpl<>(mappedContent, pageable, scans.getTotalElements());
         } catch (Exception e) {
             log.error("Error listing scans", e);
             return new PageImpl<>(List.of(), pageable, 0);
         }
+    }
+
+    /**
+     * Maps orchestrator field names to frontend-friendly field names.
+     * targetRepo → branch, id → scanId. All other fields pass through unchanged.
+     */
+    static Map<String, Object> mapOrchestratorFields(Map<String, Object> orchestratorFields) {
+        Map<String, Object> mapped = new java.util.HashMap<>(orchestratorFields);
+        // Rename targetRepo → branch
+        if (mapped.containsKey("targetRepo")) {
+            mapped.put("branch", mapped.remove("targetRepo"));
+        }
+        // Rename id → scanId
+        if (mapped.containsKey("id")) {
+            mapped.put("scanId", mapped.remove("id"));
+        }
+        return mapped;
     }
 
     @Override

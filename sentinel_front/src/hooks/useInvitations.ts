@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 export interface Invitation {
     id: string;
@@ -20,11 +19,8 @@ export function useInvitations(tenantId: string | null) {
         if (!tenantId) return;
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/tenants/${tenantId}/invitations`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: getAuthHeaders(),
             });
             if (!res.ok) throw new Error("Failed to load invitations");
             const json = await res.json();
@@ -44,17 +40,13 @@ export function useInvitations(tenantId: string | null) {
         if (!tenantId) throw new Error("No tenant selected");
         try {
             setLoading(true);
-            const token = localStorage.getItem("accessToken");
             const body: any = { email, role };
             if (projectIds && projectIds.length > 0) {
                 body.projectIds = projectIds;
             }
             const res = await fetch(`${API}/api/tenants/${tenantId}/invitations`, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(body),
             });
 
@@ -82,12 +74,9 @@ export function useInvitations(tenantId: string | null) {
             // Optimistic update
             setInvitations((prev) => prev.filter((inv) => inv.id !== invitationId));
 
-            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${API}/api/tenants/invitations/${invitationId}`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: getAuthHeaders(),
             });
 
             if (!res.ok) {

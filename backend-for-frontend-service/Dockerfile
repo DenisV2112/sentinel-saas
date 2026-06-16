@@ -4,6 +4,7 @@ WORKDIR /build
 
 COPY . .
 
+ARG CACHE_BUST=1
 RUN mvn clean package -DskipTests -q
 
 FROM eclipse-temurin:17-jre-alpine

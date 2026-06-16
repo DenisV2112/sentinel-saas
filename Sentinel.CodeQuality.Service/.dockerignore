@@ -1,0 +1,17 @@
+# .NET service .dockerignore — build context ~2 MB (sin bin/obj ni IDE files)
+bin/
+obj/
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.user
+*.suo
+*.log
+.vs/
+.DS_Store
+Dockerfile
+.dockerignore
+TestResults/
+packages/

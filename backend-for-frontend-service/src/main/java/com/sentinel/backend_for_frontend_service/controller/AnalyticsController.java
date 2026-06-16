@@ -1,5 +1,7 @@
 package com.sentinel.backend_for_frontend_service.controller;
 
+import com.sentinel.backend_for_frontend_service.client.ResultsAggregatorClient;
+import com.sentinel.backend_for_frontend_service.util.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,51 +20,55 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalyticsController {
 
-        private final com.sentinel.backend_for_frontend_service.client.ResultsAggregatorClient resultsClient;
+        private final ResultsAggregatorClient resultsClient;
+        private final JwtUtils jwtUtils;
 
-        /**
-         * Get vulnerability analytics
-         */
         @GetMapping("/vulnerabilities")
-        @Operation(summary = "Get vulnerability analytics", description = "Retrieve vulnerability trends and statistics")
+        @Operation(summary = "Get vulnerability analytics")
         public ResponseEntity<Map<String, Object>> getVulnerabilityAnalytics(
                         @RequestParam(required = false) String projectId,
                         @RequestParam(defaultValue = "30") int days,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("🛡️ BFF: Get vulnerability analytics - Days: {}, ProjectId: {}, TenantId: {}", days, projectId,
-                                tenantId);
-                return ResponseEntity
-                                .ok(resultsClient.getVulnerabilityAnalytics(projectId, days, token, tenantId));
+                log.info("🛡️ BFF: Get vulnerability analytics - Days: {}, TenantId: {}", days, tenantId);
+                try {
+                        String resolvedTenant = resolveTenantId(token, tenantId);
+                        return ResponseEntity.ok(resultsClient.getVulnerabilityAnalytics(projectId, days, token, resolvedTenant));
+                } catch (Exception e) {
+                        log.warn("⚠️ Results aggregator unavailable for vulnerability analytics: {}", e.getMessage());
+                        return ResponseEntity.ok(Map.of("data", java.util.List.of(), "message", "Analytics temporarily unavailable"));
+                }
         }
 
-        /**
-         * Get code quality analytics
-         */
         @GetMapping("/code-quality")
-        @Operation(summary = "Get code quality analytics", description = "Retrieve code quality trends and metrics")
+        @Operation(summary = "Get code quality analytics")
         public ResponseEntity<Map<String, Object>> getCodeQualityAnalytics(
                         @RequestParam(required = false) String projectId,
                         @RequestParam(defaultValue = "30") int days,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("📈 BFF: Get code quality analytics - Days: {}, ProjectId: {}, TenantId: {}", days, projectId,
-                                tenantId);
-                return ResponseEntity.ok(resultsClient.getCodeQualityAnalytics(projectId, days, token, tenantId));
+                log.info("📈 BFF: Get code quality analytics");
+                String resolvedTenant = resolveTenantId(token, tenantId);
+                return ResponseEntity.ok(resultsClient.getCodeQualityAnalytics(projectId, days, token, resolvedTenant));
         }
 
-        /**
-         * Get compliance analytics
-         */
         @GetMapping("/compliance")
-        @Operation(summary = "Get compliance analytics", description = "Retrieve compliance status and standards coverage")
+        @Operation(summary = "Get compliance analytics")
         public ResponseEntity<Map<String, Object>> getComplianceAnalytics(
                         @RequestParam(required = false) String projectId,
                         @RequestParam(defaultValue = "GDPR,PCI-DSS,HIPAA") String standards,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-                log.info("✅ BFF: Get compliance analytics - Standards: {}, ProjectId: {}, TenantId: {}", standards,
-                                projectId, tenantId);
-                return ResponseEntity.ok(resultsClient.getComplianceAnalytics(projectId, standards, token, tenantId));
+                log.info("✅ BFF: Get compliance analytics");
+                String resolvedTenant = resolveTenantId(token, tenantId);
+                return ResponseEntity.ok(resultsClient.getComplianceAnalytics(projectId, standards, token, resolvedTenant));
+        }
+
+        private String resolveTenantId(String token, String headerTenantId) {
+                if (headerTenantId != null && !headerTenantId.isEmpty()) {
+                        return headerTenantId;
+                }
+                String tokenTenant = jwtUtils.extractTenantId(token);
+                return tokenTenant != null ? tokenTenant : "";
         }
 }

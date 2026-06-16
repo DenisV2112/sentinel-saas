@@ -5,17 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScanRequestDto {
     private String projectId;
-    private List<String> scanTypes;
+    private String type;
     private String targetUrl;
+    private String targetRepo;
     private String clientGitToken;
-    private String branch;
     private String commitSha;
 }

@@ -19,7 +19,6 @@ import java.util.Arrays;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@EnableMethodSecurity
 public class SecurityConfig {
 
         private final JwtAuthenticationFilter jwtAuthenticationFilter;

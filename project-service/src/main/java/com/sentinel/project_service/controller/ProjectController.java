@@ -34,7 +34,6 @@ public class ProjectController {
      * POST /api/projects
      */
     @PostMapping
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
     public ResponseEntity<ProjectDTO> createProject(
             @Valid @RequestBody CreateProjectRequest request,
             @RequestHeader("X-Tenant-Id") UUID tenantId,
@@ -49,7 +48,6 @@ public class ProjectController {
      * GET /api/projects?tenantId={id}
      */
     @GetMapping
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
     public ResponseEntity<List<ProjectDTO>> getProjects(
             @RequestParam UUID tenantId) {
         log.info("Fetching projects for tenant: {}", tenantId);
@@ -61,7 +59,7 @@ public class ProjectController {
      * GET /api/projects/{id}
      */
     @GetMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProjectDTO> getProject(@PathVariable UUID id) {
         log.info("Fetching project: {}", id);
         return ResponseEntity.ok(projectService.getProjectById(id));
@@ -72,7 +70,7 @@ public class ProjectController {
      * PUT /api/projects/{id}
      */
     @PutMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable UUID id,
             @Valid @RequestBody CreateProjectRequest request,
@@ -86,7 +84,7 @@ public class ProjectController {
      * DELETE /api/projects/{id}
      */
     @DeleteMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteProject(
             @PathVariable UUID id,
             @RequestHeader("X-User-Id") UUID userId) {
@@ -100,7 +98,7 @@ public class ProjectController {
      * POST /api/projects/{id}/domains
      */
     @PostMapping("/{id}/domains")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<DomainDTO> addDomain(
             @PathVariable UUID id,
             @Valid @RequestBody AddDomainRequest request) {
@@ -114,7 +112,7 @@ public class ProjectController {
      * GET /api/projects/{id}/domains
      */
     @GetMapping("/{id}/domains")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<DomainDTO>> getDomains(@PathVariable UUID id) {
         log.info("Fetching domains for project: {}", id);
         return ResponseEntity.ok(domainService.getDomainsByProject(id));
@@ -125,7 +123,7 @@ public class ProjectController {
      * DELETE /api/projects/{projectId}/domains/{domainId}
      */
     @DeleteMapping("/{projectId}/domains/{domainId}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteDomain(
             @PathVariable UUID projectId,
             @PathVariable UUID domainId) {
@@ -139,7 +137,7 @@ public class ProjectController {
      * POST /api/projects/{id}/repositories
      */
     @PostMapping("/{id}/repositories")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<RepositoryDTO> addRepository(
             @PathVariable UUID id,
             @Valid @RequestBody AddRepositoryRequest request) {
@@ -153,7 +151,7 @@ public class ProjectController {
      * GET /api/projects/{id}/repositories
      */
     @GetMapping("/{id}/repositories")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<RepositoryDTO>> getRepositories(@PathVariable UUID id) {
         log.info("Fetching repositories for project: {}", id);
         return ResponseEntity.ok(repositoryService.getRepositoriesByProject(id));
@@ -164,7 +162,7 @@ public class ProjectController {
      * DELETE /api/projects/{projectId}/repositories/{repositoryId}
      */
     @DeleteMapping("/{projectId}/repositories/{repositoryId}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ROLE_AUTHENTICATED_USER')")
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteRepository(
             @PathVariable UUID projectId,
             @PathVariable UUID repositoryId) {

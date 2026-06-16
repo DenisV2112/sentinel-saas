@@ -42,11 +42,14 @@ cd auth-service-java && mvn test -Dtest=SomeTestClass   # single class
 # Single .NET service test
 cd Sentinel.CodeQuality.Service && dotnet test
 
-# Frontend lint (NO TEST RUNNER exists)
+# Frontend test (Jest 29 + @testing-library/react)
+cd sentinel_front && npm test
+
+# Frontend lint
 cd sentinel_front && npm run lint
 ```
 
-No E2E tests exist anywhere. Frontend has no test framework at all — only `lint`, `build`, `dev`, `preview`.
+Frontend uses Jest 29 + @testing-library/react with custom Vite transformer (`jest.transformer.cjs`). 2 test files: `App.test.tsx`, `useDashboard.test.tsx`. No E2E tests exist anywhere.
 
 ## Port Map
 

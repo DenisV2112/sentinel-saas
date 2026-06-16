@@ -1,0 +1,76 @@
+{
+    "name": "Scan Trigger - RabbitMQ to Scanner",
+    "nodes": [
+        {
+            "parameters": {
+                "queue": "scan-events-queue",
+                "options": {
+                    "durable": true,
+                    "arguments": {}
+                }
+            },
+            "name": "RabbitMQ Trigger",
+            "type": "n8n-nodes-base.rabbitmqTrigger",
+            "typeVersion": 1,
+            "position": [250, 300],
+            "credentials": {
+                "rabbitmq": {
+                    "id": "1",
+                    "name": "RabbitMQ Sentinel"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "functionCode": "// Extraer datos del evento de scan y preparar payload para el scanner\nconst event = items[0].json;\nconst scanId = event.scanId;\nconst scanType = (event.requestedService || 'SAST').toUpperCase();\nconst targetUrl = event.targetUrl || '';\nconst targetRepo = event.targetRepo || '';\nconst tenantId = event.tenantId || '';\n\n// Determinar a qué servicio .NET llamar según el tipo\nlet webhookUrl = '';\nlet payload = {};\n\nif (scanType === 'SAST' || scanType === 'FULL') {\n  // Code Quality Service (Semgrep)\n  webhookUrl = 'http://code-quality-service:5001/api/n8n/semgrep/result-ready';\n  payload = {\n    scanId: scanId,\n    filePath: '/mnt/semgrep/results/' + scanId + '.json',\n    projectName: 'scan-' + scanId.substring(0,8)\n  };\n} else if (scanType === 'DAST' || scanType === 'CONTAINER') {\n  // Vulnerability Service (ZAP/Trivy)\n  webhookUrl = 'http://vulnerability-service:5001/api/v1/n8n/vulnerability-ready';\n  const tool = scanType === 'CONTAINER' ? 'TRIVY' : 'ZAP';\n  payload = {\n    scanId: scanId,\n    filePath: '/mnt/vulnerability/results/' + scanId + '.json',\n    projectName: 'scan-' + scanId.substring(0,8),\n    tool: tool\n  };\n} else {\n  // Default: Security Gate Service\n  webhookUrl = 'http://security-gate-service:5001/api/scan/result';\n  payload = {\n    scanId: scanId,\n    result: 'PASS',\n    findings: []\n  };\n}\n\nreturn [{\n  json: {\n    webhookUrl: webhookUrl,\n    payload: payload,\n    scanType: scanType,\n    scanId: scanId\n  }\n}];"
+            },
+            "name": "Route Scan Type",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [450, 300]
+        },
+        {
+            "parameters": {
+                "url": "={{$json.webhookUrl}}",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": []
+                },
+                "options": {}
+            },
+            "name": "Notify Scanner Service",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [650, 300]
+        },
+        {
+            "parameters": {
+                "functionCode": "// Log del resultado\nconst result = items[0].json;\nconsole.log('Scan dispatched:', result.scanId, '->', result.scanType, '->', result.webhookUrl);\nreturn items;"
+            },
+            "name": "Log Dispatch",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [850, 300]
+        }
+    ],
+    "connections": {
+        "RabbitMQ Trigger": {
+            "main": [[{ "node": "Route Scan Type", "type": "main", "index": 0 }]]
+        },
+        "Route Scan Type": {
+            "main": [[{ "node": "Notify Scanner Service", "type": "main", "index": 0 }]]
+        },
+        "Notify Scanner Service": {
+            "main": [[{ "node": "Log Dispatch", "type": "main", "index": 0 }]]
+        }
+    },
+    "active": true,
+    "settings": {},
+    "versionId": "1",
+    "id": "2",
+    "meta": {
+        "instanceId": "sentinel-n8n"
+    },
+    "tags": []
+}

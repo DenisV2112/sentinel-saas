@@ -1,6 +1,5 @@
 package com.sentinel.auth.service;
 
-import com.sentinel.auth.client.UserManagementClient;
 import com.sentinel.auth.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -23,14 +22,13 @@ import java.util.function.Function;
 /**
  * Service responsible for generating and validating JWT tokens.
  * 
- * ✅ FIX: Consulta plan real desde user_plans table
+ * ✅ OPTIMIZADO: Plan se toma del UserEntity (sin llamada Feign bloqueante).
+ * Antes consultaba user_plans via user-management-service (10s timeout en frío).
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JWTService {
-
-    private final UserManagementClient userManagementClient;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -52,11 +50,11 @@ public class JWTService {
             extraClaims.put("email", user.getEmail());
             extraClaims.put("globalRole", user.getGlobalRole().name());
 
-            // ✅ NUEVO: Consultar plan real desde user_plans table
-            String actualPlan = getUserPlanFromDatabase(user.getId());
-            extraClaims.put("plan", actualPlan);
+            // ✅ Usar plan del UserEntity (ya en memoria, sin llamada Feign bloqueante)
+            // El plan se sincroniza async después del login si es necesario
+            extraClaims.put("plan", user.getPlan().name());
 
-            log.debug("Generated token for user {} with plan: {}", user.getId(), actualPlan);
+            log.debug("Generated token for user {} with plan: {}", user.getId(), user.getPlan().name());
 
             if (user.getTenantId() != null) {
                 extraClaims.put("tenantId", user.getTenantId().toString());
@@ -64,20 +62,6 @@ public class JWTService {
         }
 
         return generateToken(extraClaims, userDetails);
-    }
-
-    /**
-     * ✅ NUEVO: Consulta el plan real del usuario desde user_plans table
-     */
-    private String getUserPlanFromDatabase(UUID userId) {
-        try {
-            UserManagementClient.UserPlanResponse userPlan = userManagementClient.getUserPlan(userId);
-            return userPlan.plan();
-        } catch (Exception e) {
-            log.warn("Failed to fetch user plan for userId: {}. Using FREE as fallback. Error: {}",
-                    userId, e.getMessage());
-            return "FREE"; // Fallback si no existe plan o hay error
-        }
     }
 
     /**

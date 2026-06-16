@@ -1,0 +1,13 @@
+# Java service .dockerignore — build context ~500 KB (sin target ni IDE files)
+target/
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.iml
+*.log
+logs/
+.DS_Store
+Dockerfile
+.dockerignore

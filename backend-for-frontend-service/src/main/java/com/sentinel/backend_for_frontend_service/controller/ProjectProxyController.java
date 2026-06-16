@@ -31,7 +31,7 @@ public class ProjectProxyController {
         log.info("🔹 BFF: Getting projects for tenant: {}", tenantId);
 
         try {
-            List<Map<String, Object>> projects = projectClient.getProjectsByTenant(authHeader, tenantId);
+            var projects = projectClient.listProjects(authHeader, tenantId);
             log.info("✅ Found {} projects", projects.size());
             return ResponseEntity.ok(projects);
         } catch (feign.FeignException e) {

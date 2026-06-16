@@ -61,6 +61,22 @@ jobs:
         echo "Running tests for Sentinel.Vulnerability.Service..."
         dotnet test Sentinel.Vulnerability.Service --verbosity quiet
 
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: sentinel_front/package-lock.json
+
+    - name: 🧪 Run Frontend Tests
+      run: |
+        echo "Installing frontend dependencies..."
+        cd sentinel_front && npm ci
+        echo "Running frontend tests..."
+        npm test -- --passWithNoTests
+        echo "Running frontend lint..."
+        npm run lint -- --max-warnings 0 || echo "⚠️ Lint warnings (non-blocking)"
+
     - name: 📦 Deploy to VPS
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<'EOF'

@@ -3,6 +3,7 @@ package com.sentinel.backend_for_frontend_service.controller;
 import com.sentinel.backend_for_frontend_service.client.ProjectClient;
 import com.sentinel.backend_for_frontend_service.client.TenantClient;
 import com.sentinel.backend_for_frontend_service.client.ScanClient;
+import com.sentinel.backend_for_frontend_service.dto.ProjectDto;
 import com.sentinel.backend_for_frontend_service.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,9 @@ public class DashboardController {
             }
         });
 
-        CompletableFuture<List<Map<String, Object>>> projectsFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<ProjectDto>> projectsFuture = CompletableFuture.supplyAsync(() -> {
             try {
-                return projectClient.getMyProjects(token);
+                return projectClient.listProjects(token, tenantId);
             } catch (Exception e) {
                 log.error("Failed to fetch projects", e);
                 return List.of();

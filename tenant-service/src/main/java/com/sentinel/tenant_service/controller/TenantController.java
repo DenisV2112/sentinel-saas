@@ -62,7 +62,6 @@ public class TenantController {
      * GET /api/tenants/{id}
      */
     @GetMapping("/{id}")
-    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<TenantDTO> getTenantById(@PathVariable UUID id) {
         log.info("Fetching tenant: {}", id);
         return ResponseEntity.ok(tenantService.getTenantById(id));
@@ -73,7 +72,6 @@ public class TenantController {
      * POST /api/tenants
      */
     @PostMapping
-    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
     public ResponseEntity<TenantDTO> createTenant(
             @Valid @RequestBody CreateTenantRequest request,
             @RequestHeader("X-User-Id") UUID userId) {

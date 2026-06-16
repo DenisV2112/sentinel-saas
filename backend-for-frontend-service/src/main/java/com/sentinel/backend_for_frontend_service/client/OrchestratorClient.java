@@ -11,11 +11,12 @@ import java.util.Map;
 @FeignClient(name = "orchestrator-client", url = "${app.services.orchestrator-url}")
 public interface OrchestratorClient {
 
-    @PostMapping("/api/scans/request")
+    @PostMapping("/api/scans")
     Map<String, Object> requestScan(
-            @RequestBody ScanRequestDto requestDto,
+            @RequestBody Map<String, Object> requestDto,
             @RequestHeader("Authorization") String token,
-            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId);
+            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId,
+            @RequestHeader("X-User-Id") String userId);
 
     @GetMapping("/api/scans")
     Page<Map<String, Object>> listScans(

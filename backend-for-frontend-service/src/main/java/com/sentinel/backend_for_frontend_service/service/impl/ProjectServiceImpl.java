@@ -23,13 +23,13 @@ public class ProjectServiceImpl implements ProjectService {
     private final JwtUtils jwtUtils;
 
     @Override
-    public Page<ProjectDto> listProjects(Pageable pageable, String token, String tenantId) {
+    public List<ProjectDto> listProjects(String token, String tenantId) {
         log.info("📁 Service: Listing projects");
         try {
-            return projectClient.listProjects(pageable, token, tenantId);
+            return projectClient.listProjects(token, tenantId);
         } catch (Exception e) {
             log.error("Error listing projects", e);
-            return new PageImpl<>(List.of(), pageable, 0);
+            return List.of();
         }
     }
 

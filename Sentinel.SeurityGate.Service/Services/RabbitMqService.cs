@@ -24,6 +24,8 @@ namespace Sentinel.SecurityGate.Service.Services
         private IConnection? _connection;
         private IModel? _channel;
         private readonly SemaphoreSlim _channelLock = new(1, 1);
+        private const int MaxRetries = 5;
+        private bool _disposed;
 
         public RabbitMqService(
             ILogger<RabbitMqService> logger,
@@ -31,74 +33,104 @@ namespace Sentinel.SecurityGate.Service.Services
         {
             _logger = logger;
             _config = config;
-            InitializeRabbitMq();
+            // Lazy init — no connection in constructor.
+            // Connection is established on first use with retry + exponential backoff.
+        }
+
+        private void EnsureConnected()
+        {
+            if (_channel?.IsOpen == true) return;
+
+            _channelLock.Wait();
+            try
+            {
+                if (_channel?.IsOpen == true) return; // double-check
+
+                for (int attempt = 1; attempt <= MaxRetries; attempt++)
+                {
+                    try
+                    {
+                        InitializeRabbitMq();
+                        _logger.LogInformation(
+                            "RabbitMQ connected successfully (attempt {Attempt})", attempt);
+                        return;
+                    }
+                    catch (Exception ex) when (attempt < MaxRetries)
+                    {
+                        var delayMs = (int)Math.Pow(2, attempt) * 1000;
+                        _logger.LogWarning(ex,
+                            "RabbitMQ connection attempt {Attempt}/{MaxRetries} failed, retrying in {Delay}s...",
+                            attempt, MaxRetries, delayMs / 1000);
+                        Thread.Sleep(delayMs);
+                    }
+                }
+
+                // Last attempt — let it throw if it fails
+                InitializeRabbitMq();
+                _logger.LogInformation("RabbitMQ connected successfully (final attempt)");
+            }
+            finally
+            {
+                _channelLock.Release();
+            }
         }
 
         private void InitializeRabbitMq()
         {
-            try
+            var factory = new ConnectionFactory
             {
-                var factory = new ConnectionFactory
-                {
-                    HostName = _config.HostName,
-                    Port = _config.Port,
-                    UserName = _config.UserName,
-                    Password = _config.Password,
-                    VirtualHost = _config.VirtualHost,
-                    DispatchConsumersAsync = true
-                };
+                HostName = _config.HostName,
+                Port = _config.Port,
+                UserName = _config.UserName,
+                Password = _config.Password,
+                VirtualHost = _config.VirtualHost,
+                DispatchConsumersAsync = true
+            };
 
-                _connection = factory.CreateConnection();
-                _channel = _connection.CreateModel();
+            _connection = factory.CreateConnection();
+            _channel = _connection.CreateModel();
 
-                // Declarar exchanges
-                _channel.ExchangeDeclare(
-                    exchange: _config.ScanRequestExchange,
-                    type: ExchangeType.Topic,
-                    durable: true,
-                    autoDelete: false);
+            // Declarar exchanges
+            _channel.ExchangeDeclare(
+                exchange: _config.ScanRequestExchange,
+                type: ExchangeType.Topic,
+                durable: true,
+                autoDelete: false);
 
-                _channel.ExchangeDeclare(
-                    exchange: _config.ScanResultExchange,
-                    type: ExchangeType.Topic,
-                    durable: true,
-                    autoDelete: false);
+            _channel.ExchangeDeclare(
+                exchange: _config.ScanResultExchange,
+                type: ExchangeType.Topic,
+                durable: true,
+                autoDelete: false);
 
-                // Declarar queues
-                _channel.QueueDeclare(
-                    queue: _config.ScanRequestQueue,
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false);
+            // Declarar queues
+            _channel.QueueDeclare(
+                queue: _config.ScanRequestQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false);
 
-                _channel.QueueDeclare(
-                    queue: _config.ScanResultQueue,
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false);
+            _channel.QueueDeclare(
+                queue: _config.ScanResultQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false);
 
-                // Bind queues a exchanges
-                _channel.QueueBind(
-                    queue: _config.ScanRequestQueue,
-                    exchange: _config.ScanRequestExchange,
-                    routingKey: "scan.*");
+            // Bind queues a exchanges
+            _channel.QueueBind(
+                queue: _config.ScanRequestQueue,
+                exchange: _config.ScanRequestExchange,
+                routingKey: "scan.*");
 
-                _channel.QueueBind(
-                    queue: _config.ScanResultQueue,
-                    exchange: _config.ScanResultExchange,
-                    routingKey: "scan.*.*");
-
-                _logger.LogInformation("RabbitMQ inicializado correctamente");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al inicializar RabbitMQ");
-                throw;
-            }
+            _channel.QueueBind(
+                queue: _config.ScanResultQueue,
+                exchange: _config.ScanResultExchange,
+                routingKey: "scan.*.*");
         }
 
         public async Task PublishScanRequestAsync<T>(T message, string routingKey)
         {
+            EnsureConnected();
             await _channelLock.WaitAsync();
             try
             {
@@ -134,6 +166,7 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public async Task PublishScanResultAsync<T>(T message)
         {
+            EnsureConnected();
             await _channelLock.WaitAsync();
             try
             {
@@ -193,6 +226,7 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public void StartListeningForResults(Func<string, Task> messageHandler)
         {
+            EnsureConnected();
             try
             {
                 var consumer = new AsyncEventingBasicConsumer(_channel);
@@ -238,6 +272,7 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public void StartListeningForRequests(Func<string, Task> messageHandler)
         {
+            EnsureConnected();
             try
             {
                 var consumer = new AsyncEventingBasicConsumer(_channel);
@@ -278,8 +313,11 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public void Dispose()
         {
-            _channel?.Close();
-            _connection?.Close();
+            if (_disposed) return;
+            _disposed = true;
+
+            try { _channel?.Close(); } catch { }
+            try { _connection?.Close(); } catch { }
             _channel?.Dispose();
             _connection?.Dispose();
             _channelLock?.Dispose();

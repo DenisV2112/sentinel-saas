@@ -1,0 +1,13 @@
+# Java service .dockerignore
+target/
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.iml
+*.log
+logs/
+.DS_Store
+Dockerfile
+.dockerignore

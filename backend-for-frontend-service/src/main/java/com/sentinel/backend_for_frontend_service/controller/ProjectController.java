@@ -7,14 +7,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -31,13 +28,12 @@ public class ProjectController {
      * List all projects
      */
     @GetMapping
-    @Operation(summary = "List projects", description = "Retrieve paginated list of all projects for the tenant")
-    public ResponseEntity<Page<ProjectDto>> listProjects(
-            @PageableDefault(size = 20, page = 0, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+    @Operation(summary = "List projects", description = "Retrieve list of all projects for the tenant")
+    public ResponseEntity<List<ProjectDto>> listProjects(
             @RequestHeader("Authorization") String token,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
-        log.info("📁 BFF: List projects - Page: {}, Size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        return ResponseEntity.ok(projectService.listProjects(pageable, token, tenantId));
+        log.info("📁 BFF: List projects for tenant: {}", tenantId);
+        return ResponseEntity.ok(projectService.listProjects(token, tenantId));
     }
 
     /**

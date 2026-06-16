@@ -316,4 +316,68 @@ describe('ScanPanel — auto-refetch after scan creation', () => {
 
     expect(mockRefreshScans).toHaveBeenCalled();
   });
+
+  it('calls startScan with correct payload on submission', async () => {
+    mockStartScan.mockResolvedValueOnce({ id: 'new-scan', status: 'RUNNING' });
+
+    mockUseProjects.mockReturnValue({
+      projects: [
+        { id: 'p1', name: 'Project Alpha', description: '', tenantId: 't1', domainCount: 0, repoCount: 0, createdAt: '' },
+      ],
+      projectsMap: new Map([
+        ['p1', { id: 'p1', name: 'Project Alpha', description: '', tenantId: 't1', domainCount: 0, repoCount: 0, createdAt: '' }],
+      ]),
+      loading: false,
+      error: null,
+      createProject: jest.fn(),
+      updateProject: jest.fn(),
+      deleteProject: jest.fn(),
+      refetch: jest.fn(),
+    });
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /new scan/i }));
+
+    // Select a project AND choose a scan type
+    const selects = screen.getAllByRole('combobox');
+    fireEvent.change(selects[0], { target: { value: 'p1' } });
+    fireEvent.change(selects[1], { target: { value: 'DAST' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /start new scan/i }));
+
+    expect(mockStartScan).toHaveBeenCalledTimes(1);
+    expect(mockStartScan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectId: 'p1',
+        scanType: 'DAST',
+      }),
+      'tenant-1'
+    );
+  });
+
+  it('does NOT call startScan when no project is selected', () => {
+    mockUseProjects.mockReturnValue({
+      projects: [
+        { id: 'p1', name: 'Project Alpha', description: '', tenantId: 't1', domainCount: 0, repoCount: 0, createdAt: '' },
+      ],
+      projectsMap: new Map([
+        ['p1', { id: 'p1', name: 'Project Alpha', description: '', tenantId: 't1', domainCount: 0, repoCount: 0, createdAt: '' }],
+      ]),
+      loading: false,
+      error: null,
+      createProject: jest.fn(),
+      updateProject: jest.fn(),
+      deleteProject: jest.fn(),
+      refetch: jest.fn(),
+    });
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /new scan/i }));
+
+    // Do NOT select a project — try to submit anyway
+    fireEvent.click(screen.getByRole('button', { name: /start new scan/i }));
+
+    // startScan should NOT have been called (form validation blocked it)
+    expect(mockStartScan).not.toHaveBeenCalled();
+  });
 });

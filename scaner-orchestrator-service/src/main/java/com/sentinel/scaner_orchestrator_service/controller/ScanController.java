@@ -45,9 +45,16 @@ public class ScanController {
     public ResponseEntity<Page<ScanResponseDTO>> listScans(
             @RequestHeader("X-Tenant-Id") UUID tenantId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        log.info("DEBUG List scans - tenant: {}, status: {}, type: {}, startDate: {}, endDate: {}",
+                tenantId, status, type, startDate, endDate);
         return ResponseEntity.ok(scanService.getScans(tenantId,
-                PageRequest.of(page, size, Sort.by("createdAt").descending())));
+                PageRequest.of(page, size, Sort.by("createdAt").descending()),
+                status, type, startDate, endDate));
     }
 
     @GetMapping("/my-scans")

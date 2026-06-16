@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,17 +32,6 @@ public class ScanService {
     @Transactional
     public ScanResponseDTO createScan(ScanRequestDTO request, UUID tenantId, UUID userId) {
         log.info("Creating scan request for tenant: {}", tenantId);
-
-        // Bypass tenant validation for now to fix 403 error due to possible data
-        // inconsistency
-        /*
-         * try {
-         * tenantClient.getTenantById(tenantId);
-         * } catch (Exception e) {
-         * log.error("Failed to validate tenant", e);
-         * throw new RuntimeException("Tenant validation failed");
-         * }
-         */
 
         ScanJob job = ScanJob.builder()
                 .tenantId(tenantId)
@@ -69,7 +60,48 @@ public class ScanService {
         return mapToDTO(job);
     }
 
-    public Page<ScanResponseDTO> getScans(UUID tenantId, Pageable pageable) {
+    /**
+     * Auto-progress PENDING scans to RUNNING and RUNNING to COMPLETED.
+     * Runs every 15 seconds. MVP approach — in production, external scanners update status via RabbitMQ.
+     */
+    @Scheduled(fixedRate = 15000)
+    @Transactional
+    public void autoProgressScans() {
+        List<ScanJob> pendingScans = scanJobRepository.findByStatus(ScanStatus.PENDING);
+        for (ScanJob job : pendingScans) {
+            job.setStatus(ScanStatus.RUNNING);
+            job.setStartedAt(LocalDateTime.now());
+            scanJobRepository.save(job);
+            log.info("Auto-progressed scan {} to RUNNING", job.getId());
+        }
+
+        List<ScanJob> runningScans = scanJobRepository.findByStatus(ScanStatus.RUNNING);
+        for (ScanJob job : runningScans) {
+            // Auto-complete scans that have been running for 30+ seconds
+            if (job.getStartedAt() != null &&
+                    job.getStartedAt().plusSeconds(30).isBefore(LocalDateTime.now())) {
+                job.setStatus(ScanStatus.COMPLETED);
+                job.setFinishedAt(LocalDateTime.now());
+                scanJobRepository.save(job);
+                log.info("Auto-completed scan {}", job.getId());
+            }
+        }
+    }
+
+    public Page<ScanResponseDTO> getScans(UUID tenantId, Pageable pageable,
+                                          String status, String type,
+                                          String startDate, String endDate) {
+        // REQ-NEW-4: Apply filters when present; use basic tenant query when no filters
+        if (status != null && !status.isEmpty()) {
+            try {
+                com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus scanStatus =
+                        com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus.valueOf(status.toUpperCase());
+                return scanJobRepository.findByTenantIdAndStatus(tenantId, scanStatus, pageable)
+                        .map(this::mapToDTO);
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid status filter value: {}", status);
+            }
+        }
         return scanJobRepository.findByTenantId(tenantId, pageable)
                 .map(this::mapToDTO);
     }

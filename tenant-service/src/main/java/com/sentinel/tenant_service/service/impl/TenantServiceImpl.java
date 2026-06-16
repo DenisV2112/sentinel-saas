@@ -64,12 +64,9 @@ public class TenantServiceImpl implements TenantService {
             }
         }
 
-        // ✅ NUEVO: Validar que el usuario NO tenga plan FREE
+        // ✅ Validar límite de tenants según plan del usuario (FREE plan allowed with 1 tenant limit)
         String userPlan = userLimitsService.getUserPlan(userId);
-        if ("FREE".equalsIgnoreCase(userPlan)) {
-            throw new PlanUpgradeRequiredException(
-                    "Free plan users cannot create workspaces. Please upgrade to BASIC, PRO or ENTERPRISE plan to create your own workspace.");
-        }
+        log.info("User {} plan: {} — checking tenant limits", userId, userPlan);
 
         // ✅ Validar límite de tenants según plan del usuario
         LimitValidationResponse limitResponse = userLimitsService.validateUserTenantLimit(userId);

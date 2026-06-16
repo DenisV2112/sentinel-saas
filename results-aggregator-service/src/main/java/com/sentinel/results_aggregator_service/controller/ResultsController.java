@@ -26,7 +26,8 @@ public class ResultsController {
     public ResponseEntity<Map<String, Object>> getVulnerabilityAnalytics(
             @RequestParam(required = false) String projectId,
             @RequestParam(defaultValue = "30") int days,
-            @RequestHeader("X-Tenant-Id") UUID tenantId) {
+            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantIdStr) {
+        UUID tenantId = parseTenantId(tenantIdStr);
         return ResponseEntity.ok(resultsService.getVulnerabilityAnalytics(tenantId, projectId, days));
     }
 
@@ -34,7 +35,8 @@ public class ResultsController {
     public ResponseEntity<Map<String, Object>> getCodeQualityAnalytics(
             @RequestParam(required = false) String projectId,
             @RequestParam(defaultValue = "30") int days,
-            @RequestHeader("X-Tenant-Id") UUID tenantId) {
+            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantIdStr) {
+        UUID tenantId = parseTenantId(tenantIdStr);
         return ResponseEntity.ok(resultsService.getCodeQualityAnalytics(tenantId, projectId, days));
     }
 
@@ -42,14 +44,27 @@ public class ResultsController {
     public ResponseEntity<Map<String, Object>> getComplianceAnalytics(
             @RequestParam(required = false) String projectId,
             @RequestParam(defaultValue = "GDPR") String standards,
-            @RequestHeader("X-Tenant-Id") UUID tenantId) {
+            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantIdStr) {
+        UUID tenantId = parseTenantId(tenantIdStr);
         return ResponseEntity.ok(resultsService.getComplianceAnalytics(tenantId, projectId, standards));
     }
 
     @GetMapping("/analytics/top-risk-projects")
     public ResponseEntity<List<Map<String, Object>>> getTopRiskProjects(
-            @RequestHeader("X-Tenant-Id") UUID tenantId,
+            @RequestHeader(value = "X-Tenant-Id", required = false) String tenantIdStr,
             @RequestParam(defaultValue = "5") int limit) {
+        UUID tenantId = parseTenantId(tenantIdStr);
         return ResponseEntity.ok(resultsService.getTopRiskProjects(tenantId, limit));
+    }
+
+    private UUID parseTenantId(String tenantIdStr) {
+        if (tenantIdStr == null || tenantIdStr.isEmpty()) {
+            return UUID.randomUUID(); // Fallback — won't match but won't crash
+        }
+        try {
+            return UUID.fromString(tenantIdStr);
+        } catch (IllegalArgumentException e) {
+            return UUID.randomUUID();
+        }
     }
 }
