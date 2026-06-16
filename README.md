@@ -20,29 +20,29 @@
 
 ```
                           ┌─────────────────────────────┐
-                          │       React SPA (React 19)   │
-                          │       Vite 7 · Bulma · TS    │
+                          │       React SPA (React 19)  │
+                          │       Vite 7 · Bulma · TS   │
                           └──────────────┬──────────────┘
                                          │ :3000
                           ┌──────────────▼──────────────┐
-                          │   Kong API Gateway (:8000)   │
-                          │    Konga Admin UI (:1337)    │
+                          │   Kong API Gateway (:8000)  │
+                          │    Konga Admin UI (:1337)   │
                           └──────────────┬──────────────┘
                                          │
               ┌──────────────────────────┼──────────────────────────┐
               │                          │                          │
-     ┌────────▼────────┐       ┌────────▼────────┐       ┌────────▼────────┐
-     │  Java Backend   │       │   .NET Backend   │       │   Automation   │
-     │  8 services     │       │  3 services       │       │  n8n (:5678)   │
-     │  Spring Boot 3.4│       │  ASP.NET Core 8   │       │  Semgrep Runner│
-     │  Java 17 / Maven│       │                  │       │  (:5100)       │
-     └────────┬────────┘       └────────┬────────┘       └────────┬────────┘
+     ┌────────▼────────┐       ┌─────────▼───────┐       ┌──────────▼─────┐
+     │  Java Backend   │       │  .NET Backend   │       │   Automation   │
+     │  8 services     │       │  3 services     │       │  n8n (:5678)   │
+     │  Spring Boot 3.4│       │  ASP.NET Core 8 │       │  Semgrep Runner│
+     │  Java 17 / Maven│       │                 │       │  (:5100)       │
+     └────────┬────────┘       └─────────┬───────┘       └────────┬───────┘
               │                          │                        │
               └──────────────────────────┼────────────────────────┘
                                          │
                           ┌──────────────▼──────────────┐
-                          │    Message Queue (RabbitMQ)  │
-                          │      PostgreSQL 15 / MongoDB │
+                          │   Message Queue (RabbitMQ)  │
+                          │     PostgreSQL 15 / MongoDB │
                           └─────────────────────────────┘
 ```
 
