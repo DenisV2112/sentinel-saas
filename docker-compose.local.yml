@@ -67,10 +67,10 @@ services:
       - mongodb_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.runCommand('ping')", "--quiet"]
-      interval: 10s
-      timeout: 5s
+      interval: 15s
+      timeout: 15s
       retries: 5
-      start_period: 15s
+      start_period: 20s
     logging: *infra-logging
     deploy:
       resources:
@@ -94,11 +94,11 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping || exit 1"]
+      interval: 15s
+      timeout: 30s
+      retries: 10
+      start_period: 30s
     logging: *infra-logging
     deploy:
       resources:
@@ -354,8 +354,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -389,7 +389,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -409,8 +409,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -432,7 +432,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -452,8 +452,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -475,7 +475,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -495,8 +495,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -526,7 +526,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -546,8 +546,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -584,7 +584,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -604,8 +604,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -630,7 +630,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -650,8 +650,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -676,7 +676,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 300s
     logging: *default-logging
     deploy:
       resources:
@@ -696,8 +696,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "5000"
-      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "10000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
@@ -719,7 +719,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     logging: *default-logging
     deploy:
       resources:
@@ -748,6 +748,7 @@ services:
       RabbitMQ__Username: sentinel
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       N8n__BaseUrl: http://n8n:5678
+      JavaBFF__WebhookUrl: http://backend-for-frontend-service:8080/api/bff/scans/webhook
     ports:
       - "5001:5001"
     depends_on:

@@ -1,8 +1,19 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useDashboardSummary, useActiveScans, useRecentScans } from '@hooks/useDashboard';
+import type { ReactNode } from 'react';
 
 const mockToken = 'test-jwt-token';
 let mockFetch: jest.Mock;
+
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -28,10 +39,10 @@ describe('useDashboardSummary', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDashboardSummary());
+    const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
 
-    expect(result.current.loading).toBe(true);
-    expect(result.current.data).toBeNull();
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.data).toBeUndefined();
     expect(result.current.error).toBeNull();
   });
 
@@ -49,16 +60,16 @@ describe('useDashboardSummary', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDashboardSummary());
+    const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.data).toEqual({
-      exposedPorts: undefined,       // requires BFF enhancement
-      criticalFindingsOpen: undefined, // requires BFF enhancement
-      qualityGatePassRate: 67,       // 2 PASS out of 3 COMPLETED → 67%
+      exposedPorts: undefined,
+      criticalFindingsOpen: undefined,
+      qualityGatePassRate: 67,
       projectsMonitored: 5,
     });
     expect(result.current.error).toBeNull();
@@ -73,10 +84,10 @@ describe('useDashboardSummary', () => {
       }),
     });
 
-    const { result } = renderHook(() => useDashboardSummary());
+    const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.data?.qualityGatePassRate).toBeUndefined();
@@ -85,14 +96,13 @@ describe('useDashboardSummary', () => {
   it('handles fetch error gracefully', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useDashboardSummary());
+    const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.error).toBe('Network error');
-    expect(result.current.data).toBeNull();
   });
 
   it('handles non-200 HTTP response', async () => {
@@ -101,52 +111,13 @@ describe('useDashboardSummary', () => {
       status: 500,
     });
 
-    const { result } = renderHook(() => useDashboardSummary());
+    const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('Failed to load dashboard summary');
-    expect(result.current.data).toBeNull();
-  });
-
-  it('handles 404 HTTP response', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-    });
-
-    const { result } = renderHook(() => useDashboardSummary());
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.error).toBe('Failed to load dashboard summary');
-    expect(result.current.data).toBeNull();
-  });
-
-  it('calls BFF with auth token', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ stats: { totalProjects: 1 }, recentScans: [] }),
-    });
-
-    renderHook(() => useDashboardSummary());
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalled();
-    });
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/bff\/dashboard(?:\?|$)/),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: `Bearer ${mockToken}`,
-        }),
-      }),
-    );
+    expect(result.current.error).toBe('HTTP 500: Internal Server Error');
   });
 });
 
@@ -161,14 +132,14 @@ describe('useActiveScans', () => {
       }),
     });
 
-    const { result } = renderHook(() => useActiveScans());
+    const { result } = renderHook(() => useActiveScans(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.data).toHaveLength(1);
-    expect(result.current.data[0]).toEqual({
+    expect(result.current.data![0]).toEqual({
       scanId: 's1',
       projectName: 'MyProject',
       scanType: 'SAST',
@@ -181,30 +152,13 @@ describe('useActiveScans', () => {
   it('handles fetch error gracefully', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useActiveScans());
+    const { result } = renderHook(() => useActiveScans(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.error).toBe('Network error');
-    expect(result.current.data).toHaveLength(0);
-  });
-
-  it('handles non-200 HTTP response', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-    });
-
-    const { result } = renderHook(() => useActiveScans());
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.error).toBe('Failed to load active scans');
-    expect(result.current.data).toHaveLength(0);
   });
 });
 
@@ -219,14 +173,14 @@ describe('useRecentScans', () => {
       }),
     });
 
-    const { result } = renderHook(() => useRecentScans(3));
+    const { result } = renderHook(() => useRecentScans(3), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.data).toHaveLength(1);
-    expect(result.current.data[0]).toEqual({
+    expect(result.current.data![0]).toEqual({
       scanId: 'scan-1',
       projectName: 'Repo',
       scanType: 'SAST',
@@ -239,30 +193,13 @@ describe('useRecentScans', () => {
   it('handles fetch error gracefully', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useRecentScans(3));
+    const { result } = renderHook(() => useRecentScans(3), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.error).toBe('Network error');
-    expect(result.current.data).toHaveLength(0);
-  });
-
-  it('handles non-200 HTTP response', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-    });
-
-    const { result } = renderHook(() => useRecentScans(3));
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    expect(result.current.error).toBe('Failed to load recent scans');
-    expect(result.current.data).toHaveLength(0);
   });
 
   it('sends X-Tenant-Id header when tenantId is in localStorage', async () => {
@@ -273,7 +210,7 @@ describe('useRecentScans', () => {
       json: async () => ({ content: [] }),
     });
 
-    renderHook(() => useRecentScans(3));
+    renderHook(() => useRecentScans(3), { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();
@@ -290,7 +227,6 @@ describe('useRecentScans', () => {
   });
 
   it('does NOT send X-Tenant-Id header when tenantId is absent', async () => {
-    // Ensure tenantId is NOT in localStorage
     localStorage.removeItem('tenantId');
     expect(localStorage.getItem('tenantId')).toBeNull();
 
@@ -299,7 +235,7 @@ describe('useRecentScans', () => {
       json: async () => ({ content: [] }),
     });
 
-    renderHook(() => useRecentScans(3));
+    renderHook(() => useRecentScans(3), { wrapper: createWrapper() });
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();

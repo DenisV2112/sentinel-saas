@@ -37,7 +37,7 @@ export default function Dashboard() {
   const { data: activeScans } = useActiveScans();
   const { data: recentScans } = useRecentScans();
   const { data: riskProjects } = useTopRiskProjects();
-  const { data: trends, loading: trendsLoading } = useVulnerabilityTrends("30d");
+  const { data: trends, isLoading: trendsLoading } = useVulnerabilityTrends("30d");
 
   return (
     <div className="app" style={{ background: theme.colors.background }}>

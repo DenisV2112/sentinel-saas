@@ -1,40 +1,55 @@
 package com.sentinel.project_service.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class RabbitMQConfig {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RabbitMQConfig.class);
+
     @Value("${project.events.exchange}")
     private String projectExchange;
+
+    private final ConnectionFactory connectionFactory;
+
+    public RabbitMQConfig(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
 
     // ========================================
     // EXCHANGES
     // ========================================
     
     @Bean
+    @Lazy(false)
     public TopicExchange projectExchange() {
         return new TopicExchange(projectExchange, true, false);
     }
 
     @Bean
+    @Lazy(false)
     public TopicExchange tenantExchange() {
         return new TopicExchange("tenant-exchange", true, false);
     }
 
     @Bean
+    @Lazy(false)
     public TopicExchange domainExchange() {
         return new TopicExchange("domain-exchange", true, false);
     }
 
     @Bean
+    @Lazy(false)
     public TopicExchange billingExchange() {
         return new TopicExchange("billing-exchange", true, false);
     }
@@ -173,5 +188,29 @@ public class RabbitMQConfig {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(jsonMessageConverter());
         return template;
+    }
+
+    // ========================================
+    // RABBIT ADMIN — ensures exchanges exist
+    // ========================================
+
+    @Bean
+    @Lazy(false)
+    public RabbitAdmin rabbitAdmin() {
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        admin.setAutoStartup(true);
+        return admin;
+    }
+
+    @PostConstruct
+    public void initExchanges() {
+        log.info("Explicitly declaring RabbitMQ exchanges...");
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        // Explicit declaration bypasses lazy bean discovery issue with spring.main.lazy-initialization=true
+        admin.declareExchange(new TopicExchange(projectExchange, true, false));
+        admin.declareExchange(new TopicExchange("tenant-exchange", true, false));
+        admin.declareExchange(new TopicExchange("domain-exchange", true, false));
+        admin.declareExchange(new TopicExchange("billing-exchange", true, false));
+        log.info("RabbitMQ exchanges declared explicitly");
     }
 }

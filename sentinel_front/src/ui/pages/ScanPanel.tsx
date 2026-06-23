@@ -72,12 +72,12 @@ export default function ScansPage() {
   const tenantId = localStorage.getItem("tenantId");
   const {
     data: activeScansData,
-    loading: activeLoading,
+    isLoading: activeLoading,
     error: activeError,
   } = useActiveScans();
   const {
     data: recentScansData,
-    loading: recentLoading,
+    isLoading: recentLoading,
     error: recentError,
   } = useRecentScans(10);
   const { projects, projectsMap } = useProjects(tenantId);

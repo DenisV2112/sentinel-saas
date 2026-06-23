@@ -1,45 +1,56 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { AppContent } from "../../App";
+import PageSkeleton from "../../ui/components/PageSkeleton";
 
-import HomePage from "../../ui/pages/HomePage";
-import AuthPage from "../../ui/pages/AuthPage";
-import Dashboard from "../../ui/pages/Dashboard";
-import ScansPage from "../../ui/pages/ScanPanel";
-import WorkspacesPage from "../../ui/pages/WorkspacesPage";
-import WorkspaceDetailsPage from "../../ui/pages/WorkspaceDetailsPage";
-import { ProjectDetailPage } from "../../ui/pages/ProjectDetailPage";
-import ProjectPanel from "../../ui/pages/ProjectPanel";
-import FindingsPage from "../../ui/pages/FindingPanel";
-import SettingsPage from "../../ui/pages/SettingsPage";
-import BillingPage from "../../ui/pages/BillingPage";
-import MockCheckoutPage from "../../ui/pages/MockCheckoutPage";
-import ScanDetailPage from "../../ui/pages/ScanDetailPage";
-import NotFoundPage from "../../ui/pages/NotFoundPage";
+// ===== LAZY-LOADED PAGES =====
+// Each page is loaded only when the user navigates to its route
+const HomePage = lazy(() => import("../../ui/pages/HomePage"));
+const AuthPage = lazy(() => import("../../ui/pages/AuthPage"));
+const Dashboard = lazy(() => import("../../ui/pages/Dashboard"));
+const ScansPage = lazy(() => import("../../ui/pages/ScanPanel"));
+const WorkspacesPage = lazy(() => import("../../ui/pages/WorkspacesPage"));
+const WorkspaceDetailsPage = lazy(() => import("../../ui/pages/WorkspaceDetailsPage"));
+const ProjectDetailPage = lazy(() =>
+  import("../../ui/pages/ProjectDetailPage").then((m) => ({ default: m.ProjectDetailPage }))
+);
+const ProjectPanel = lazy(() => import("../../ui/pages/ProjectPanel"));
+const FindingsPage = lazy(() => import("../../ui/pages/FindingPanel"));
+const SettingsPage = lazy(() => import("../../ui/pages/SettingsPage"));
+const BillingPage = lazy(() => import("../../ui/pages/BillingPage"));
+const MockCheckoutPage = lazy(() => import("../../ui/pages/MockCheckoutPage"));
+const ScanDetailPage = lazy(() => import("../../ui/pages/ScanDetailPage"));
+const NotFoundPage = lazy(() => import("../../ui/pages/NotFoundPage"));
+
+/** Wraps a lazy component in Suspense with a skeleton fallback */
+function LazyPage({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>;
+}
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <AppContent />, // Layout principal (Sidebar + Header + Outlet)
-    errorElement: <NotFoundPage />, // Error boundary
+    element: <AppContent />,
+    errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "auth", element: <AuthPage /> },
+      { index: true, element: <LazyPage><HomePage /></LazyPage> },
+      { path: "auth", element: <LazyPage><AuthPage /></LazyPage> },
 
       // ====== PRIVATE PAGES ======
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "scans", element: <ScansPage /> },
-      { path: "scans/:scanId", element: <ScanDetailPage /> },
-      { path: "projects", element: <ProjectPanel /> },
-      { path: "workspaces", element: <WorkspacesPage /> },
-      { path: "workspaces/:id", element: <WorkspaceDetailsPage /> },
-      { path: "projects/:projectId", element: <ProjectDetailPage /> },
-      { path: "findings", element: <FindingsPage /> },
-      { path: "billing", element: <BillingPage /> },
-      { path: "billing/mock-checkout", element: <MockCheckoutPage /> },
-      { path: "settings", element: <SettingsPage /> },
+      { path: "dashboard", element: <LazyPage><Dashboard /></LazyPage> },
+      { path: "scans", element: <LazyPage><ScansPage /></LazyPage> },
+      { path: "scans/:scanId", element: <LazyPage><ScanDetailPage /></LazyPage> },
+      { path: "projects", element: <LazyPage><ProjectPanel /></LazyPage> },
+      { path: "workspaces", element: <LazyPage><WorkspacesPage /></LazyPage> },
+      { path: "workspaces/:id", element: <LazyPage><WorkspaceDetailsPage /></LazyPage> },
+      { path: "projects/:projectId", element: <LazyPage><ProjectDetailPage /></LazyPage> },
+      { path: "findings", element: <LazyPage><FindingsPage /></LazyPage> },
+      { path: "billing", element: <LazyPage><BillingPage /></LazyPage> },
+      { path: "billing/mock-checkout", element: <LazyPage><MockCheckoutPage /></LazyPage> },
+      { path: "settings", element: <LazyPage><SettingsPage /></LazyPage> },
 
       // Catch-all 404
-      { path: "*", element: <NotFoundPage /> },
+      { path: "*", element: <LazyPage><NotFoundPage /></LazyPage> },
     ],
   },
 ]);

@@ -1,6 +1,7 @@
 package com.sentinel.project_service.service;
 
 import com.sentinel.project_service.client.TenantServiceClient;
+import com.sentinel.project_service.client.UserManagementServiceClient;
 import com.sentinel.project_service.dto.request.CreateProjectRequest;
 import com.sentinel.project_service.dto.response.ProjectDTO;
 import com.sentinel.project_service.entity.ProjectEntity;
@@ -39,6 +40,9 @@ class ProjectServiceImplTest {
     private TenantServiceClient tenantClient;
 
     @Mock
+    private UserManagementServiceClient userMgmtClient;
+
+    @Mock
     private ProjectEventPublisher eventPublisher;
 
     @InjectMocks
@@ -70,6 +74,8 @@ class ProjectServiceImplTest {
     @Test
     void createProject_Success() {
         // Arrange
+        when(userMgmtClient.getTenantRole(tenantId, userId)).thenReturn("TENANT_ADMIN");
+        when(tenantClient.canUserCreateProject(userId)).thenReturn(true);
         when(limitsCache.findById(tenantId)).thenReturn(Optional.of(limits));
         when(projectRepository.countByTenantIdAndStatus(tenantId, ProjectStatus.ACTIVE)).thenReturn(0L);
         when(projectRepository.save(any(ProjectEntity.class))).thenAnswer(i -> i.getArgument(0));
@@ -88,6 +94,8 @@ class ProjectServiceImplTest {
     @Test
     void createProject_ExceedsLimit() {
         // Arrange
+        when(userMgmtClient.getTenantRole(tenantId, userId)).thenReturn("TENANT_ADMIN");
+        when(tenantClient.canUserCreateProject(userId)).thenReturn(true);
         when(limitsCache.findById(tenantId)).thenReturn(Optional.of(limits));
         when(projectRepository.countByTenantIdAndStatus(tenantId, ProjectStatus.ACTIVE)).thenReturn(5L);
 

@@ -25,7 +25,7 @@ public interface TenantServiceClient {
      */
     @CircuitBreaker(name = "tenantService")
     @Retry(name = "tenantService")
-    @PostMapping("/api/tenants/{id}/resources/increment")
+    @PostMapping("/api/tenants/internal/{id}/resources/increment")
     void incrementResource(
             @PathVariable UUID id,
             @RequestParam String resource);
@@ -35,7 +35,7 @@ public interface TenantServiceClient {
      */
     @CircuitBreaker(name = "tenantService")
     @Retry(name = "tenantService")
-    @PostMapping("/api/tenants/{id}/resources/decrement")
+    @PostMapping("/api/tenants/internal/{id}/resources/decrement")
     void decrementResource(
             @PathVariable UUID id,
             @RequestParam String resource);
