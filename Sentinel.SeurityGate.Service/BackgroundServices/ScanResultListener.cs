@@ -69,32 +69,79 @@ namespace Sentinel.SecurityGate.Service.BackgroundServices
 
                 if (!string.IsNullOrEmpty(bffWebhookUrl))
                 {
-                    var notification = new
+                    try
                     {
-                        scanId = scanResult.ScanId,
-                        status = scanResult.Status.ToString(),
-                        qualityGatePassed = scanResult.QualityGatePassed,
-                        completedAt = scanResult.CompletedAt,
-                        summary = scanResult.Summary
-                    };
+                        var notification = new
+                        {
+                            scanId = scanResult.ScanId,
+                            status = scanResult.Status.ToString(),
+                            qualityGatePassed = scanResult.QualityGatePassed,
+                            completedAt = scanResult.CompletedAt,
+                            summary = scanResult.Summary
+                        };
 
-                    var jsonContent = new System.Net.Http.StringContent(
-                        JsonSerializer.Serialize(notification),
+                        var jsonContent = new System.Net.Http.StringContent(
+                            JsonSerializer.Serialize(notification),
+                            System.Text.Encoding.UTF8,
+                            "application/json");
+
+                        var response = await httpClient.PostAsync(bffWebhookUrl, jsonContent);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            _logger.LogInformation("Notificación enviada al Java BFF para ScanId: {ScanId}",
+                                scanResult.ScanId);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Error al notificar al Java BFF. Status: {StatusCode}",
+                                response.StatusCode);
+                        }
+                    }
+                    catch (Exception bffEx)
+                    {
+                        _logger.LogWarning(bffEx, "BFF webhook unreachable for ScanId: {ScanId} — continuing to orchestrator callback",
+                            scanResult.ScanId);
+                    }
+                }
+
+                // Notify orchestrator of scan completion via HTTP callback
+                var orchestratorBaseUrl = configuration["ScannerOrchestrator:BaseUrl"];
+                var orchestratorEndpointTemplate = configuration["ScannerOrchestrator:UpdateResultsEndpoint"];
+                if (!string.IsNullOrEmpty(orchestratorBaseUrl) && !string.IsNullOrEmpty(orchestratorEndpointTemplate))
+                {
+                    var orchestratorEndpoint = orchestratorEndpointTemplate.Replace("{scanId}", scanResult.ScanId.ToString());
+                    var orchestratorUrl = $"{orchestratorBaseUrl}{orchestratorEndpoint}";
+                    var orchestratorPayload = new { status = "COMPLETED" };
+                    var orchestratorJsonContent = new System.Net.Http.StringContent(
+                        JsonSerializer.Serialize(orchestratorPayload),
                         System.Text.Encoding.UTF8,
                         "application/json");
 
-                    var response = await httpClient.PostAsync(bffWebhookUrl, jsonContent);
-                    
-                    if (response.IsSuccessStatusCode)
+                    try
                     {
-                        _logger.LogInformation("Notificación enviada al Java BFF para ScanId: {ScanId}", 
+                        var orchestratorResponse = await httpClient.PostAsync(orchestratorUrl, orchestratorJsonContent);
+                        if (orchestratorResponse.IsSuccessStatusCode)
+                        {
+                            _logger.LogInformation("Orchestrator notified of completion for ScanId: {ScanId}",
+                                scanResult.ScanId);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Orchestrator returned non-success for ScanId: {ScanId}. Status: {StatusCode}",
+                                scanResult.ScanId, orchestratorResponse.StatusCode);
+                        }
+                    }
+                    catch (Exception orchEx)
+                    {
+                        _logger.LogError(orchEx, "Failed to notify orchestrator for ScanId: {ScanId} (auto-complete timeout is fallback)",
                             scanResult.ScanId);
                     }
-                    else
-                    {
-                        _logger.LogWarning("Error al notificar al Java BFF. Status: {StatusCode}", 
-                            response.StatusCode);
-                    }
+                }
+                else
+                {
+                    _logger.LogWarning("ScannerOrchestrator configuration missing — cannot notify orchestrator for ScanId: {ScanId}",
+                        scanResult.ScanId);
                 }
 
                 _logger.LogInformation("Resultado procesado exitosamente para ScanId: {ScanId}", 

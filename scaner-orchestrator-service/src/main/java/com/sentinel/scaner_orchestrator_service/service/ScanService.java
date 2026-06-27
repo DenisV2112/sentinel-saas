@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,9 @@ public class ScanService {
     private final ScanJobRepository scanJobRepository;
     private final ScanPublisher scanPublisher;
     private final TenantClient tenantClient;
+
+    @Value("${app.scan.auto-complete-timeout-seconds:300}")
+    private int autoCompleteTimeoutSeconds;
 
     @Transactional
     public ScanResponseDTO createScan(ScanRequestDTO request, UUID tenantId, UUID userId) {
@@ -77,13 +81,13 @@ public class ScanService {
 
         List<ScanJob> runningScans = scanJobRepository.findByStatus(ScanStatus.RUNNING);
         for (ScanJob job : runningScans) {
-            // Auto-complete scans that have been running for 30+ seconds
+            // Auto-complete scans that have been running for N+ seconds
             if (job.getStartedAt() != null &&
-                    job.getStartedAt().plusSeconds(30).isBefore(LocalDateTime.now())) {
+                    job.getStartedAt().plusSeconds(autoCompleteTimeoutSeconds).isBefore(LocalDateTime.now())) {
                 job.setStatus(ScanStatus.COMPLETED);
                 job.setFinishedAt(LocalDateTime.now());
                 scanJobRepository.save(job);
-                log.info("Auto-completed scan {}", job.getId());
+                log.info("Auto-completed scan {} (timeout: {}s)", job.getId(), autoCompleteTimeoutSeconds);
             }
         }
     }

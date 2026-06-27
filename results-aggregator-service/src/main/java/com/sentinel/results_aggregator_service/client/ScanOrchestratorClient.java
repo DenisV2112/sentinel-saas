@@ -12,9 +12,9 @@ import java.util.UUID;
 @FeignClient(name = "scan-orchestrator-service", url = "${app.services.scan-orchestrator-url}")
 public interface ScanOrchestratorClient {
 
-    @PutMapping("/api/scans/{id}/status")
+    @PutMapping("/api/internal/scans/{scanId}/status")
     void updateScanStatus(
-            @PathVariable("id") UUID id,
+            @PathVariable("scanId") UUID scanId,
             @RequestParam("status") ScanStatus status,
             @RequestParam(value = "reason", required = false) String reason
     // Internal call, might need security headers or use Interceptor

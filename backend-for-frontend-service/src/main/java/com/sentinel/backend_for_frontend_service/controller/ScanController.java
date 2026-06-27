@@ -3,6 +3,7 @@ package com.sentinel.backend_for_frontend_service.controller;
 import com.sentinel.backend_for_frontend_service.dto.ScanRequestDto;
 import com.sentinel.backend_for_frontend_service.dto.ScanResponseDto;
 import com.sentinel.backend_for_frontend_service.service.ScanService;
+import com.sentinel.backend_for_frontend_service.util.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,11 @@ import java.util.Map;
 public class ScanController {
 
     private final ScanService scanService;
+    private final JwtUtils jwtUtils;
+
+    private String resolveTenantId(String token, String tenantId) {
+        return (tenantId != null && !tenantId.isBlank()) ? tenantId : jwtUtils.extractTenantId(token);
+    }
 
     /**
      * Request a new scan for a project
@@ -39,7 +45,7 @@ public class ScanController {
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("📋 BFF: Request new scan for project: {}", requestDto.getProjectId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(scanService.requestScan(requestDto, token, tenantId));
+                .body(scanService.requestScan(requestDto, token, resolveTenantId(token, tenantId)));
     }
 
     /**
@@ -57,7 +63,7 @@ public class ScanController {
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("📋 BFF: List scans - Page: {}, Size: {}, Status: {}, Type: {}", 
                 pageable.getPageNumber(), pageable.getPageSize(), status, type);
-        return ResponseEntity.ok(scanService.listScans(pageable, status, type, startDate, endDate, token, tenantId));
+        return ResponseEntity.ok(scanService.listScans(pageable, status, type, startDate, endDate, token, resolveTenantId(token, tenantId)));
     }
 
     /**
@@ -70,7 +76,7 @@ public class ScanController {
             @RequestHeader("Authorization") String token,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("🔍 BFF: Get scan status: {}", scanId);
-        return ResponseEntity.ok(scanService.getScanStatus(scanId, token, tenantId));
+        return ResponseEntity.ok(scanService.getScanStatus(scanId, token, resolveTenantId(token, tenantId)));
     }
 
     /**
@@ -83,7 +89,7 @@ public class ScanController {
             @RequestHeader("Authorization") String token,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("📊 BFF: Get scan results: {}", scanId);
-        return ResponseEntity.ok(scanService.getScanResults(scanId, token, tenantId));
+        return ResponseEntity.ok(scanService.getScanResults(scanId, token, resolveTenantId(token, tenantId)));
     }
 
     /**
@@ -96,7 +102,7 @@ public class ScanController {
             @RequestHeader("Authorization") String token,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("❌ BFF: Cancel scan: {}", scanId);
-        return ResponseEntity.ok(scanService.cancelScan(scanId, token, tenantId));
+        return ResponseEntity.ok(scanService.cancelScan(scanId, token, resolveTenantId(token, tenantId)));
     }
 
     /**
@@ -110,6 +116,6 @@ public class ScanController {
             @RequestHeader("Authorization") String token,
             @RequestHeader(value = "X-Tenant-Id", required = false) String tenantId) {
         log.info("📥 BFF: Export scan results - ID: {}, Format: {}", scanId, format);
-        return ResponseEntity.ok(scanService.exportScanResults(scanId, format, token, tenantId));
+        return ResponseEntity.ok(scanService.exportScanResults(scanId, format, token, resolveTenantId(token, tenantId)));
     }
 }
