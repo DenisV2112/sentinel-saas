@@ -25,7 +25,7 @@ export interface StatCardProps {
   theme: Theme; // Recibe el objeto theme (ThemeConfig)
 }
 
-export default function StatCard({
+const StatCard = React.memo(function StatCard({
   title,
   value,
   icon: IconName,
@@ -104,4 +104,6 @@ export default function StatCard({
       )}
     </div>
   );
-}
+});
+
+export default StatCard;

@@ -1,5 +1,7 @@
+import React from "react";
+
 /** Full-page skeleton shown during lazy route loading */
-export default function PageSkeleton() {
+export default React.memo(function PageSkeleton() {
   return (
     <div className="app" style={{ minHeight: "100vh", padding: "2rem" }}>
       {/* Header skeleton */}
@@ -56,4 +58,4 @@ export default function PageSkeleton() {
       `}</style>
     </div>
   );
-}
+});

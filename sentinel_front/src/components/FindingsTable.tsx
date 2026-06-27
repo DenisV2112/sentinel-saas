@@ -40,7 +40,7 @@ const statusMap: Record<Finding['status'], string> = {
   Fixed: "fixed",
 };
 
-export default function FindingsTable({ theme, findings }: FindingsTableProps) {
+const FindingsTable = React.memo(function FindingsTable({ theme, findings }: FindingsTableProps) {
   
   // VERIFICACIÓN DE SEGURIDAD
   if (!theme || !theme.colors) {
@@ -248,4 +248,6 @@ export default function FindingsTable({ theme, findings }: FindingsTableProps) {
       )}
     </div>
   );
-}
+});
+
+export default FindingsTable;
