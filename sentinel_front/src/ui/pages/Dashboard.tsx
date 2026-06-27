@@ -18,6 +18,9 @@ import {
   Flame,
   Search,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
+import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
 
 import {
   useDashboardSummary,
@@ -33,11 +36,13 @@ import {
 export default function Dashboard() {
   const { theme } = useTheme();
 
-  const { data: summary } = useDashboardSummary();
-  const { data: activeScans } = useActiveScans();
-  const { data: recentScans } = useRecentScans();
-  const { data: riskProjects } = useTopRiskProjects();
+  const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
+  const { data: activeScans, isLoading: activeScansLoading } = useActiveScans();
+  const { data: recentScans, isLoading: recentScansLoading } = useRecentScans();
+  const { data: riskProjects, isLoading: riskLoading } = useTopRiskProjects();
   const { data: trends, isLoading: trendsLoading } = useVulnerabilityTrends("30d");
+
+  const isLoading = summaryLoading || activeScansLoading || recentScansLoading || riskLoading;
 
   const cardStyle = useMemo(
     () => ({
@@ -61,44 +66,62 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="app" style={appStyle}>
-      {/* ================= SIDEBAR ================= */}
-      <Sidebar />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="app" style={appStyle}>
+        {/* ================= SIDEBAR ================= */}
+        <Sidebar />
 
-      {/* ================= MAIN ================= */}
-      <main className="main">
-        {/* HEADER */}
-        <header
-          className="header"
-          style={headerStyle}
-        >
-          <h1 style={{ color: theme.colors.text.primary }}>Overview</h1>
+        {/* ================= MAIN ================= */}
+        <main className="main">
+          {/* HEADER */}
+          <header
+            className="header"
+            style={headerStyle}
+          >
+            <h1 style={{ color: theme.colors.text.primary }}>Overview</h1>
 
-          <div style={{ position: "relative" }}>
-            <Search
-              size={16}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: 12,
-                transform: "translateY(-50%)",
-                color: theme.colors.text.tertiary,
-              }}
-            />
-            <input
-              placeholder="Search IPs, CVEs, or Projects..."
-              style={{
-                paddingLeft: 36,
-                background: theme.colors.background,
-                borderColor: theme.colors.border,
-                color: theme.colors.text.primary,
-              }}
-            />
-          </div>
-        </header>
+            <div style={{ position: "relative" }}>
+              <Search
+                size={16}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: 12,
+                  transform: "translateY(-50%)",
+                  color: theme.colors.text.tertiary,
+                }}
+              />
+              <input
+                placeholder="Search IPs, CVEs, or Projects..."
+                style={{
+                  paddingLeft: 36,
+                  background: theme.colors.background,
+                  borderColor: theme.colors.border,
+                  color: theme.colors.text.primary,
+                }}
+              />
+            </div>
+          </header>
 
-        {/* ================= CONTENT ================= */}
-        <section className="content">
+          {/* ================= CONTENT ================= */}
+          <section className="content">
+            {isLoading ? (
+              <>
+                {/* KPI Skeletons */}
+                <div className="kpis">
+                  <CardSkeleton count={4} />
+                </div>
+                {/* Table Skeleton for recent scans */}
+                <div style={{ marginTop: 24 }}>
+                  <TableSkeleton columns={5} rows={4} />
+                </div>
+              </>
+            ) : (
+              <>
           {/* ================= KPIs ================= */}
           <div className="kpis">
             <Kpi
@@ -449,9 +472,12 @@ export default function Dashboard() {
               </section>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+              </>
+            )}
+          </section>
+          </main>
+      </div>
+    </motion.div>
   );
 }
 

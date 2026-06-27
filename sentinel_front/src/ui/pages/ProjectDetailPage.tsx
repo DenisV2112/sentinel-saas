@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/commons/Sidebar';
 import { useProjects } from '@/hooks/useProjects';
 import { useScans } from '@/hooks/useScans';
 import { useTheme } from '@/utils/store/themeContext';
-import { API, getAuthHeaders } from '@/api/fetch-helpers';
+import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { DetailSkeleton } from '@/components/commons/skeletons/DetailSkeleton';
 
 export const ProjectDetailPage = () => {
     const { projectId } = useParams<{ projectId: string }>();
@@ -12,80 +14,33 @@ export const ProjectDetailPage = () => {
     const { theme } = useTheme();
     const currentTenantId = localStorage.getItem('tenantId');
 
-    const { projects, loading: projectsLoading, updateProject, deleteProject } = useProjects(currentTenantId || '');
-    const { scans, loading: scansLoading, fetchScans, startScan } = useScans();
+    const { projects, isLoading: projectsLoading, projectsMap, updateProject, deleteProject, error, refetch } = useProjects(currentTenantId || '');
+    const { scans, isLoading: scansLoading, startScan, refetch: refetchScans } = useScans(currentTenantId);
 
     const [activeTab, setActiveTab] = useState<'overview' | 'scans' | 'domains' | 'repos'>('overview');
     const [project, setProject] = useState<any>(null);
     const [startingScan, setStartingScan] = useState(false);
-    const [loadingProject, setLoadingProject] = useState(true);
-    const [projectError, setProjectError] = useState<string | null>(null);
-    const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [editName, setEditName] = useState('');
     const [editDescription, setEditDescription] = useState('');
     const [saving, setSaving] = useState(false);
 
-    // Fetch project directly — centralized handler for all states
-    const fetchProjectDirectly = async () => {
-        if (!projectId) return;
+    // Derive project from useProjects cache
+    const cachedProject = projectsMap.get(projectId ?? '');
+    const loadingProject = projectsLoading;
+    const projectError = error;
+    const isNotFound = !loadingProject && !cachedProject && !projectError;
 
-        try {
-            setLoadingProject(true);
-            setProjectError(null);
-            setErrorStatus(null);
-            const res = await fetch(`${API}/api/projects/${projectId}`, {
-                headers: getAuthHeaders(),
-            });
+    // Fallback: use the project from the cache or the locally managed one
+    const displayProject = cachedProject ?? project;
 
-            if (res.ok) {
-                const projectData = await res.json();
-                setProject(projectData);
-
-                // Cache tenantId for future use via canonical key
-                if (projectData.tenantId) {
-                    localStorage.setItem('tenantId', projectData.tenantId);
-                    fetchScans(projectData.tenantId);
-                }
-            } else {
-                setProject(null);
-                if (res.status === 404) {
-                    setProjectError('Project not found or access denied.');
-                    setErrorStatus(404);
-                } else {
-                    setProjectError(`Failed to load project (status ${res.status})`);
-                    setErrorStatus(res.status);
-                }
-            }
-        } catch (error: any) {
-            setProject(null);
-            setProjectError(error.message || 'Network error. Please check your connection.');
-            setErrorStatus(null);
-        } finally {
-            setLoadingProject(false);
+    // When the cached project loads after initial render, sync it to local state
+    React.useEffect(() => {
+        if (cachedProject) {
+            setProject(cachedProject);
         }
-    };
-
-    // Fetch project on mount
-    useEffect(() => {
-        fetchProjectDirectly();
-    }, [projectId]);
-
-    // Also check useProjects cache if tenantId exists
-    useEffect(() => {
-        if (projectId && currentTenantId && !projectsLoading && !project) {
-            const foundProject = projects.find((p: any) => p.id === projectId);
-
-            if (foundProject) {
-                setProject(foundProject);
-                setProjectError(null);
-                setErrorStatus(null);
-                setLoadingProject(false);
-                fetchScans(currentTenantId);
-            }
-        }
-    }, [projectId, currentTenantId, projects, projectsLoading, project]);
+    }, [cachedProject]);
 
     const [showScanModal, setShowScanModal] = useState(false);
     const [scanForm, setScanForm] = useState({
@@ -98,35 +53,32 @@ export const ProjectDetailPage = () => {
         e.preventDefault();
 
         // Robust ID retrieval
-        const tenantIdToUse = currentTenantId || project?.tenantId;
+        const tenantIdToUse = currentTenantId || displayProject?.tenantId;
 
         if (!projectId) {
-            alert('Error: Project ID is missing');
+            toast.error('Project ID is missing');
             return;
         }
         if (!tenantIdToUse) {
-            alert('Error: Tenant ID is NOT found in storage OR project data. Wait for project to load.');
+            toast.error('Tenant ID not found. Wait for project to load.');
             return;
         }
 
         setStartingScan(true);
         try {
-            await startScan(
-                {
-                    projectId,
-                    scanType: scanForm.scanType,
-                    targetRepo: scanForm.repoUrl,
-                    targetUrl: scanForm.targetUrl || undefined
-                },
-                tenantIdToUse
-            );
-            alert('Scan started successfully!');
+            await startScan({
+                projectId,
+                scanType: scanForm.scanType,
+                targetRepo: scanForm.repoUrl,
+                targetUrl: scanForm.targetUrl || undefined
+            });
+            toast.success('Scan started successfully!');
             setShowScanModal(false);
             setScanForm({ repoUrl: '', targetUrl: '', scanType: 'FULL' });
-            fetchScans(tenantIdToUse); // Refresh scan list
+            refetchScans();
         } catch (error) {
             console.error(error);
-            alert('Failed to start scan (Check console for details)');
+            toast.error('Failed to start scan');
         } finally {
             setStartingScan(false);
         }
@@ -138,12 +90,14 @@ export const ProjectDetailPage = () => {
         try {
             setSaving(true);
             await updateProject(projectId, { name: editName, description: editDescription });
-            setProject({ ...project, name: editName, description: editDescription });
+            if (displayProject) {
+                setProject({ ...displayProject, name: editName, description: editDescription });
+            }
             setShowEditModal(false);
-            alert('✅ Project updated successfully!');
+            toast.success('Project updated successfully!');
         } catch (error) {
             console.error('Failed to update project:', error);
-            alert('❌ Failed to update project');
+            toast.error('Failed to update project');
         } finally {
             setSaving(false);
         }
@@ -155,11 +109,11 @@ export const ProjectDetailPage = () => {
             setSaving(true);
             await deleteProject(projectId);
             setShowDeleteModal(false);
-            alert('✅ Project deleted successfully!');
+            toast.success('Project deleted successfully!');
             navigate('/workspaces');
         } catch (error) {
             console.error('Failed to delete project:', error);
-            alert('❌ Failed to delete project');
+            toast.error('Failed to delete project');
         } finally {
             setSaving(false);
         }
@@ -167,11 +121,11 @@ export const ProjectDetailPage = () => {
 
     // Initialize edit form when modal opens
     React.useEffect(() => {
-        if (showEditModal && project) {
-            setEditName(project.name);
-            setEditDescription(project.description || '');
+        if (showEditModal && displayProject) {
+            setEditName(displayProject.name);
+            setEditDescription(displayProject.description || '');
         }
-    }, [showEditModal, project]);
+    }, [showEditModal, displayProject]);
 
 
     // ── Loading state ──────────────────────────────────────────
@@ -179,31 +133,18 @@ export const ProjectDetailPage = () => {
         return (
             <Sidebar>
                 <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     minHeight: '100vh',
-                    background: theme.colors.background
+                    background: theme.colors.background,
+                    padding: 24,
                 }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{
-                            width: 48,
-                            height: 48,
-                            border: `2px solid ${theme.colors.primary}`,
-                            borderTop: '2px solid transparent',
-                            borderRadius: '50%',
-                            margin: '0 auto',
-                            animation: 'spin 1s linear infinite'
-                        }}></div>
-                        <p style={{ marginTop: 16, color: theme.colors.text.secondary }}>Loading project...</p>
-                    </div>
+                    <DetailSkeleton rows={6} />
                 </div>
             </Sidebar>
         );
     }
 
     // ── Error state: 404 Not Found ─────────────────────────────
-    if (projectError && errorStatus === 404) {
+    if (isNotFound) {
         return (
             <Sidebar>
                 <div style={{
@@ -228,7 +169,7 @@ export const ProjectDetailPage = () => {
                             Project not found
                         </h2>
                         <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
-                            {projectError}
+                            Project not found or access denied.
                         </p>
                         <button
                             onClick={() => navigate('/workspaces')}
@@ -280,7 +221,7 @@ export const ProjectDetailPage = () => {
                             {projectError}
                         </p>
                         <button
-                            onClick={() => fetchProjectDirectly()}
+                            onClick={() => refetch()}
                             style={{
                                 padding: '10px 24px',
                                 background: theme.colors.primary,
@@ -304,9 +245,19 @@ export const ProjectDetailPage = () => {
 
     const projectScans = scans.filter((scan: any) => scan.projectId === projectId);
 
+    // Ensure displayProject exists before rendering
+    if (!displayProject) {
+        return null;
+    }
+
     return (
         <Sidebar>
-            <div style={{ minHeight: '100vh', background: theme.colors.background, padding: 24 }}>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+            >
+                <div style={{ minHeight: '100vh', background: theme.colors.background, padding: 24 }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     {/* Header */}
                     <div style={{
@@ -336,10 +287,10 @@ export const ProjectDetailPage = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
                                 <h1 style={{ fontSize: 28, fontWeight: 700, color: theme.colors.text.primary, margin: 0 }}>
-                                    {project.name}
+                                    {displayProject.name}
                                 </h1>
                                 <p style={{ color: theme.colors.text.secondary, marginTop: 8, margin: 0 }}>
-                                    {project.description || 'No description'}
+                                    {displayProject.description || 'No description'}
                                 </p>
                             </div>
                             <div style={{ display: 'flex', gap: 12 }}>
@@ -423,19 +374,19 @@ export const ProjectDetailPage = () => {
                                         <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
                                             <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Project ID</p>
                                             <p style={{ fontFamily: 'monospace', fontSize: 14, marginTop: 4, color: theme.colors.text.primary }}>
-                                                {project.id}
+                                                {displayProject.id}
                                             </p>
                                         </div>
                                         <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
                                             <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Status</p>
                                             <p style={{ fontWeight: 600, marginTop: 4, color: theme.colors.text.primary }}>
-                                                {project.status}
+                                                {displayProject.status}
                                             </p>
                                         </div>
                                         <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
                                             <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Created</p>
                                             <p style={{ fontSize: 14, marginTop: 4, color: theme.colors.text.primary }}>
-                                                {new Date(project.createdAt).toLocaleDateString()}
+                                                {new Date(displayProject.createdAt).toLocaleDateString()}
                                             </p>
                                         </div>
                                         <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
@@ -763,7 +714,7 @@ export const ProjectDetailPage = () => {
                     }}>
                         <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>Delete Project</h2>
                         <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
-                            Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
+                            Are you sure you want to delete <strong>{displayProject.name}</strong>? This action cannot be undone.
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                             <button
@@ -798,6 +749,7 @@ export const ProjectDetailPage = () => {
                     </div>
                 </div>
             )}
+            </motion.div>
         </Sidebar>
     );
 };
