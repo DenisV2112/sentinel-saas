@@ -21,17 +21,27 @@ public class PaymentsHistoryController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyPaymentsHistory(@RequestHeader("Authorization") String token) {
-        String userId = jwtUtils.extractUserId(token);
-        log.info("💰 BFF: Getting payment history for user {}", userId);
-        List<Map<String, Object>> history = billingClient.getPaymentHistory(token, userId);
-        return ResponseEntity.ok(history);
+        try {
+            String userId = jwtUtils.extractUserId(token);
+            log.info("💰 BFF: Getting payment history for user {}", userId);
+            List<Map<String, Object>> history = billingClient.getPaymentHistory(token, userId);
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            log.error("Error fetching payment history: {}", e.getMessage());
+            return ResponseEntity.ok(List.of());
+        }
     }
 
     @GetMapping
     public ResponseEntity<?> getPaymentsHistory(@RequestHeader("Authorization") String token) {
-        String userId = jwtUtils.extractUserId(token);
-        log.info("💰 BFF: Getting all payment history for user {}", userId);
-        List<Map<String, Object>> history = billingClient.getAllPaymentHistory(token, userId);
-        return ResponseEntity.ok(history);
+        try {
+            String userId = jwtUtils.extractUserId(token);
+            log.info("💰 BFF: Getting all payment history for user {}", userId);
+            List<Map<String, Object>> history = billingClient.getAllPaymentHistory(token, userId);
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            log.error("Error fetching all payment history: {}", e.getMessage());
+            return ResponseEntity.ok(List.of());
+        }
     }
 }

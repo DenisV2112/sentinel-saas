@@ -2,6 +2,7 @@ package com.sentinel.backend_for_frontend_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -35,6 +36,8 @@ public class WebSecurityConfig {
                                                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html",
                                                                 "/v3/api-docs/**")
                                                 .permitAll()
+                                                // Security Gate webhook callback (internal, no auth required)
+                                                .requestMatchers(HttpMethod.POST, "/api/bff/scans/webhook").permitAll()
                                                 .requestMatchers("/api/bff/**").permitAll() // BFF endpoints - JWT
                                                                                             // validated by Kong
                                                 .anyRequest().permitAll());

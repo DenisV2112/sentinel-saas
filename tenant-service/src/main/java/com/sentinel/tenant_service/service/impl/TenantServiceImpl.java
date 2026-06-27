@@ -117,9 +117,9 @@ public class TenantServiceImpl implements TenantService {
                 .planId(null) // Sin plan hasta que compre suscripción
                 .subscriptionStatus("PENDING") // Esperando suscripción
                 .status(TenantStatus.ACTIVE)
-                // Límites mínimos por defecto
-                .maxUsers(1)
-                .maxProjects(5)
+                // Límites según el plan del usuario
+                .maxUsers(userLimitsService.getMaxUsersForPlan(userPlan))
+                .maxProjects(userLimitsService.getMaxProjectsPerTenantForPlan(userPlan))
                 .maxDomains(0)
                 .maxRepos(0)
                 .blockchainEnabled(false)

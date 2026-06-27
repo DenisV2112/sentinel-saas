@@ -145,6 +145,20 @@ public class UserLimitsService {
         };
     }
 
+    /**
+     * ✅ Obtiene el máximo de usuarios por tenant según el plan del usuario
+     */
+    public int getMaxUsersForPlan(String userPlan) {
+        if (userPlan == null) return 1;
+
+        return switch (userPlan.toUpperCase()) {
+            case "FREE" -> 1;
+            case "PRO", "PROFESSIONAL" -> 10;
+            case "ENTERPRISE" -> 50;
+            default -> 1;
+        };
+    }
+
     private int getMaxTenants(String plan) {
         return switch (plan.toUpperCase()) {
             case "FREE" -> 1; // FREE: 1 tenant
