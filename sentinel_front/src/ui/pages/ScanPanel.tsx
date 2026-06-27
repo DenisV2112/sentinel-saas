@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
@@ -81,10 +81,39 @@ export default function ScansPage() {
     error: recentError,
   } = useRecentScans(10);
   const { projects, projectsMap } = useProjects(tenantId);
-  const { startScan, getScan, refetchScans } = useScans();
+  const { startScan, refetch } = useScans(tenantId);
 
   const isLoading = activeLoading || recentLoading;
   const combinedError = activeError || recentError;
+
+  const mainStyle = useMemo(
+    () => ({ background: theme.colors.surface }),
+    [theme.colors.surface]
+  );
+
+  const headerStyle = useMemo(
+    () => ({
+      background: theme.colors.background,
+      borderColor: theme.colors.border,
+    }),
+    [theme.colors.background, theme.colors.border]
+  );
+
+  const filtersStyle = useMemo(
+    () => ({
+      background: theme.colors.background,
+      borderColor: theme.colors.border,
+    }),
+    [theme.colors.background, theme.colors.border]
+  );
+
+  const tableWrapperStyle = useMemo(
+    () => ({
+      background: theme.colors.background,
+      borderColor: theme.colors.border,
+    }),
+    [theme.colors.background, theme.colors.border]
+  );
 
   /* ── map API data to table rows ── */
   const activeRows = ((activeScansData) ?? []).map((s) => ({
@@ -140,16 +169,13 @@ export default function ScansPage() {
       return;
     }
     try {
-      await startScan(
-        {
-          projectId: scanForm.projectId,
-          scanType: scanForm.scanType,
-          targetRepo: scanForm.targetRepo || undefined,
-          targetUrl: scanForm.targetUrl || undefined,
-        },
-        tenantId || ""
-      );
-      refetchScans();
+      await startScan({
+        projectId: scanForm.projectId,
+        scanType: scanForm.scanType,
+        targetRepo: scanForm.targetRepo || undefined,
+        targetUrl: scanForm.targetUrl || undefined,
+      });
+      refetch();
       setShowNewScan(false);
       setScanForm({
         projectId: "",
@@ -172,15 +198,12 @@ export default function ScansPage() {
 
       <main
         className="scans-main"
-        style={{ background: theme.colors.surface }}
+        style={mainStyle}
       >
         {/* HEADER */}
         <header
           className="scans-header"
-          style={{
-            background: theme.colors.background,
-            borderColor: theme.colors.border,
-          }}
+          style={headerStyle}
         >
           <h1 style={{ color: theme.colors.text.primary }}>
             Scan Management
@@ -458,10 +481,7 @@ export default function ScansPage() {
         {/* FILTERS */}
         <section
           className="filters"
-          style={{
-            background: theme.colors.background,
-            borderColor: theme.colors.border,
-          }}
+          style={filtersStyle}
         >
           <div className="search">
             <Search size={18} />
@@ -488,10 +508,7 @@ export default function ScansPage() {
         {/* TABLE */}
         <section
           className="table-wrapper"
-          style={{
-            background: theme.colors.background,
-            borderColor: theme.colors.border,
-          }}
+          style={tableWrapperStyle}
         >
           <table>
             <thead>

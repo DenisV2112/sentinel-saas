@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Sidebar from "@/components/commons/Sidebar";
 import StatCard from "@/components/StatCard"; 
 import FindingsTable, { type Finding } from "@/components/FindingsTable";
@@ -95,7 +95,7 @@ export default function FindingsPage() {
   const [showSeverityMenu, setShowSeverityMenu] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
-  const { data: rawFindings, loading, error, filter, setFilter } = useFindings();
+  const { data: rawFindings, isLoading, error, filter, setFilter } = useFindings();
 
   // VERIFICACIÓN DE SEGURIDAD: Si theme no está disponible, mostrar error visible.
   if (!theme || !theme.colors) {
@@ -154,28 +154,35 @@ export default function FindingsPage() {
     setSearch("");
   };
 
-  const layoutStyle = {
-    background: c.background, 
-  };
-  const headerStyle = {
-    background: c.surface, 
-    borderBottom: `1px solid ${c.border}`,
-  };
+  const layoutStyle = useMemo(
+    () => ({ background: c.background }),
+    [c.background]
+  );
+  const headerStyle = useMemo(
+    () => ({
+      background: c.surface,
+      borderBottom: `1px solid ${c.border}`,
+    }),
+    [c.surface, c.border]
+  );
 
   /* ─── dropdown shared style ─── */
-  const dropdownMenuStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    marginTop: 4,
-    zIndex: 50,
-    background: c.surface,
-    border: `1px solid ${c.border}`,
-    borderRadius: 8,
-    padding: 4,
-    minWidth: 150,
-    boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-  };
+  const dropdownMenuStyle: React.CSSProperties = useMemo(
+    () => ({
+      position: "absolute",
+      top: "100%",
+      left: 0,
+      marginTop: 4,
+      zIndex: 50,
+      background: c.surface,
+      border: `1px solid ${c.border}`,
+      borderRadius: 8,
+      padding: 4,
+      minWidth: 150,
+      boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+    }),
+    [c.surface, c.border]
+  );
 
   const dropdownItemStyle = (active: boolean): React.CSSProperties => ({
     padding: "6px 12px",
@@ -241,13 +248,13 @@ export default function FindingsPage() {
         {/* Scrollable Page Content */}
         <section className="page-content-scrollable content">
           {/* LOADING / ERROR STATES */}
-          {loading && (
+          {isLoading && (
             <div style={{ padding: "20px 0", color: c.text.secondary, fontSize: "0.9rem" }}>
               Loading findings from completed scans...
             </div>
           )}
 
-          {error && !loading && (
+          {error && !isLoading && (
             <div
               style={{
                 marginBottom: 16,

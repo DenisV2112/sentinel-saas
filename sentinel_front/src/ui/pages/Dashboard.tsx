@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
 import {
@@ -39,8 +39,29 @@ export default function Dashboard() {
   const { data: riskProjects } = useTopRiskProjects();
   const { data: trends, isLoading: trendsLoading } = useVulnerabilityTrends("30d");
 
+  const cardStyle = useMemo(
+    () => ({
+      background: theme.colors.surface,
+      borderColor: theme.colors.border,
+    }),
+    [theme.colors.surface, theme.colors.border]
+  );
+
+  const headerStyle = useMemo(
+    () => ({
+      background: theme.colors.surface,
+      borderBottom: `1px solid ${theme.colors.border}`,
+    }),
+    [theme.colors.surface, theme.colors.border]
+  );
+
+  const appStyle = useMemo(
+    () => ({ background: theme.colors.background }),
+    [theme.colors.background]
+  );
+
   return (
-    <div className="app" style={{ background: theme.colors.background }}>
+    <div className="app" style={appStyle}>
       {/* ================= SIDEBAR ================= */}
       <Sidebar />
 
@@ -49,10 +70,7 @@ export default function Dashboard() {
         {/* HEADER */}
         <header
           className="header"
-          style={{
-            background: theme.colors.surface,
-            borderBottom: `1px solid ${theme.colors.border}`,
-          }}
+          style={headerStyle}
         >
           <h1 style={{ color: theme.colors.text.primary }}>Overview</h1>
 
@@ -119,10 +137,7 @@ export default function Dashboard() {
               {/* Trends */}
               <section
                 className="card"
-                style={{
-                  background: theme.colors.surface,
-                  borderColor: theme.colors.border,
-                }}
+                style={cardStyle}
               >
                 <div className="card-header">
                   <div>
@@ -236,10 +251,7 @@ export default function Dashboard() {
               {/* Recent Scans */}
               <section
                 className="card"
-                style={{
-                  background: theme.colors.surface,
-                  borderColor: theme.colors.border,
-                }}
+                style={cardStyle}
               >
                 <div className="card-header">
                   <h3
@@ -310,10 +322,7 @@ export default function Dashboard() {
               {/* Active Scans */}
               <section
                 className="card"
-                style={{
-                  background: theme.colors.surface,
-                  borderColor: theme.colors.border,
-                }}
+                style={cardStyle}
               >
                 <h3
                   style={{
@@ -370,10 +379,7 @@ export default function Dashboard() {
               {/* Top Risk Projects */}
               <section
                 className="card"
-                style={{
-                  background: theme.colors.surface,
-                  borderColor: theme.colors.border,
-                }}
+                style={cardStyle}
               >
                 <h3
                   style={{
