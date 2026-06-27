@@ -1,6 +1,5 @@
-import React, { useState, RefAttributes, ForwardRefExoticComponent } from "react";
-import * as LucideIcons from "lucide-react";
-import { ChevronLeft, ChevronRight, MoreVertical, LucideProps } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, MoreVertical, ShieldAlert, AlertTriangle, CircleAlert, Info, Search, type LucideIcon } from "lucide-react";
 
 // --- 1. Definición de Tipos/Interfaces ---
 interface FindingsTableProps {
@@ -21,7 +20,7 @@ export interface Finding {
     isFixed: boolean;
 }
 interface SeverityMapItem {
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+    icon: LucideIcon;
     colorClass: string;
 }
 interface SelectedFindings {
@@ -30,10 +29,10 @@ interface SelectedFindings {
 
 // --- 2. Datos y Mapeos Tipados (Se mantienen) ---
 const severityMap: Record<Finding['severity'], SeverityMapItem> = {
-  Critical: { icon: LucideIcons.ShieldAlert, colorClass: "critical" },
-  High: { icon: LucideIcons.AlertTriangle, colorClass: "high" },
-  Medium: { icon: LucideIcons.CircleAlert, colorClass: "medium" },
-  Low: { icon: LucideIcons.Info, colorClass: "low" },
+  Critical: { icon: ShieldAlert, colorClass: "critical" },
+  High: { icon: AlertTriangle, colorClass: "high" },
+  Medium: { icon: CircleAlert, colorClass: "medium" },
+  Low: { icon: Info, colorClass: "low" },
 };
 const statusMap: Record<Finding['status'], string> = {
   Open: "open",
@@ -117,7 +116,7 @@ export default function FindingsTable({ theme, findings }: FindingsTableProps) {
               justifyContent: "center",
             }}
           >
-            <LucideIcons.Search size={28} />
+            <Search size={28} />
           </div>
           <p style={{ color: c.text.secondary, fontSize: "0.95rem", margin: 0 }}>
             No findings to display

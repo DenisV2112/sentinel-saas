@@ -1,5 +1,12 @@
 import React from 'react';
-import * as LucideIcons from "lucide-react";
+import { ArrowUp, ArrowDown, Activity, ShieldAlert, AlertTriangle, Target, Clock, type LucideIcon } from "lucide-react";
+
+const iconRegistry: Record<string, LucideIcon> = {
+  ShieldAlert,
+  AlertTriangle,
+  Target,
+  Clock,
+};
 
 // --- Interfaz de Tema Corregida para estructura plana ---
 interface Theme {
@@ -9,7 +16,7 @@ interface Theme {
 export interface StatCardProps {
   title: string;
   value: string;
-  icon: keyof typeof LucideIcons; 
+  icon: keyof typeof iconRegistry; 
   iconColor: string; 
   change: string;
   changeContext?: string;
@@ -36,7 +43,7 @@ export default function StatCard({
   // ALIAS CORRECTO: Accede directamente a theme.colors
   const c = theme.colors; 
   
-  const IconComponent = LucideIcons[IconName as keyof typeof LucideIcons];
+  const IconComponent = iconRegistry[IconName];
 
   // Estilos dinámicos
   const cardStyle = {
@@ -77,8 +84,8 @@ export default function StatCard({
         
         <div className={`stat-change stat-change-${changeType}`} style={changeClass}>
           {/* Íconos de cambio */}
-          {changeType === 'up' && <LucideIcons.ArrowUp size={14} className="change-icon" />}
-          {changeType === 'down' && <LucideIcons.ArrowDown size={14} className="change-icon" />}
+          {changeType === 'up' && <ArrowUp size={14} className="change-icon" />}
+          {changeType === 'down' && <ArrowDown size={14} className="change-icon" />}
           
           <span>{change}</span>
           {changeContext && (
@@ -92,7 +99,7 @@ export default function StatCard({
       {/* Background Chart Placeholder */}
       {hasChart && (
         <div className="chart-background">
-            <LucideIcons.Activity size={60} style={{ color: c.primary, opacity: 0.2 }} />
+            <Activity size={60} style={{ color: c.primary, opacity: 0.2 }} />
         </div>
       )}
     </div>
