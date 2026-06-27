@@ -1,7 +1,6 @@
 // src/ui/components/Button.tsx
 import { useTheme } from '../../utils/store/themeContext';
 import React from 'react';
-import { Link } from "react-router-dom";
 
 interface ButtonProps {
   text: string;
@@ -135,7 +134,7 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   // Si no tiene URL, renderiza como button
-  return (<Link to="/auth">
+  return (
     <button
       style={baseStyles}
       disabled={disabled}
@@ -145,8 +144,6 @@ export const Button: React.FC<ButtonProps> = ({
       className="sentinel-button"
     >
       {buttonContent}
-      
     </button>
-    </Link>
   );
 };
