@@ -138,7 +138,7 @@ tbody tr:hover {
 }
 
 .status.running {
-  color: #3b82f6;
+  color: var(--color-info);
   flex-direction: column;
   align-items: flex-start;
 }
@@ -154,15 +154,15 @@ tbody tr:hover {
 .progress span {
   display: block;
   height: 100%;
-  background: #3b82f6;
+  background: var(--color-info);
 }
 
 .status.success {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 .status.danger {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* ACTIONS */
@@ -321,7 +321,7 @@ tbody tr:hover {
 }
 
 .stat-value.danger {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .stat-sub {
@@ -340,18 +340,18 @@ tbody tr:hover {
 }
 
 .stat-badge.success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
 }
 
 .stat-badge.warning {
-  background: #fef9c3;
-  color: #ca8a04;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
 }
 
 .stat-badge.danger {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--color-danger);
 }
 
 /* TAGS */
@@ -375,9 +375,9 @@ tbody tr:hover {
   display: inline-block;
 }
 
-.dot.critical { background: #ef4444; }
-.dot.high { background: #f59e0b; }
-.dot.medium { background: #9ca3af; }
+.dot.critical { background: var(--color-danger); }
+.dot.high { background: var(--color-warning); }
+.dot.medium { background: var(--color-text-tertiary); }
 
 /* STATUS */
 .status {
@@ -392,22 +392,22 @@ tbody tr:hover {
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 .status.running {
   align-items: flex-start;
-  color: #eab308;
+  color: var(--color-warning);
 }
 
 .status.danger {
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .error-text {
-  color: #ef4444;
+  color: var(--color-danger);
   font-size: 12px;
 }

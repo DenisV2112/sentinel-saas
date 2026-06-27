@@ -10,6 +10,28 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function applyThemeVariables(theme: ThemeConfig) {
+  const root = document.documentElement.style;
+  const c = theme.colors;
+  root.setProperty('--color-primary', c.primary);
+  root.setProperty('--color-primary-light', c.primaryLight ?? c.primary);
+  root.setProperty('--color-primary-dark', c.primaryDark ?? c.primary);
+  root.setProperty('--color-secondary', c.secondary);
+  root.setProperty('--color-secondary-light', c.secondaryLight ?? c.secondary);
+  root.setProperty('--color-background', c.background);
+  root.setProperty('--color-surface', c.surface);
+  root.setProperty('--color-surface-light', c.surfaceLight ?? c.surface);
+  root.setProperty('--color-text-primary', c.text.primary);
+  root.setProperty('--color-text-secondary', c.text.secondary);
+  root.setProperty('--color-text-tertiary', c.text.tertiary);
+  root.setProperty('--color-border', c.border);
+  root.setProperty('--color-border-light', c.borderLight ?? c.border);
+  root.setProperty('--color-success', c.success);
+  root.setProperty('--color-warning', c.warning);
+  root.setProperty('--color-danger', c.danger);
+  root.setProperty('--color-info', c.info);
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setMode] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('theme-mode');
@@ -21,7 +43,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('theme-mode', mode);
     document.documentElement.style.colorScheme = mode;
-  }, [mode]);
+    applyThemeVariables(theme);
+  }, [mode, theme]);
 
   const toggleTheme = () => {
     setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));

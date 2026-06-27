@@ -1,16 +1,5 @@
 @import url('./assets/main.scss');
 
-:root {
-  --color-primary: #FF1B6D;
-  --color-primary-light: #FF4D8D;
-  --color-primary-dark: #CC1558;
-  --color-secondary: #1A1A1A;
-  --color-background: #0A0A0A;
-  --color-surface: #1A1A1A;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #B0B0B0;
-}
-
 * {
   margin: 0;
   padding: 0;

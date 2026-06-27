@@ -1,38 +1,11 @@
-    // Definición de variables de color (basadas en tu Tailwind config)
-    // Nota: En un proyecto real, estas variables deberían estar en un archivo de variables global.
-    :root {
-    --color-primary: #256af4;
-    --color-primary-dark: #1a4bb0;
-    --color-background-dark: #ffffff;
-    --color-surface-dark: #c6c6c6;
-    --color-border-dark: #222f49;
-    --color-text-secondary: #90a4cb;
-    --color-white: #ffffff;
-    --color-black: #000000;
-
-    // Colores de severidad y estado
-    --color-red-500: #ef4444;
-    --color-red-500-10: rgba(239, 68, 68, 0.1);
-    --color-orange-500: #f97316;
-    --color-orange-500-10: rgba(249, 115, 22, 0.1);
-    --color-yellow-500: #f59e0b;
-    --color-yellow-500-10: rgba(245, 158, 11, 0.1);
-    --color-blue-400: #60a5fa;
-    --color-blue-500-10: rgba(59, 130, 246, 0.1);
-    --color-green-400: #4ade80;
-    --color-green-500-10: rgba(34, 197, 94, 0.1);
-    --color-purple-400: #c084fc;
-    --color-purple-500-10: rgba(168, 85, 247, 0.1);
-    }
-
 .findings-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
   // Propiedades del body del HTML
   font-family: 'Inter', sans-serif;
-  color: var(--color-white);
-  background-color: #0b0f17; 
+  color: var(--color-text-primary);
+  background-color: var(--color-background); 
 }
 
 // Estilos del scrollbar (replicando los del HTML)
@@ -41,10 +14,10 @@
   height: 8px;
 }
 .findings-layout ::-webkit-scrollbar-track {
-  background: var(--color-background-dark);
+  background: var(--color-background);
 }
 .findings-layout ::-webkit-scrollbar-thumb {
-  background: var(--color-border-dark);
+  background: var(--color-border);
   border-radius: 4px;
 }
 .findings-layout ::-webkit-scrollbar-thumb:hover {
@@ -67,8 +40,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem; // px-6
-  border-bottom: 1px solid var(--color-border-dark);
-  background-color: var(--color-background-dark); 
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background); 
   position: sticky;
   top: 0;
   z-index: 10;
@@ -77,7 +50,7 @@
     font-size: 1.125rem; // text-lg
     font-weight: 700; // font-bold
     letter-spacing: -0.025em; // tracking-tight
-    color: var(--color-white);
+    color: var(--color-text-primary);
   }
 
   .header-actions {
@@ -100,9 +73,9 @@
     input {
       display: block;
       width: 16rem; 
-      background-color: var(--color-surface-dark);
-      border: 1px solid var(--color-border-dark);
-      color: var(--color-white);
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
       font-size: 0.875rem; 
       border-radius: 0.5rem; 
       padding: 0.5rem 0.625rem 0.5rem 2.5rem; 
@@ -131,8 +104,8 @@
     cursor: pointer;
 
     &:hover {
-      color: var(--color-white);
-      background-color: var(--color-surface-dark);
+      color: var(--color-text-primary);
+      background-color: var(--color-surface);
     }
 
     .notification-dot {
@@ -141,9 +114,9 @@
       right: 0.15rem; 
       width: 0.5rem; 
       height: 0.5rem;
-      background-color: var(--color-red-500);
+      background-color: var(--color-danger);
       border-radius: 9999px;
-      border: 2px solid var(--color-background-dark); 
+      border: 2px solid var(--color-background); 
     }
   }
 }
@@ -172,8 +145,8 @@
   }
 
   .stat-card {
-    background-color: var(--color-background-dark); 
-    border: 1px solid var(--color-border-dark);
+    background-color: var(--color-background); 
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem; 
     padding: 1.25rem; 
     display: flex;
@@ -204,7 +177,7 @@
       .stat-value {
         font-size: 1.875rem; 
         font-weight: 700; 
-        color: var(--color-white);
+        color: var(--color-text-primary);
         letter-spacing: -0.025em; 
       }
 
@@ -227,10 +200,10 @@
         }
 
         &.stat-change-up {
-          color: var(--color-red-500);
+          color: var(--color-danger);
         }
         &.stat-change-down {
-          color: var(--color-green-400); // Usamos 400 ya que el 500 es más oscuro
+          color: var(--color-success); // Usamos 400 ya que el 500 es más oscuro
         }
         &.stat-change-no-change {
           color: var(--color-text-secondary);
@@ -290,9 +263,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--color-surface-dark);
-    border: 1px solid var(--color-border-dark);
-    color: var(--color-white);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
     padding: 0.5rem 0.75rem; 
     border-radius: 0.5rem; 
     font-size: 0.875rem; 
@@ -326,7 +299,7 @@
     transition: color 150ms ease-in-out;
 
     &:hover {
-      color: var(--color-white);
+      color: var(--color-text-primary);
     }
   }
 
@@ -336,7 +309,7 @@
     gap: 0.5rem;
     background-color: var(--color-primary);
     border: 1px solid var(--color-primary);
-    color: var(--color-white);
+    color: var(--color-text-primary);
     padding: 0.5rem 1rem; 
     border-radius: 0.5rem; 
     font-size: 0.875rem; 
@@ -352,15 +325,15 @@
     }
 
     svg {
-      color: var(--color-white);
+      color: var(--color-text-primary);
     }
   }
 }
 
 // === Table ===
 .table-card {
-  background-color: var(--color-background-dark); 
-  border: 1px solid var(--color-border-dark);
+  background-color: var(--color-background); 
+  border: 1px solid var(--color-border);
   border-radius: 0.75rem; 
   overflow: hidden;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
@@ -375,8 +348,8 @@
     border-collapse: collapse;
 
     thead {
-      background-color: var(--color-surface-dark);
-      border-bottom: 1px solid var(--color-border-dark);
+      background-color: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
       color: var(--color-text-secondary);
       font-size: 0.75rem; 
       text-transform: uppercase;
@@ -399,7 +372,7 @@
 
     tbody {
       tr {
-        border-bottom: 1px solid var(--color-border-dark);
+        border-bottom: 1px solid var(--color-border);
         transition: background-color 150ms ease-in-out;
         cursor: pointer;
         
@@ -408,7 +381,7 @@
         }
 
         &:hover {
-          background-color: rgba(var(--color-surface-dark), 0.5); // hover:bg-surface-dark/50
+          background-color: rgba(var(--color-surface), 0.5); // hover:bg-surface-dark/50
         }
 
         &.is-fixed {
@@ -419,8 +392,8 @@
           padding: 1rem; 
           
           input[type="checkbox"] {
-            background-color: var(--color-background-dark);
-            border: 1px solid var(--color-border-dark);
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
             color: var(--color-primary);
             border-radius: 0.25rem; // rounded
             width: 1rem; 
@@ -449,22 +422,22 @@
       width: fit-content;
 
       &.critical {
-        color: var(--color-red-500);
+        color: var(--color-danger);
         background-color: var(--color-red-500-10);
         border: 1px solid rgba(239, 68, 68, 0.2); // border-red-500/20
       }
       &.high {
-        color: var(--color-orange-500);
+        color: var(--color-warning);
         background-color: var(--color-orange-500-10);
         border: 1px solid rgba(249, 115, 22, 0.2);
       }
       &.medium {
-        color: var(--color-yellow-500);
+        color: var(--color-warning);
         background-color: var(--color-yellow-500-10);
         border: 1px solid rgba(245, 158, 11, 0.2);
       }
       &.low {
-        color: var(--color-blue-400);
+        color: var(--color-info);
         background-color: var(--color-blue-500-10);
         border: 1px solid rgba(59, 130, 246, 0.2);
       }
@@ -477,7 +450,7 @@
       gap: 0.25rem; // gap-1
 
       .description {
-        color: var(--color-white);
+        color: var(--color-text-primary);
         font-weight: 500;
         font-size: 0.875rem; 
         transition: color 150ms ease-in-out;
@@ -505,7 +478,7 @@
       gap: 0.25rem; // gap-1
       
       .project-name {
-        color: var(--color-white);
+        color: var(--color-text-primary);
         font-size: 0.875rem;
       }
       .code-text {
@@ -530,7 +503,7 @@
 
       &.open {
         background-color: var(--color-blue-500-10);
-        color: var(--color-blue-400);
+        color: var(--color-info);
         border: 1px solid rgba(59, 130, 246, 0.2); 
       }
       &.in-review {
@@ -540,7 +513,7 @@
       }
       &.fixed {
         background-color: var(--color-green-500-10);
-        color: var(--color-green-400);
+        color: var(--color-success);
         border: 1px solid rgba(34, 197, 94, 0.2);
       }
     }
@@ -564,8 +537,8 @@
         cursor: pointer;
 
         &:hover {
-          color: var(--color-white);
-          background-color: var(--color-surface-dark);
+          color: var(--color-text-primary);
+          background-color: var(--color-surface);
         }
       }
     }
@@ -573,8 +546,8 @@
 
   // === Pagination ===
   .pagination {
-    border-top: 1px solid var(--color-border-dark);
-    background-color: var(--color-surface-dark);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
     padding: 1rem; 
     display: flex;
     align-items: center;
@@ -584,7 +557,7 @@
 
     span {
       font-weight: 500;
-      color: var(--color-white);
+      color: var(--color-text-primary);
     }
 
     div {
@@ -596,7 +569,7 @@
     .pagination-btn {
       padding: 0.25rem 0.75rem; // px-3 py-1
       font-size: 0.875rem; 
-      border: 1px solid var(--color-border-dark);
+      border: 1px solid var(--color-border);
       border-radius: 0.375rem; // rounded-md
       color: var(--color-text-secondary);
       background-color: transparent;
@@ -607,7 +580,7 @@
       gap: 0.25rem;
 
       &:hover:not(:disabled) {
-        color: var(--color-white);
+        color: var(--color-text-primary);
         background-color: #222f49; 
       }
 

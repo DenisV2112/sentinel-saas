@@ -89,7 +89,7 @@
 }
 
 .overview-value.danger {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* ================================
@@ -169,18 +169,18 @@ tbody tr:hover {
 }
 
 .risk-low {
-  background: #dcfce7;
-  color: #16a34a;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
 }
 
 .risk-medium {
-  background: #fef9c3;
-  color: #ca8a04;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
 }
 
 .risk-high {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--color-danger);
 }
 
 /* ================================
