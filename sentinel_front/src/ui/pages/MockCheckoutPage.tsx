@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/commons/Sidebar';
 import { useTheme } from '@/utils/store/themeContext';
 import { CreditCard, CheckCircle, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function MockCheckoutPage() {
     const { theme } = useTheme();
@@ -57,7 +59,7 @@ export default function MockCheckoutPage() {
 
         } catch (error) {
             console.error('Payment error:', error);
-            alert('Error processing payment. Please try again.');
+            toast.error('Error processing payment. Please try again.');
         } finally {
             setProcessing(false);
         }
@@ -68,6 +70,11 @@ export default function MockCheckoutPage() {
             <Sidebar />
 
             <main className="main">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
                 <header
                     className="header"
                     style={{
@@ -231,6 +238,7 @@ export default function MockCheckoutPage() {
                         )}
                     </div>
                 </section>
+                </motion.div>
             </main>
         </div>
     );

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/commons/Navbar";
 import { login, register, getGoogleOAuthUrl } from "@/api/auth.api";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -59,8 +61,8 @@ export default function AuthPage() {
         localStorage.setItem("user", JSON.stringify(data.user));
         sessionStorage.setItem("user", JSON.stringify(data.user));
       }
-      if (data.tenantId) {
-        localStorage.setItem("tenantId", data.tenantId);
+      if (data.user?.tenantId) {
+        localStorage.setItem("tenantId", data.user.tenantId);
       }
 
       // Redirect to dashboard
@@ -84,7 +86,7 @@ export default function AuthPage() {
       setActive(false);
       setLoginData({ email: registerData.email, password: registerData.password });
       setError(null);
-      alert("Registration successful! Please login.");
+      toast.success("Registration successful! Please login.");
     } catch (err: any) {
       setError(err.message || "An error occurred during registration");
     } finally {
@@ -99,7 +101,12 @@ export default function AuthPage() {
   return (
     <>
       <Navbar />
-      <div className={`auth-container ${active ? "active" : ""}`}>
+      <motion.div
+        className={`auth-container ${active ? "active" : ""}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         {/* Error display */}
         {error && (
           <div
@@ -310,7 +317,7 @@ export default function AuthPage() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

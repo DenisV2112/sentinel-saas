@@ -1,8 +1,9 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useTheme } from '../../utils/store/themeContext';
+import { useTheme } from '@/utils/store/themeContext';
 import { useTranslation } from 'react-i18next';
 import { Crosshair } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Sentinel from '@/components/commons/Sentinel';
 import Footer from '@/components/commons/Footer';
 import { Navbar } from '@/components/commons/Navbar';
@@ -23,8 +24,12 @@ export default function HomePage() {
 
   return (
     <>
-
       <Navbar />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
       {/* Hero Section */}
       <section style={{
         display: 'grid',
@@ -265,6 +270,8 @@ export default function HomePage() {
       </section>
 
 
+
+      </motion.div>
 
       <Footer />
 

@@ -1,20 +1,26 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../utils/store/themeContext';
+import { motion } from 'framer-motion';
 
 export default function NotFoundPage() {
     const { theme } = useTheme();
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            textAlign: 'center',
-            backgroundColor: theme.colors.background,
-            color: theme.colors.text.primary
-        }}>
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                textAlign: 'center',
+                backgroundColor: theme.colors.background,
+                color: theme.colors.text.primary
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+        >
             <h1 style={{
                 fontSize: '120px',
                 fontWeight: 'bold',
@@ -57,6 +63,6 @@ export default function NotFoundPage() {
             >
                 Volver al inicio
             </Link>
-        </div>
+        </motion.div>
     );
 }

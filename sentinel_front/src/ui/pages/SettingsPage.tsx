@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
+import { motion } from "framer-motion";
 import {
   Palette,
   Sun,
@@ -24,6 +25,11 @@ export default function SettingsPage() {
       <Sidebar activeItem="settings" />
 
       <main className="settings-main">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
         {/* HEADER */}
         <header
           className="settings-header"
@@ -120,6 +126,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </section>
+        </motion.div>
       </main>
     </div>
   );
