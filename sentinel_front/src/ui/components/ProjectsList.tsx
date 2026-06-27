@@ -4,6 +4,7 @@ import { useTheme } from "@/utils/store/themeContext";
 import { useProjects } from "@/hooks/useProjects"; // Using absolute alias
 import { Plus, Box, Loader2 } from "lucide-react";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
+import toast from "react-hot-toast";
 
 // Plan limits configuration (matches backend UserLimitsService)
 const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> = {
@@ -55,8 +56,7 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
 
     const handleNewProjectClick = () => {
         if (currentPlan === 'FREE') {
-            // FREE users can't create anything - they should see upgrade modal on WorkspacesPage
-            alert("Con el plan FREE no puedes crear proyectos. Por favor actualiza tu plan.");
+            toast.error("Con el plan FREE no puedes crear proyectos. Por favor actualiza tu plan.");
             return;
         }
         // For paid plans, let backend validate the global limit

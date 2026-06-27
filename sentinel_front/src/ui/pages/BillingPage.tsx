@@ -9,16 +9,19 @@ import {
     X
 } from "lucide-react";
 import { usePlans, useSubscription, usePaymentHistory, useUpgradePlan } from "@hooks/useBilling";
+import { motion } from "framer-motion";
+import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
+import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
 // MercadoPago SDK not needed - we use redirect-based Checkout Pro
 // import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 // initMercadoPago('...', { locale: 'es-AR' });
 
 export default function BillingPage() {
     const { theme } = useTheme();
-    const { data: plans, loading: plansLoading } = usePlans();
-    const { data: subscription, loading: subLoading, refetch: refetchSubscription } = useSubscription();
-    const { data: payments, loading: paymentsLoading } = usePaymentHistory();
-    const { upgradeToPlan, loading: upgradeLoading } = useUpgradePlan();
+    const { data: plans, isLoading: plansLoading } = usePlans();
+    const { data: subscription, isLoading: subLoading, refetch: refetchSubscription } = useSubscription();
+    const { data: payments, isLoading: paymentsLoading } = usePaymentHistory();
+    const { upgradeToPlan, isLoading: upgradeLoading } = useUpgradePlan();
 
     const [preferenceId, setPreferenceId] = useState<string | null>(null);
     const [initPoint, setInitPoint] = useState<string | null>(null);
@@ -49,7 +52,12 @@ export default function BillingPage() {
     const isMock = preferenceId?.startsWith("MOCK_");
 
     return (
-        <div className="app" style={{ background: theme.colors.background }}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+            <div className="app" style={{ background: theme.colors.background }}>
             <Sidebar />
 
             <main className="main">
@@ -66,9 +74,15 @@ export default function BillingPage() {
                 <section className="content" style={{ padding: 24, position: 'relative' }}>
                     {/* Loading State */}
                     {loading && (
-                        <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-                            <Loader2 size={32} color={theme.colors.primary} style={{ animation: "spin 1s linear infinite" }} />
-                        </div>
+                        <>
+                            <CardSkeleton count={1} />
+                            <div style={{ marginTop: 24 }}>
+                                <CardSkeleton count={3} />
+                            </div>
+                            <div style={{ marginTop: 24 }}>
+                                <TableSkeleton columns={4} rows={4} />
+                            </div>
+                        </>
                     )}
 
                     {!loading && (
@@ -378,5 +392,6 @@ export default function BillingPage() {
                 </section>
             </main>
         </div>
+        </motion.div>
     );
 }

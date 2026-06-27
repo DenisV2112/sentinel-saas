@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 export interface Invitation {
@@ -10,36 +10,39 @@ export interface Invitation {
     expiresAt: string;
 }
 
+/* ======================================================
+   QUERY KEYS
+====================================================== */
+export const invitationsKeys = {
+    all: ["invitations"] as const,
+    list: (tenantId: string | null) => [...invitationsKeys.all, "list", tenantId] as const,
+};
+
+/* ======================================================
+   FETCHER
+====================================================== */
+async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const headers = { ...getAuthHeaders(), ...(options?.headers as Record<string, string>) };
+    const res = await fetch(url, { ...options, headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return res.json();
+}
+
+/* ======================================================
+   HOOK
+====================================================== */
 export function useInvitations(tenantId: string | null) {
-    const [invitations, setInvitations] = useState<Invitation[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchInvitations = useCallback(async () => {
-        if (!tenantId) return;
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/tenants/${tenantId}/invitations`, {
-                headers: getAuthHeaders(),
-            });
-            if (!res.ok) throw new Error("Failed to load invitations");
-            const json = await res.json();
-            setInvitations(json);
-        } catch (e: any) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
-        }
-    }, [tenantId]);
+    const query = useQuery({
+        queryKey: invitationsKeys.list(tenantId),
+        queryFn: () => fetchJSON<Invitation[]>(`${API}/api/tenants/${tenantId}/invitations`),
+        enabled: !!tenantId,
+        staleTime: 30_000,
+    });
 
-    useEffect(() => {
-        fetchInvitations();
-    }, [fetchInvitations]);
-
-    const inviteMember = async (email: string, role: string, projectIds?: string[]) => {
-        if (!tenantId) throw new Error("No tenant selected");
-        try {
-            setLoading(true);
+    const inviteMutation = useMutation({
+        mutationFn: async ({ email, role, projectIds }: { email: string; role: string; projectIds?: string[] }) => {
             const body: any = { email, role };
             if (projectIds && projectIds.length > 0) {
                 body.projectIds = projectIds;
@@ -52,42 +55,54 @@ export function useInvitations(tenantId: string | null) {
 
             if (!res.ok) {
                 const errJson = await res.json().catch(() => ({}));
-                // Extract the actual error message from backend
                 const errorMessage = errJson.message || errJson.error || "Failed to send invitation";
                 throw new Error(errorMessage);
             }
 
-            const newInvitation = await res.json();
-            setInvitations((prev) => [...prev, newInvitation]);
-            return newInvitation;
-        } catch (e: any) {
-            setError(e.message);
-            throw e;
-        } finally {
-            setLoading(false);
-        }
-    };
+            return res.json();
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: invitationsKeys.all }),
+    });
 
-    const cancelInvitation = async (invitationId: string) => {
-        if (!tenantId) return;
-        try {
-            // Optimistic update
-            setInvitations((prev) => prev.filter((inv) => inv.id !== invitationId));
-
+    const cancelMutation = useMutation({
+        mutationFn: async (invitationId: string) => {
             const res = await fetch(`${API}/api/tenants/invitations/${invitationId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders(),
             });
 
-            if (!res.ok) {
-                // Revert on failure
-                fetchInvitations();
-                throw new Error("Failed to cancel invitation");
+            if (!res.ok) throw new Error("Failed to cancel invitation");
+        },
+        onMutate: async (invitationId: string) => {
+            await queryClient.cancelQueries({ queryKey: invitationsKeys.list(tenantId) });
+            const previous = queryClient.getQueryData<Invitation[]>(invitationsKeys.list(tenantId));
+            queryClient.setQueryData<Invitation[]>(invitationsKeys.list(tenantId), (old) =>
+                (old ?? []).filter((inv) => inv.id !== invitationId)
+            );
+            return { previous };
+        },
+        onError: (_err, _invitationId, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(invitationsKeys.list(tenantId), context.previous);
             }
-        } catch (e: any) {
-            setError(e.message);
-        }
-    };
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: invitationsKeys.list(tenantId) });
+        },
+    });
 
-    return { invitations, loading, error, inviteMember, cancelInvitation, refetch: fetchInvitations };
+    const data = query.data ?? [];
+    const invitations = data;
+    const error = (query.error as Error)?.message || null;
+
+    return {
+        data: query.data,
+        invitations,
+        isLoading: query.isLoading,
+        error,
+        refetch: query.refetch,
+        inviteMember: (email: string, role: string, projectIds?: string[]) =>
+            inviteMutation.mutateAsync({ email, role, projectIds }),
+        cancelInvitation: cancelMutation.mutateAsync,
+    };
 }

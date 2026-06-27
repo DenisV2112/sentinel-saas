@@ -102,13 +102,14 @@ describe('useDashboardSummary', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('Network error');
+    expect(result.current.error).toEqual(new Error('Network error'));
   });
 
   it('handles non-200 HTTP response', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
+      statusText: 'Internal Server Error',
     });
 
     const { result } = renderHook(() => useDashboardSummary(), { wrapper: createWrapper() });
@@ -117,7 +118,7 @@ describe('useDashboardSummary', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('HTTP 500: Internal Server Error');
+    expect(result.current.error).toEqual(new Error('HTTP 500: Internal Server Error'));
   });
 });
 
@@ -158,7 +159,7 @@ describe('useActiveScans', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('Network error');
+    expect(result.current.error).toEqual(new Error('Network error'));
   });
 });
 
@@ -199,7 +200,7 @@ describe('useRecentScans', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error).toBe('Network error');
+    expect(result.current.error).toEqual(new Error('Network error'));
   });
 
   it('sends X-Tenant-Id header when tenantId is in localStorage', async () => {

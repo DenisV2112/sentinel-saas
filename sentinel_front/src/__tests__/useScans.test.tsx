@@ -1,132 +1,153 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { useScans } from '@hooks/useScans';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useScans, useScan } from '@hooks/useScans';
+import type { ReactNode } from 'react';
 
-// Mock the scans API module
-jest.mock('@/api/scans.api', () => ({
-  getScans: jest.fn(),
-  startScan: jest.fn(),
-  getScan: jest.fn(),
-}));
+const mockToken = 'test-jwt-token';
+let mockFetch: jest.Mock;
 
-const mockGetScans = require('@/api/scans.api').getScans as jest.Mock;
-const mockStartScan = require('@/api/scans.api').startScan as jest.Mock;
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.useFakeTimers();
-  localStorage.setItem('accessToken', 'test-jwt');
+  mockFetch = jest.fn();
+  global.fetch = mockFetch;
+  localStorage.setItem('accessToken', mockToken);
   localStorage.setItem('tenantId', 'tenant-1');
 });
 
 afterEach(() => {
-  jest.useRealTimers();
   localStorage.clear();
+  (global.fetch as any) = undefined;
 });
 
-describe('useScans — fetchScans with tenantId', () => {
-  it('passes tenantId to getScans API call', async () => {
-    mockGetScans.mockResolvedValueOnce({
-      data: { content: [] },
-    });
+const sampleScans = {
+  content: [
+    { id: 's1', scanId: 's1', projectId: 'p1', tenantId: 't1', userId: 'u1', status: 'COMPLETED', scanType: 'SAST', createdAt: '2026-01-01', updatedAt: '2026-01-02' },
+    { scanId: 's2', projectId: 'p1', tenantId: 't1', userId: 'u1', status: 'RUNNING', scanType: 'DAST', createdAt: '2026-01-03', updatedAt: '2026-01-04' },
+  ],
+};
 
-    const { result } = renderHook(() => useScans());
+describe('useScans', () => {
+  it('returns loading state initially', () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => sampleScans });
 
-    await act(async () => {
-      await result.current.fetchScans('tenant-uuid-abc');
-    });
+    const { result } = renderHook(() => useScans('tenant-1'), { wrapper: createWrapper() });
 
-    expect(mockGetScans).toHaveBeenCalledWith('tenant-uuid-abc');
-  });
-});
-
-describe('useScans — refetchScans callback', () => {
-  it('exposes refetchScans in return value', () => {
-    const { result } = renderHook(() => useScans());
-    expect(typeof result.current.refetchScans).toBe('function');
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.scans).toEqual([]);
+    expect(result.current.error).toBeNull();
   });
 
-  it('refetchScans calls fetchScans with the last-used tenantId', async () => {
-    mockGetScans.mockResolvedValue({
-      data: { content: [{ id: 's1', status: 'COMPLETED' }] },
-    });
+  it('fetches scans and normalizes ids', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => sampleScans });
 
-    const { result } = renderHook(() => useScans());
+    const { result } = renderHook(() => useScans('tenant-1'), { wrapper: createWrapper() });
 
-    // First fetch with tenantId
-    await act(async () => {
-      await result.current.fetchScans('tenant-xyz');
-    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(mockGetScans).toHaveBeenCalledTimes(1);
-    expect(result.current.scans).toHaveLength(1);
-
-    // Now refetch without providing tenantId
-    await act(async () => {
-      await result.current.refetchScans();
-    });
-
-    // Should have called getScans again with the stored tenantId
-    expect(mockGetScans).toHaveBeenCalledTimes(2);
-    expect(mockGetScans).toHaveBeenLastCalledWith('tenant-xyz');
+    expect(result.current.scans).toHaveLength(2);
+    expect(result.current.scans[0].id).toBe('s1');
+    expect(result.current.scans[1].id).toBe('s2');
+    expect(result.current.error).toBeNull();
   });
 
-  it('refetchScans does nothing if fetchScans was never called', async () => {
-    const { result } = renderHook(() => useScans());
+  it('does not fetch when tenantId is null', () => {
+    const { result } = renderHook(() => useScans(null), { wrapper: createWrapper() });
 
-    await act(async () => {
-      await result.current.refetchScans();
-    });
-
-    // No API call should have been made
-    expect(mockGetScans).not.toHaveBeenCalled();
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.scans).toEqual([]);
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('refetchScans uses the most recent tenantId after multiple calls', async () => {
-    mockGetScans.mockResolvedValue({
-      data: { content: [] },
-    });
+  it('handles fetch error', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network failure'));
 
-    const { result } = renderHook(() => useScans());
+    const { result } = renderHook(() => useScans('tenant-1'), { wrapper: createWrapper() });
 
-    await act(async () => {
-      await result.current.fetchScans('first-tenant');
-    });
-    await act(async () => {
-      await result.current.fetchScans('second-tenant');
-    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    mockGetScans.mockClear();
-
-    await act(async () => {
-      await result.current.refetchScans();
-    });
-
-    expect(mockGetScans).toHaveBeenCalledWith('second-tenant');
+    expect(result.current.error).toBe('Network failure');
+    expect(result.current.scans).toEqual([]);
   });
-});
 
-describe('useScans — startScan', () => {
-  it('startScan calls the API with mapped request', async () => {
-    mockStartScan.mockResolvedValueOnce({
-      data: { id: 'new-scan', status: 'RUNNING' },
-    });
+  it('handles non-200 response', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Internal Server Error' });
 
-    const { result } = renderHook(() => useScans());
+    const { result } = renderHook(() => useScans('tenant-1'), { wrapper: createWrapper() });
 
-    const response = await act(async () => {
-      return await result.current.startScan({
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.error).toBe('HTTP 500: Internal Server Error');
+  });
+
+  it('startScan mutation calls API with mapped request and invalidates', async () => {
+    const scanResult = { id: 'new-scan', status: 'RUNNING' };
+
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ content: [] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => scanResult });
+
+    const { result } = renderHook(() => useScans('tenant-1'), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    let response: any;
+    await act(async () => {
+      response = await result.current.startScan({
         projectId: 'proj-1',
         scanType: 'SAST',
         targetRepo: 'https://github.com/user/repo',
       });
     });
 
-    expect(response).toEqual({ id: 'new-scan', status: 'RUNNING' });
-    expect(mockStartScan).toHaveBeenCalledWith({
+    expect(response).toEqual(scanResult);
+    expect(mockFetch.mock.calls[1][0]).toContain('/api/bff/scans/request');
+    const body = JSON.parse(mockFetch.mock.calls[1][1].body);
+    expect(body).toEqual({
       type: 'SAST',
       targetUrl: undefined,
       targetRepo: 'https://github.com/user/repo',
       projectId: 'proj-1',
     });
+    expect(mockFetch.mock.calls[1][1]?.method).toBe('POST');
+  });
+});
+
+describe('useScan', () => {
+  it('returns loading state initially for single scan', () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ id: 's1' }) });
+
+    const { result } = renderHook(() => useScan('s1'), { wrapper: createWrapper() });
+
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.data).toBeUndefined();
+  });
+
+  it('fetches single scan by id', async () => {
+    const scanData = { id: 's1', status: 'COMPLETED' };
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => scanData });
+
+    const { result } = renderHook(() => useScan('s1'), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.data).toEqual(scanData);
+  });
+
+  it('returns null data when scanId is null', () => {
+    const { result } = renderHook(() => useScan(null), { wrapper: createWrapper() });
+
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.isLoading).toBe(false);
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });

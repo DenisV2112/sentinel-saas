@@ -5,6 +5,9 @@ import { useTheme } from "@/utils/store/themeContext";
 import { ProjectsList } from "@/ui/components/ProjectsList";
 import { useInvitations } from "@/hooks/useInvitations";
 import { useProjects } from "@/hooks/useProjects";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { DetailSkeleton } from "@/components/commons/skeletons/DetailSkeleton";
 import {
     Users,
     FolderOpen,
@@ -26,7 +29,7 @@ export default function WorkspaceDetailsPage() {
     // Invitations Hook
     const {
         invitations,
-        loading: loadingInvites,
+        isLoading: loadingInvites,
         error: inviteError,
         inviteMember,
         cancelInvitation
@@ -54,19 +57,18 @@ export default function WorkspaceDetailsPage() {
             setInviteEmail("");
             setSelectedProjects([]);
             setAllProjects(true);
-            alert("✅ Invitation sent successfully!");
+            toast.success("Invitation sent successfully!");
         } catch (err: any) {
             console.error("Failed to invite", err);
 
-            // Check for specific error messages
             const errorMessage = err.message || "Unknown error";
 
             if (errorMessage.includes("User limit reached") || errorMessage.includes("Upgrade your plan")) {
-                alert("❌ Member Limit Reached\n\nYour current plan has reached its member limit. Please upgrade to BASIC, PRO, or ENTERPRISE plan to invite more members.\n\nGo to Billing → Plans to upgrade.");
+                toast.error("Member Limit Reached — Your current plan has reached its member limit. Upgrade to BASIC, PRO, or ENTERPRISE to invite more members.");
             } else if (errorMessage.includes("already invited") || errorMessage.includes("already exists")) {
-                alert("⚠️ This user has already been invited or is already a member of this workspace.");
+                toast.error("This user has already been invited or is already a member of this workspace.");
             } else {
-                alert(`❌ Failed to send invitation: ${errorMessage}`);
+                toast.error(`Failed to send invitation: ${errorMessage}`);
             }
         } finally {
             setInviting(false);
@@ -74,7 +76,12 @@ export default function WorkspaceDetailsPage() {
     };
 
     return (
-        <div className="app" style={{ background: theme.colors.background }}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+            <div className="app" style={{ background: theme.colors.background }}>
             <Sidebar />
 
             <main className="main">
@@ -188,9 +195,7 @@ export default function WorkspaceDetailsPage() {
                             </div>
 
                             {loadingInvites && (
-                                <div style={{ display: "flex", justifyContent: "center", padding: 20 }}>
-                                    <Loader2 size={24} color={theme.colors.primary} style={{ animation: "spin 1s linear infinite" }} />
-                                </div>
+                                <DetailSkeleton rows={4} />
                             )}
 
                             {inviteError && (
@@ -417,5 +422,6 @@ export default function WorkspaceDetailsPage() {
                 )}
             </main>
         </div>
+        </motion.div>
     );
 }

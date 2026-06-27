@@ -14,6 +14,8 @@ import {
   ChevronDown,
   X,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
 
 /* ─── Severity value mapping: UnifiedVulnerability (UPPER) → Finding (Pascal) ─── */
 const SEVERITY_MAP: Record<string, Finding["severity"]> = {
@@ -197,7 +199,12 @@ export default function FindingsPage() {
   });
 
   return (
-    <div className="findings-layout app" style={layoutStyle}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="findings-layout app" style={layoutStyle}>
       <Sidebar activeItem="findings" /> 
 
       <main className="findings-main main">
@@ -249,9 +256,7 @@ export default function FindingsPage() {
         <section className="page-content-scrollable content">
           {/* LOADING / ERROR STATES */}
           {isLoading && (
-            <div style={{ padding: "20px 0", color: c.text.secondary, fontSize: "0.9rem" }}>
-              Loading findings from completed scans...
-            </div>
+            <TableSkeleton columns={6} rows={4} />
           )}
 
           {error && !isLoading && (
@@ -376,5 +381,6 @@ export default function FindingsPage() {
         </section>
       </main>
     </div>
+    </motion.div>
   );
 }

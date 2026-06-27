@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 export interface Project {
@@ -11,95 +11,81 @@ export interface Project {
     createdAt: string;
 }
 
+/* ======================================================
+   QUERY KEYS
+====================================================== */
+export const projectsKeys = {
+    all: ["projects"] as const,
+    list: (tenantId: string | null) => [...projectsKeys.all, "list", tenantId] as const,
+};
+
+/* ======================================================
+   FETCHER
+====================================================== */
+async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const headers = { ...getAuthHeaders(), ...(options?.headers as Record<string, string>) };
+    const res = await fetch(url, { ...options, headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return res.json();
+}
+
+/* ======================================================
+   HOOK
+====================================================== */
 export function useProjects(tenantId: string | null) {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    const fetchProjects = async () => {
-        if (!tenantId) return;
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/projects?tenantId=${tenantId}`, {
-                headers: getAuthHeaders(),
-            });
-            if (!res.ok) throw new Error("Failed to load projects");
-            const json = await res.json();
-            setProjects(json);
-        } catch (e: any) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const query = useQuery({
+        queryKey: projectsKeys.list(tenantId),
+        queryFn: () => fetchJSON<Project[]>(`${API}/api/projects?tenantId=${tenantId}`),
+        enabled: !!tenantId,
+        staleTime: 30_000,
+    });
 
-    useEffect(() => {
-        if (tenantId) {
-            fetchProjects();
-        } else {
-            setProjects([]);
-        }
-    }, [tenantId]);
-
-    const createProject = async (data: { name: string; description?: string }) => {
-        if (!tenantId) throw new Error("No tenant selected");
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/projects`, {
+    const createMutation = useMutation({
+        mutationFn: (data: { name: string; description?: string }) =>
+            fetchJSON<Project>(`${API}/api/projects`, {
                 method: "POST",
-                headers: getAuthHeaders(),
                 body: JSON.stringify(data),
-            });
-            if (!res.ok) throw new Error("Failed to create project");
-            const newProject = await res.json();
-            setProjects([...projects, newProject]);
-            return newProject;
-        } catch (e: any) {
-            setError(e.message);
-            throw e;
-        } finally {
-            setLoading(false);
-        }
-    };
+            }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: projectsKeys.all }),
+    });
 
-    const updateProject = async (projectId: string, data: { name: string; description?: string }) => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/projects/${projectId}`, {
+    const updateMutation = useMutation({
+        mutationFn: ({ projectId, data }: { projectId: string; data: { name: string; description?: string } }) =>
+            fetchJSON<Project>(`${API}/api/projects/${projectId}`, {
                 method: "PUT",
-                headers: getAuthHeaders(),
                 body: JSON.stringify(data),
-            });
-            if (!res.ok) throw new Error("Failed to update project");
-            const updatedProject = await res.json();
-            setProjects(projects.map(p => p.id === projectId ? updatedProject : p));
-            return updatedProject;
-        } catch (e: any) {
-            setError(e.message);
-            throw e;
-        } finally {
-            setLoading(false);
-        }
-    };
+            }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: projectsKeys.all }),
+    });
 
-    const deleteProject = async (projectId: string) => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/projects/${projectId}`, {
+    const deleteMutation = useMutation({
+        mutationFn: (projectId: string) =>
+            fetch(`${API}/api/projects/${projectId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders(),
-            });
-            if (!res.ok) throw new Error("Failed to delete project");
-            setProjects(projects.filter(p => p.id !== projectId));
-        } catch (e: any) {
-            setError(e.message);
-            throw e;
-        } finally {
-            setLoading(false);
-        }
+            }).then(res => {
+                if (!res.ok) throw new Error("Failed to delete project");
+            }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: projectsKeys.all }),
+    });
+
+    const data = query.data ?? [];
+    const projects = data;
+    const projectsMap = new Map(projects.map((p: Project) => [p.id, p] as [string, Project]));
+    const error = (query.error as Error)?.message || null;
+
+    return {
+        data: query.data,
+        projects,
+        projectsMap,
+        isLoading: query.isLoading,
+        error,
+        refetch: query.refetch,
+        createProject: createMutation.mutateAsync,
+        updateProject: (projectId: string, data: { name: string; description?: string }) =>
+            updateMutation.mutateAsync({ projectId, data }),
+        deleteProject: deleteMutation.mutateAsync,
     };
-
-    const projectsMap = new Map(projects.map(p => [p.id, p] as [string, Project]));
-
-    return { projects, projectsMap, loading, error, createProject, updateProject, deleteProject, refetch: fetchProjects };
 }

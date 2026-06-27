@@ -1,117 +1,129 @@
-import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { API, getAuthHeaders } from "../api/fetch-helpers";
+import { dashboardKeys } from "./useDashboard";
 
-type ApiState<T> = {
-    data: T;
-    loading: boolean;
-    error: string | null;
-    refetch: () => void;
+/* ======================================================
+   QUERY KEYS
+====================================================== */
+export const workspacesKeys = {
+  all: ["workspaces"] as const,
+  list: () => [...workspacesKeys.all, "list"] as const,
 };
+
+/* ======================================================
+   FETCHERS
+====================================================== */
+
+async function fetchJSON<T>(url: string): Promise<T> {
+  const res = await fetch(url, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+  return res.json();
+}
 
 /* ======================================================
    WORKSPACE (TENANT) TYPES
 ====================================================== */
 
 export interface Workspace {
-    id: string;
-    name: string;
-    description: string;
-    projectCount: number;
-    memberCount: number;
-    lastActivity: string;
-    createdAt: string;
-    plan: string;
+  id: string;
+  name: string;
+  description: string;
+  projectCount: number;
+  memberCount: number;
+  lastActivity: string;
+  createdAt: string;
+  plan: string;
 }
 
 /* ======================================================
    WORKSPACES HOOK
 ====================================================== */
 
-export function useWorkspaces(): ApiState<Workspace[]> {
-    const [data, setData] = useState<Workspace[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+export function useWorkspaces() {
+  return useQuery({
+    // Reuse dashboardKeys.summary() to share cache with useDashboardSummary
+    queryKey: dashboardKeys.summary(),
+    queryFn: async (): Promise<Workspace[]> => {
+      const json = await fetchJSON<any>(`${API}/api/bff/dashboard`);
 
-    const fetchWorkspaces = async () => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${API}/api/bff/dashboard`, {
-                headers: getAuthHeaders(),
-            });
-            if (!res.ok) throw new Error("Failed to load workspaces");
-            const json = await res.json();
-
-            // Transform tenants to workspaces format
-            const workspaces = (json.tenants ?? []).map((tenant: any) => ({
-                id: tenant.id ?? tenant.tenantId,
-                name: tenant.name ?? tenant.companyName ?? "Workspace",
-                description: tenant.description ?? `${tenant.plan ?? "Free"} Plan`,
-                projectCount: json.projects?.filter((p: any) => p.tenantId === tenant.id)?.length ?? 0,
-                memberCount: tenant.memberCount ?? 1,
-                lastActivity: tenant.updatedAt ?? tenant.createdAt ?? "Recently",
-                createdAt: tenant.createdAt,
-                plan: tenant.plan ?? "FREE",
-            }));
-
-            setData(workspaces);
-        } catch (e: any) {
-            setError(e.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchWorkspaces();
-    }, []);
-
-    return { data, loading, error, refetch: fetchWorkspaces };
+      // Transform tenants to workspaces format
+      return (json.tenants ?? []).map((tenant: any) => ({
+        id: tenant.id ?? tenant.tenantId,
+        name: tenant.name ?? tenant.companyName ?? "Workspace",
+        description:
+          tenant.description ?? `${tenant.plan ?? "Free"} Plan`,
+        projectCount:
+          json.projects?.filter(
+            (p: any) => p.tenantId === (tenant.id ?? tenant.tenantId),
+          )?.length ?? 0,
+        memberCount: tenant.memberCount ?? 1,
+        lastActivity:
+          tenant.updatedAt ?? tenant.createdAt ?? "Recently",
+        createdAt: tenant.createdAt,
+        plan: tenant.plan ?? "FREE",
+      }));
+    },
+    staleTime: 30_000,
+  });
 }
 
 /* ======================================================
-   CREATE WORKSPACE
+   CREATE WORKSPACE (MUTATION)
 ====================================================== */
 
 export function useCreateWorkspace() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [upgradeRequired, setUpgradeRequired] = useState(false);
+  const queryClient = useQueryClient();
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
 
-    const createWorkspace = async (data: { name: string; description?: string }) => {
-        try {
-            setLoading(true);
-            setError(null);
-            setUpgradeRequired(false);
-            const res = await fetch(`${API}/api/tenants`, {
-                method: "POST",
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    name: data.name,
-                    type: "PERSONAL", // Defaulting to PERSONAL for simplified flow
-                }),
-            });
+  const mutation = useMutation({
+    mutationFn: async (data: {
+      name: string;
+      description?: string;
+    }) => {
+      setUpgradeRequired(false);
 
-            // Handle 402 Payment Required (FREE plan)
-            if (res.status === 402) {
-                const errorData = await res.json();
-                setUpgradeRequired(true);
-                setError(errorData.message || "Upgrade required to create workspaces");
-                throw new Error(errorData.message);
-            }
+      const res = await fetch(`${API}/api/tenants`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: data.name,
+          type: "PERSONAL",
+        }),
+      });
 
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({ message: "Failed to create workspace" }));
-                throw new Error(errorData.message || "Failed to create workspace");
-            }
+      // Handle 402 Payment Required (FREE plan limitation)
+      if (res.status === 402) {
+        setUpgradeRequired(true);
+        const errorData = await res.json();
+        throw new Error(
+          errorData.message || "Upgrade required to create workspaces",
+        );
+      }
 
-            return await res.json();
-        } catch (e: any) {
-            setError(e.message);
-            throw e;
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (!res.ok) {
+        const errorData = await res
+          .json()
+          .catch(() => ({ message: "Failed to create workspace" }));
+        throw new Error(
+          errorData.message || "Failed to create workspace",
+        );
+      }
 
-    return { createWorkspace, loading, error, upgradeRequired };
+      return res.json();
+    },
+    onSuccess: () => {
+      // Invalidate the shared dashboard cache so useWorkspaces refetches
+      queryClient.invalidateQueries({
+        queryKey: dashboardKeys.summary(),
+      });
+    },
+  });
+
+  return {
+    createWorkspace: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    error: mutation.error?.message ?? null,
+    upgradeRequired,
+  };
 }

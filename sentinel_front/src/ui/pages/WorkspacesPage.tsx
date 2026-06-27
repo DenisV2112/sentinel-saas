@@ -16,6 +16,8 @@ import { useSubscription } from "@hooks/useBilling";
 import { ProjectsList } from "@/ui/components/ProjectsList";
 import UpgradePlanModal from "@/ui/components/UpgradePlanModal";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
+import { motion } from "framer-motion";
+import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
 
 // Plan limits configuration (matches backend UserLimitsService)
 const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> = {
@@ -28,9 +30,9 @@ const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> =
 export default function WorkspacesPage() {
     const { theme } = useTheme();
     const navigate = useNavigate();
-    const { data: workspaces, loading, error, refetch } = useWorkspaces();
+    const { data: workspaces, isLoading, error, refetch } = useWorkspaces();
     const { data: subscription } = useSubscription(); // Check subscription
-    const { createWorkspace, loading: creating, upgradeRequired } = useCreateWorkspace();
+    const { createWorkspace, isLoading: creating, upgradeRequired } = useCreateWorkspace();
     const [selectedWorkspace, setSelectedWorkspace] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -69,7 +71,12 @@ export default function WorkspacesPage() {
     };
 
     return (
-        <div className="app" style={{ background: theme.colors.background }}>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+            <div className="app" style={{ background: theme.colors.background }}>
             <Sidebar />
 
             <main className="main">
@@ -128,10 +135,8 @@ export default function WorkspacesPage() {
 
                 <section className="content" style={{ padding: 24 }}>
                     {/* Loading State */}
-                    {loading && (
-                        <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-                            <Loader2 size={32} color={theme.colors.primary} style={{ animation: "spin 1s linear infinite" }} />
-                        </div>
+                    {isLoading && (
+                        <CardSkeleton count={3} />
                     )}
 
                     {/* Error State */}
@@ -145,7 +150,7 @@ export default function WorkspacesPage() {
                     )}
 
                     {/* Workspaces Grid */}
-                    {!loading && !error && (
+                    {!isLoading && !error && (
                         <div
                             style={{
                                 display: "grid",
@@ -262,7 +267,7 @@ export default function WorkspacesPage() {
                     )}
 
                     {/* Empty State */}
-                    {!loading && !error && workspaces.length === 0 && (
+                    {!isLoading && !error && workspaces.length === 0 && (
                         <div
                             style={{
                                 textAlign: "center",
@@ -443,5 +448,6 @@ export default function WorkspacesPage() {
                 currentPlan={currentPlan}
             />
         </div>
+        </motion.div>
     );
 }

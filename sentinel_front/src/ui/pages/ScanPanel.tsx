@@ -19,6 +19,8 @@ import {
 import { useActiveScans, useRecentScans } from "@hooks/useDashboard";
 import { useProjects } from "@hooks/useProjects";
 import { useScans } from "@hooks/useScans";
+import { motion } from "framer-motion";
+import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
 
 /* ─── Helpers ──────────────────────────────────────────── */
 
@@ -193,7 +195,12 @@ export default function ScansPage() {
   };
 
   return (
-    <div className="scans-layout">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="scans-layout">
       <Sidebar activeItem="scans" />
 
       <main
@@ -366,9 +373,9 @@ export default function ScansPage() {
         )}
 
         {/* LOADING / ERROR STATES */}
-        {isLoading && (
-          <div style={{ padding: 20, color: theme.colors.text.secondary }}>
-            Loading scans...
+        {isLoading && !combinedError && (
+          <div style={{ margin: 20 }}>
+            <TableSkeleton columns={6} rows={4} />
           </div>
         )}
 
@@ -635,5 +642,6 @@ export default function ScansPage() {
         </section>
       </main>
     </div>
+    </motion.div>
   );
 }

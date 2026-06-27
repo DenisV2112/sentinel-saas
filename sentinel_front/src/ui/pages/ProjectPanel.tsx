@@ -13,6 +13,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { useProjects } from "@hooks/useProjects";
+import { motion } from "framer-motion";
+import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
 
 export default function ProjectsPage() {
   const { theme } = useTheme();
@@ -20,7 +22,7 @@ export default function ProjectsPage() {
   const tenantId = localStorage.getItem("tenantId");
   const {
     projects: apiProjects,
-    loading,
+    isLoading,
     error,
     createProject,
     updateProject,
@@ -111,7 +113,12 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="projects-layout">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="projects-layout">
       <Sidebar />
 
       <main className="projects-main">
@@ -230,13 +237,11 @@ export default function ProjectsPage() {
         )}
 
         {/* LOADING / ERROR STATES */}
-        {loading && (
-          <div style={{ padding: 20, color: theme.colors.text.secondary }}>
-            Loading projects...
-          </div>
+        {isLoading && (
+          <TableSkeleton columns={6} rows={4} />
         )}
 
-        {error && !loading && (
+        {error && !isLoading && (
           <div
             style={{
               margin: 20,
@@ -252,7 +257,7 @@ export default function ProjectsPage() {
         )}
 
         {/* NO TENANT STATE */}
-        {!tenantId && !loading && (
+        {!tenantId && !isLoading && (
           <div style={{ padding: 40, textAlign: "center", color: theme.colors.text.secondary }}>
             <Folder size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
             <p>Select a tenant to view projects</p>
@@ -260,7 +265,7 @@ export default function ProjectsPage() {
         )}
 
         {/* EMPTY STATE */}
-        {tenantId && !loading && !error && filteredProjects.length === 0 && !showNewProject && (
+        {tenantId && !isLoading && !error && filteredProjects.length === 0 && !showNewProject && (
           <div style={{ padding: 40, textAlign: "center", color: theme.colors.text.secondary }}>
             <Folder size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
             <p>No projects yet. Create your first project.</p>
@@ -467,6 +472,7 @@ export default function ProjectsPage() {
         )}
       </main>
     </div>
+    </motion.div>
   );
 }
 

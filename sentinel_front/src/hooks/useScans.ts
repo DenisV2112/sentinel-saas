@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { getScans, startScan, getScan } from '../api/scans.api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { API, getAuthHeaders } from "../api/fetch-helpers";
 
 export interface ScanRequest {
     projectId: string;
@@ -20,78 +20,83 @@ export interface Scan {
     completedAt?: string;
 }
 
-export const useScans = () => {
-    const [scans, setScans] = useState<Scan[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const lastTenantIdRef = useRef<string | null>(null);
+/* ======================================================
+   QUERY KEYS
+====================================================== */
+export const scansKeys = {
+    all: ["scans"] as const,
+    list: (tenantId: string | null) => [...scansKeys.all, "list", tenantId] as const,
+    detail: (scanId: string | null) => [...scansKeys.all, "detail", scanId] as const,
+};
 
-    const fetchScans = async (tenantId: string) => {
-        lastTenantIdRef.current = tenantId;
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await getScans(tenantId);
-            setScans(response.data.content || response.data);
-        } catch (err: any) {
-            console.error('Failed to fetch scans:', err);
-            setError(err.response?.data?.message || 'Failed to fetch scans');
-        } finally {
-            setLoading(false);
-        }
-    };
+/* ======================================================
+   FETCHER
+====================================================== */
+async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+    const headers = { ...getAuthHeaders(), ...(options?.headers as Record<string, string>) };
+    const res = await fetch(url, { ...options, headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return res.json();
+}
 
-    const refetchScans = async () => {
-        if (lastTenantIdRef.current) {
-            await fetchScans(lastTenantIdRef.current);
-        }
-    };
+/* ======================================================
+   HOOKS
+====================================================== */
 
-    const startScanFn = async (request: ScanRequest, _tenantId?: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            // Map frontend request to backend DTO
+/** Fetch paginated scans for a tenant */
+export function useScans(tenantId: string | null) {
+    const queryClient = useQueryClient();
+
+    const query = useQuery({
+        queryKey: scansKeys.list(tenantId),
+        queryFn: async () => {
+            const response = await fetchJSON<any>(`${API}/api/bff/scans?page=0&size=50`);
+            const rawData = response.content ?? response.data?.content ?? response.data ?? response;
+            const normalized = (rawData || []).map((s: any) => ({
+                ...s,
+                id: s.id ?? s.scanId,
+            }));
+            return normalized as Scan[];
+        },
+        enabled: !!tenantId,
+        staleTime: 15_000,
+    });
+
+    const startMutation = useMutation({
+        mutationFn: (request: ScanRequest) => {
             const backendRequest = {
                 type: request.scanType,
                 targetUrl: request.targetUrl,
                 targetRepo: request.targetRepo,
                 projectId: request.projectId,
             };
+            return fetchJSON<any>(`${API}/api/bff/scans/request`, {
+                method: "POST",
+                body: JSON.stringify(backendRequest),
+            });
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: scansKeys.all }),
+    });
 
-            const response = await startScan(backendRequest);
-            return response.data;
-        } catch (err: any) {
-            console.error('Failed to start scan:', err);
-            setError(err.response?.data?.message || 'Failed to start scan');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getScanById = async (scanId: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await getScan(scanId);
-            return response.data;
-        } catch (err: any) {
-            console.error('Failed to fetch scan:', err);
-            setError(err.response?.data?.message || 'Failed to fetch scan');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
+    const data = query.data ?? [];
+    const scans = data;
+    const error = (query.error as Error)?.message || null;
 
     return {
+        data: query.data,
         scans,
-        loading,
+        isLoading: query.isLoading,
         error,
-        fetchScans,
-        refetchScans,
-        startScan: startScanFn,
-        getScan: getScanById,
+        refetch: query.refetch,
+        startScan: startMutation.mutateAsync,
     };
-};
+}
+
+/** Fetch a single scan by ID */
+export function useScan(scanId: string | null) {
+    return useQuery({
+        queryKey: scansKeys.detail(scanId),
+        queryFn: () => fetchJSON<any>(`${API}/api/bff/scans/${scanId}`),
+        enabled: !!scanId,
+    });
+}

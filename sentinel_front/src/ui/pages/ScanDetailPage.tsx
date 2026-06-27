@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getScan } from "@/api/scans.api";
+import { useScan } from "@hooks/useScans";
 import { useTheme } from "@/utils/store/themeContext";
 import Sidebar from "@/components/commons/Sidebar";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
 
 /* ─── Types ───────────────────────────────────────────── */
 
@@ -29,18 +30,11 @@ export default function ScanDetailPage() {
   const navigate = useNavigate();
   const { scanId } = useParams<{ scanId: string }>();
 
-  const [scan, setScan] = useState<ScanDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, refetch } = useScan(scanId ?? null);
 
-  const fetchScanDetail = async () => {
-    if (!scanId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await getScan(scanId);
-      const data = response.data;
-      setScan({
+  /* ── Transform API data to ScanDetail shape ── */
+  const scan: ScanDetail | null = data
+    ? {
         id: data.id ?? data.scanId,
         status: data.status ?? "UNKNOWN",
         scanType: data.scanType ?? data.type ?? "—",
@@ -49,21 +43,11 @@ export default function ScanDetailPage() {
         createdAt: data.createdAt,
         completedAt: data.completedAt ?? null,
         findings: data.findings ?? null,
-      });
-    } catch (e: any) {
-      setError(e.response?.data?.message || e.message || "Failed to load scan details");
-      setScan(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchScanDetail();
-  }, [scanId]);
+      }
+    : null;
 
   /* ── loading ── */
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="scans-layout">
         <Sidebar activeItem="scans" />
@@ -95,7 +79,7 @@ export default function ScanDetailPage() {
           >
             <h2 style={{ color: theme.colors.danger, marginBottom: 12 }}>Error</h2>
             <p style={{ color: theme.colors.text.secondary, marginBottom: 20 }}>
-              {error || "Scan not found"}
+              {error ? (error as Error).message : "Scan not found"}
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <button
@@ -111,7 +95,7 @@ export default function ScanDetailPage() {
               </button>
               <button
                 className="filter-btn"
-                onClick={fetchScanDetail}
+                onClick={() => refetch()}
               >
                 <RefreshCw size={16} style={{ marginRight: 6 }} />
                 Retry
@@ -132,6 +116,11 @@ export default function ScanDetailPage() {
       <Sidebar activeItem="scans" />
 
       <main className="scans-main" style={{ background: theme.colors.surface }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
         {/* HEADER */}
         <header
           className="scans-header"
@@ -358,6 +347,7 @@ export default function ScanDetailPage() {
             </div>
           )}
         </div>
+        </motion.div>
       </main>
     </div>
   );
