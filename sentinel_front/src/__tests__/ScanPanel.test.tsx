@@ -43,12 +43,10 @@ const mockStartScan = jest.fn();
 
 const mockUseScans = jest.fn(() => ({
   scans: [],
-  loading: false,
+  isLoading: false,
   error: null,
-  fetchScans: jest.fn(),
-  refetchScans: mockRefreshScans,
+  refetch: mockRefreshScans,
   startScan: mockStartScan,
-  getScan: jest.fn(),
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -100,12 +98,10 @@ beforeEach(() => {
   });
   mockUseScans.mockReturnValue({
     scans: [],
-    loading: false,
+    isLoading: false,
     error: null,
-    fetchScans: jest.fn(),
-    refetchScans: mockRefreshScans,
+    refetch: mockRefreshScans,
     startScan: mockStartScan,
-    getScan: jest.fn(),
   });
   mockNavigate.mockReset();
   mockStartScan.mockReset();
@@ -281,7 +277,7 @@ describe('ScanPanel — View Report navigation', () => {
 // SCENARIO: Successful scan creation refetches scan list
 // ══════════════════════════════════════════════════════════════
 describe('ScanPanel — auto-refetch after scan creation', () => {
-  it('calls refetchScans after successful startScan', async () => {
+  it('calls refetch after successful startScan', async () => {
     mockStartScan.mockResolvedValueOnce({ id: 'new-scan', status: 'RUNNING' });
 
     mockUseProjects.mockReturnValue({
@@ -351,7 +347,6 @@ describe('ScanPanel — auto-refetch after scan creation', () => {
         projectId: 'p1',
         scanType: 'DAST',
       }),
-      'tenant-1'
     );
   });
 

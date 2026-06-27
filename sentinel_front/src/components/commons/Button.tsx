@@ -1,6 +1,7 @@
 // src/ui/components/Button.tsx
 import { useTheme } from '../../utils/store/themeContext';
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface ButtonProps {
   text: string;
@@ -95,21 +96,6 @@ export const Button: React.FC<ButtonProps> = ({
     padding: sizeStyles.padding,
   }
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    if (!disabled) {
-      (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)';
-      (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${color}66`;
-      (e.currentTarget as HTMLElement).style.backgroundColor = 
-        mode === 'dark' ? theme.colors.primaryLight : theme.colors.primary;
-    }
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-    (e.currentTarget as HTMLElement).style.backgroundColor = buttonColor;
-  };
-
   const buttonContent = (
     <>
       {icon && iconPosition === 'left' && <span style={iconStyle}>{icon}</span>}
@@ -118,32 +104,37 @@ export const Button: React.FC<ButtonProps> = ({
     </>
   );
 
+  const hoverEffect = !disabled ? {
+    scale: 1.05,
+    boxShadow: `0 0 20px ${color}66`,
+  } : {};
+
   // Si tiene URL, renderiza como link
   if (url) {
     return (
-      <a
+      <motion.a
         href={url}
         style={baseStyles}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        whileHover={hoverEffect}
+        transition={{ duration: 0.2 }}
         className="sentinel-button"
       >
         {buttonContent}
-      </a>
+      </motion.a>
     );
   }
 
   // Si no tiene URL, renderiza como button
   return (
-    <button
+    <motion.button
       style={baseStyles}
       disabled={disabled}
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      whileHover={hoverEffect}
+      transition={{ duration: 0.2 }}
       className="sentinel-button"
     >
       {buttonContent}
-    </button>
+    </motion.button>
   );
 };

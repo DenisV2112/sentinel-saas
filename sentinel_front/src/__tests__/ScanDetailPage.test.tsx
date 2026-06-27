@@ -1,5 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import React from 'react';
+import React, { type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // ── Mocks ──────────────────────────────────────────────────────
 const mockNavigate = jest.fn();
@@ -13,7 +14,7 @@ const mockTheme = {
     danger: '#ef4444',
     success: '#22c55e',
     warning: '#f59e0b',
-    text: { primary: '#111', secondary: '#666' },
+    text: { primary: '#111', secondary: '#666', tertiary: '#999' },
     border: '#e5e7eb',
   },
 };
@@ -32,25 +33,38 @@ jest.mock('@/components/commons/Sidebar', () => ({
   default: () => <div data-testid="sidebar" />,
 }));
 
-// Mock the scans API
-const mockGetScan = jest.fn();
-jest.mock('@/api/scans.api', () => ({
-  getScan: (...args: any[]) => mockGetScan(...args),
-}));
+// ── Fresh QueryClient per render for test isolation ───────────
+function renderWithQuery(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
+  return render(ui, {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    ),
+  });
+}
 
 // ── Dynamic import ─────────────────────────────────────────────
-// This WILL fail because ScanDetailPage.tsx does not exist yet → RED phase
 let ScanDetailPage: React.ComponentType;
 beforeAll(async () => {
   const mod = await import('@/ui/pages/ScanDetailPage');
   ScanDetailPage = mod.default;
 });
 
+let mockFetch: jest.Mock;
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseParams.mockReturnValue({ scanId: 'test-123' });
   mockNavigate.mockReset();
-  mockGetScan.mockReset();
+  mockFetch = jest.fn();
+  global.fetch = mockFetch;
+  localStorage.setItem('accessToken', 'test-jwt-token');
+});
+
+afterEach(() => {
+  localStorage.clear();
+  (global.fetch as any) = undefined;
 });
 
 // ══════════════════════════════════════════════════════════════
@@ -58,10 +72,10 @@ beforeEach(() => {
 // ══════════════════════════════════════════════════════════════
 describe('ScanDetailPage — loading state', () => {
   it('shows loading spinner initially while fetching scan', async () => {
-    // getScan returns a promise that never resolves (stays loading)
-    mockGetScan.mockReturnValue(new Promise(() => {}));
+    // fetch returns a promise that never resolves (stays loading)
+    mockFetch.mockReturnValue(new Promise(() => {}));
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
       expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -74,24 +88,24 @@ describe('ScanDetailPage — loading state', () => {
 // ══════════════════════════════════════════════════════════════
 describe('ScanDetailPage — error state', () => {
   it('shows error card on API failure with retry button', async () => {
-    mockGetScan.mockRejectedValueOnce(new Error('Network failure'));
+    mockFetch.mockRejectedValueOnce(new Error('Network failure'));
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
       expect(screen.getByText(/error/i)).toBeInTheDocument();
     }, { timeout: 5000 });
 
-    // Retry button should be present
     const retryBtn = screen.getByRole('button', { name: /retry/i });
     expect(retryBtn).toBeInTheDocument();
   });
 
   it('clicking Retry re-fetches the scan', async () => {
-    mockGetScan
+    mockFetch
       .mockRejectedValueOnce(new Error('Network failure'))
       .mockResolvedValueOnce({
-        data: {
+        ok: true,
+        json: async () => ({
           id: 'test-123',
           status: 'COMPLETED',
           scanType: 'SAST',
@@ -99,10 +113,10 @@ describe('ScanDetailPage — error state', () => {
           createdAt: '2026-06-01T10:00:00Z',
           completedAt: '2026-06-01T10:30:00Z',
           findings: { critical: 2, high: 3, medium: 1 },
-        },
+        }),
       });
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
@@ -111,7 +125,7 @@ describe('ScanDetailPage — error state', () => {
     fireEvent.click(screen.getByRole('button', { name: /retry/i }));
 
     await waitFor(() => {
-      expect(mockGetScan).toHaveBeenCalledTimes(2);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
     // After retry, findings should appear
@@ -126,8 +140,9 @@ describe('ScanDetailPage — error state', () => {
 // ══════════════════════════════════════════════════════════════
 describe('ScanDetailPage — empty findings', () => {
   it('shows "No findings yet" when scan has no findings', async () => {
-    mockGetScan.mockResolvedValueOnce({
-      data: {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
         id: 'test-123',
         status: 'RUNNING',
         scanType: 'DAST',
@@ -135,14 +150,14 @@ describe('ScanDetailPage — empty findings', () => {
         createdAt: '2026-06-01T08:00:00Z',
         completedAt: null,
         findings: null,
-      },
+      }),
     });
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
       expect(screen.getByText(/no findings/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    });
   });
 });
 
@@ -151,26 +166,22 @@ describe('ScanDetailPage — empty findings', () => {
 // ══════════════════════════════════════════════════════════════
 describe('ScanDetailPage — findings display', () => {
   it('renders findings with critical, high, medium counts', async () => {
-    mockGetScan.mockResolvedValueOnce({
-      data: {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
         id: 'test-123',
         status: 'COMPLETED',
         scanType: 'SAST',
         projectName: 'Security Core',
         createdAt: '2026-06-01T10:00:00Z',
         completedAt: '2026-06-01T10:30:00Z',
-        findings: {
-          critical: 5,
-          high: 3,
-          medium: 12,
-        },
-      },
+        findings: { critical: 5, high: 3, medium: 12 },
+      }),
     });
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
-      // Status badge text is present (may appear in multiple places)
       const completedEls = screen.getAllByText(/completed/i);
       expect(completedEls.length).toBeGreaterThan(0);
     });
@@ -181,7 +192,7 @@ describe('ScanDetailPage — findings display', () => {
     // Scan type
     expect(screen.getByText('SAST')).toBeInTheDocument();
 
-    // Findings counts - use getAllByText since numbers might appear multiple times
+    // Findings counts
     expect(screen.getByText('5')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
@@ -193,8 +204,9 @@ describe('ScanDetailPage — findings display', () => {
   });
 
   it('renders scan timeline info', async () => {
-    mockGetScan.mockResolvedValueOnce({
-      data: {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
         id: 'test-123',
         status: 'COMPLETED',
         scanType: 'SCA',
@@ -202,13 +214,12 @@ describe('ScanDetailPage — findings display', () => {
         createdAt: '2026-05-28T09:00:00Z',
         completedAt: '2026-05-28T09:15:00Z',
         findings: { critical: 0, high: 1, medium: 4 },
-      },
+      }),
     });
 
-    render(<ScanDetailPage />);
+    renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
-      // Should show the date info
       expect(screen.getByText('Dep Check')).toBeInTheDocument();
     });
   });
