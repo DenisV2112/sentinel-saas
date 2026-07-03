@@ -28,15 +28,19 @@ public class ScanWebhookController {
      * Receives scan result notifications from the Security Gate service.
      * Logs the incoming webhook for debugging and returns confirmation.
      *
-     * @param request the webhook payload containing scanId, status, and findings
+     * @param request the webhook payload containing scanId, status, qualityGatePassed,
+     *               completedAt, summary, and optional findings
      * @return 200 OK with confirmation
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> receiveWebhook(
             @RequestBody ScanResultWebhookRequest request) {
-        log.info("📡 BFF: Scan result webhook received — scanId: {}, status: {}, findings keys: {}",
+        log.info("📡 BFF: Scan result webhook received — scanId: {}, status: {}, qualityGatePassed: {}, completedAt: {}, summary: {}, findings keys: {}",
                 request.scanId(),
                 request.status(),
+                request.qualityGatePassed(),
+                request.completedAt(),
+                request.summary() != null ? request.summary().keySet() : "null",
                 request.findings() != null ? request.findings().keySet() : "null");
 
         return ResponseEntity.ok(Map.of("received", true));
