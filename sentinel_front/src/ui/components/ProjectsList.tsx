@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/utils/store/themeContext";
 import { useProjects } from "@/hooks/useProjects"; // Using absolute alias
 import { Plus, Box, Loader2 } from "lucide-react";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
@@ -15,7 +14,6 @@ const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> =
 };
 
 export function ProjectsList({ workspaceId }: { workspaceId: string }) {
-    const { theme } = useTheme();
     const navigate = useNavigate();
     const { projects, loading, error, createProject, refetch } = useProjects(workspaceId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -64,12 +62,12 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
     };
 
     if (loading && projects.length === 0) return <div style={{ padding: 20 }}>Loading projects...</div>;
-    if (error) return <div style={{ color: theme.colors.danger }}>Error: {error}</div>;
+    if (error) return <div style={{ color: 'var(--color-danger)' }}>Error: {error}</div>;
 
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h3 style={{ color: theme.colors.text.primary, margin: 0 }}>Projects</h3>
+                <h3 style={{ color: 'var(--color-text-primary)', margin: 0 }}>Projects</h3>
                 <button
                     onClick={handleNewProjectClick}
                     style={{
@@ -77,9 +75,9 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                         alignItems: "center",
                         gap: 8,
                         padding: "8px 16px",
-                        background: currentPlan === 'FREE' ? theme.colors.surface : theme.colors.primary,
-                        color: currentPlan === 'FREE' ? theme.colors.text.tertiary : theme.colors.onPrimary,
-                        border: currentPlan === 'FREE' ? `1px solid ${theme.colors.border}` : "none",
+                        background: currentPlan === 'FREE' ? 'var(--color-surface)' : 'var(--color-primary)',
+                        color: currentPlan === 'FREE' ? 'var(--color-text-tertiary)' : 'var(--color-on-primary)',
+                        border: currentPlan === 'FREE' ? '1px solid var(--color-border)' : "none",
                         borderRadius: 6,
                         cursor: "pointer",
                         fontSize: 14,
@@ -95,12 +93,12 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                 <div style={{
                     textAlign: 'center',
                     padding: 40,
-                    border: `1px dashed ${theme.colors.border}`,
+                    border: '1px dashed var(--color-border)',
                     borderRadius: 8,
-                    background: theme.colors.background
+                    background: 'var(--color-background)'
                 }}>
-                    <Box size={32} color={theme.colors.text.tertiary} />
-                    <p style={{ color: theme.colors.text.secondary }}>No projects found in this workspace</p>
+                    <Box size={32} color={'var(--color-text-tertiary)'} />
+                    <p style={{ color: 'var(--color-text-secondary)' }}>No projects found in this workspace</p>
                 </div>
             ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
@@ -109,8 +107,8 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                             key={project.id}
                             onClick={() => navigate(`/projects/${project.id}`)}
                             style={{
-                                background: theme.colors.background,
-                                border: `1px solid ${theme.colors.border}`,
+                                background: 'var(--color-background)',
+                                border: '1px solid var(--color-border)',
                                 borderRadius: 8,
                                 padding: 16,
                                 cursor: "pointer",
@@ -126,13 +124,13 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                             }}
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                                <Box size={20} color={theme.colors.primary} />
-                                <h4 style={{ margin: 0, color: theme.colors.text.primary }}>{project.name}</h4>
+                                <Box size={20} color={'var(--color-primary)'} />
+                                <h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{project.name}</h4>
                             </div>
-                            <p style={{ color: theme.colors.text.secondary, fontSize: 13, margin: "0 0 12px 0" }}>
+                            <p style={{ color: 'var(--color-text-secondary)', fontSize: 13, margin: "0 0 12px 0" }}>
                                 {project.description || "No description"}
                             </p>
-                            <div style={{ display: "flex", gap: 12, fontSize: 12, color: theme.colors.text.tertiary }}>
+                            <div style={{ display: "flex", gap: 12, fontSize: 12, color: 'var(--color-text-tertiary)' }}>
                                 <span>{project.repoCount || 0} Repos</span>
                                 <span>{project.domainCount || 0} Domains</span>
                             </div>
@@ -159,16 +157,16 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                     <form
                         onSubmit={handleCreate}
                         style={{
-                            background: theme.colors.surface,
+                            background: 'var(--color-surface)',
                             padding: 24,
                             borderRadius: 12,
                             width: 400,
-                            border: `1px solid ${theme.colors.border}`,
+                            border: '1px solid var(--color-border)',
                         }}
                     >
-                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>New Project</h2>
+                        <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>New Project</h2>
                         <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: "block", color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                            <label style={{ display: "block", color: 'var(--color-text-secondary)', marginBottom: 8, fontSize: 14 }}>
                                 Project Name
                             </label>
                             <input
@@ -181,14 +179,14 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                                     width: "100%",
                                     padding: "10px",
                                     borderRadius: 8,
-                                    border: `1px solid ${theme.colors.border}`,
-                                    background: theme.colors.background,
-                                    color: theme.colors.text.primary,
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-background)',
+                                    color: 'var(--color-text-primary)',
                                 }}
                             />
                         </div>
                         <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: "block", color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                            <label style={{ display: "block", color: 'var(--color-text-secondary)', marginBottom: 8, fontSize: 14 }}>
                                 Description
                             </label>
                             <input
@@ -199,9 +197,9 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                                     width: "100%",
                                     padding: "10px",
                                     borderRadius: 8,
-                                    border: `1px solid ${theme.colors.border}`,
-                                    background: theme.colors.background,
-                                    color: theme.colors.text.primary,
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-background)',
+                                    color: 'var(--color-text-primary)',
                                 }}
                             />
                         </div>
@@ -212,7 +210,7 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                                 style={{
                                     padding: "8px 16px",
                                     background: "transparent",
-                                    color: theme.colors.text.secondary,
+                                    color: 'var(--color-text-secondary)',
                                     border: "none",
                                     cursor: "pointer",
                                 }}
@@ -224,8 +222,8 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                                 disabled={creating}
                                 style={{
                                     padding: "8px 16px",
-                                    background: theme.colors.primary,
-                                    color: theme.colors.onPrimary,
+                                    background: 'var(--color-primary)',
+                                    color: 'var(--color-on-primary)',
                                     border: "none",
                                     borderRadius: 8,
                                     cursor: "pointer",

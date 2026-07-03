@@ -128,13 +128,12 @@ export const ProjectDetailPage = () => {
     }, [showEditModal, displayProject]);
 
 
-    // ── Loading state ──────────────────────────────────────────
     if (loadingProject) {
         return (
             <Sidebar>
                 <div style={{
                     minHeight: '100vh',
-                    background: theme.colors.background,
+                    background: 'var(--color-background)',
                     padding: 24,
                 }}>
                     <DetailSkeleton rows={6} />
@@ -152,31 +151,31 @@ export const ProjectDetailPage = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    background: theme.colors.background,
+                    background: 'var(--color-background)',
                     padding: 24,
                 }}>
                     <div style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         borderRadius: 12,
                         padding: 32,
                         maxWidth: 480,
                         width: '100%',
                         textAlign: 'center',
-                        border: `1px solid ${theme.colors.border}`,
+                        border: '1px solid var(--color-border)',
                     }}>
                         <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0, marginBottom: 12 }}>
+                        <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0, marginBottom: 12 }}>
                             Project not found
                         </h2>
-                        <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                        <p className="text-secondary" style={{ marginBottom: 24 }}>
                             Project not found or access denied.
                         </p>
                         <button
                             onClick={() => navigate('/workspaces')}
                             style={{
                                 padding: '10px 24px',
-                                background: theme.colors.primary,
-                                color: theme.colors.onPrimary,
+                                background: 'var(--color-primary)',
+                                color: 'var(--color-on-primary)',
                                 border: 'none',
                                 borderRadius: 8,
                                 cursor: 'pointer',
@@ -201,31 +200,31 @@ export const ProjectDetailPage = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    background: theme.colors.background,
+                    background: 'var(--color-background)',
                     padding: 24,
                 }}>
                     <div style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         borderRadius: 12,
                         padding: 32,
                         maxWidth: 480,
                         width: '100%',
                         textAlign: 'center',
-                        border: `1px solid ${theme.colors.border}`,
+                        border: '1px solid var(--color-border)',
                     }}>
                         <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0, marginBottom: 12 }}>
+                        <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0, marginBottom: 12 }}>
                             Network error
                         </h2>
-                        <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                        <p className="text-secondary" style={{ marginBottom: 24 }}>
                             {projectError}
                         </p>
                         <button
                             onClick={() => refetch()}
                             style={{
                                 padding: '10px 24px',
-                                background: theme.colors.primary,
-                                color: theme.colors.onPrimary,
+                                background: 'var(--color-primary)',
+                                color: 'var(--color-on-primary)',
                                 border: 'none',
                                 borderRadius: 8,
                                 cursor: 'pointer',
@@ -257,22 +256,22 @@ export const ProjectDetailPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
             >
-                <div style={{ minHeight: '100vh', background: theme.colors.background, padding: 24 }}>
+                <div style={{ minHeight: '100vh', background: 'var(--color-background)', padding: 24 }}>
                 <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                     {/* Header */}
                     <div style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         borderRadius: 12,
                         padding: 24,
                         marginBottom: 24,
-                        border: `1px solid ${theme.colors.border}`
+                        border: '1px solid var(--color-border)'
                     }}>
                         <button
                             onClick={() => navigate(-1)}
                             style={{
                                 background: 'transparent',
                                 border: 'none',
-                                color: theme.colors.primary,
+                                color: 'var(--color-primary)',
                                 cursor: 'pointer',
                                 marginBottom: 16,
                                 display: 'flex',
@@ -286,10 +285,10 @@ export const ProjectDetailPage = () => {
                         </button>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
-                                <h1 style={{ fontSize: 28, fontWeight: 700, color: theme.colors.text.primary, margin: 0 }}>
+                                <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>
                                     {displayProject.name}
                                 </h1>
-                                <p style={{ color: theme.colors.text.secondary, marginTop: 8, margin: 0 }}>
+                                <p className="text-secondary" style={{ marginTop: 8, margin: 0 }}>
                                     {displayProject.description || 'No description'}
                                 </p>
                             </div>
@@ -302,8 +301,8 @@ export const ProjectDetailPage = () => {
                                         gap: 6,
                                         padding: '8px 16px',
                                         background: 'transparent',
-                                        color: theme.colors.text.secondary,
-                                        border: `1px solid ${theme.colors.border}`,
+                                        color: 'var(--color-text-secondary)',
+                                        border: '1px solid var(--color-border)',
                                         borderRadius: 8,
                                         cursor: 'pointer',
                                         fontSize: 14
@@ -318,7 +317,7 @@ export const ProjectDetailPage = () => {
                                         alignItems: 'center',
                                         gap: 6,
                                         padding: '8px 16px',
-                                        background: theme.colors.danger,
+                                        background: 'var(--color-danger)',
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: 8,
@@ -334,12 +333,12 @@ export const ProjectDetailPage = () => {
 
                     {/* Tabs */}
                     <div style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         borderRadius: 12,
                         marginBottom: 24,
-                        border: `1px solid ${theme.colors.border}`
+                        border: '1px solid var(--color-border)'
                     }}>
-                        <div style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+                        <div style={{ borderBottom: '1px solid var(--color-border)' }}>
                             <nav style={{ display: 'flex', gap: 32, padding: '0 24px' }}>
                                 {(['overview', 'scans', 'domains', 'repos'] as const).map((tab) => (
                                     <button
@@ -347,10 +346,10 @@ export const ProjectDetailPage = () => {
                                         onClick={() => setActiveTab(tab)}
                                         style={{
                                             padding: '16px 8px',
-                                            borderBottom: activeTab === tab ? `2px solid ${theme.colors.primary}` : '2px solid transparent',
+                                            borderBottom: activeTab === tab ? '2px solid var(--color-primary)' : '2px solid transparent',
                                             background: 'transparent',
                                             border: 'none',
-                                            color: activeTab === tab ? theme.colors.primary : theme.colors.text.secondary,
+                                            color: activeTab === tab ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                                             fontWeight: 500,
                                             fontSize: 14,
                                             cursor: 'pointer',
@@ -367,31 +366,31 @@ export const ProjectDetailPage = () => {
                         <div style={{ padding: 24 }}>
                             {activeTab === 'overview' && (
                                 <div>
-                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: theme.colors.text.primary }}>
+                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: 'var(--color-text-primary)' }}>
                                         Project Overview
                                     </h2>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-                                        <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
-                                            <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Project ID</p>
-                                            <p style={{ fontFamily: 'monospace', fontSize: 14, marginTop: 4, color: theme.colors.text.primary }}>
+                                        <div style={{ background: 'var(--color-background)', padding: 16, borderRadius: 8 }}>
+                                            <p style={{ fontSize: 14, margin: 0 }} className="text-secondary">Project ID</p>
+                                            <p style={{ fontFamily: 'monospace', fontSize: 14, marginTop: 4, color: 'var(--color-text-primary)' }}>
                                                 {displayProject.id}
                                             </p>
                                         </div>
-                                        <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
-                                            <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Status</p>
-                                            <p style={{ fontWeight: 600, marginTop: 4, color: theme.colors.text.primary }}>
+                                        <div style={{ background: 'var(--color-background)', padding: 16, borderRadius: 8 }}>
+                                            <p style={{ fontSize: 14, margin: 0 }} className="text-secondary">Status</p>
+                                            <p style={{ fontWeight: 600, marginTop: 4, color: 'var(--color-text-primary)' }}>
                                                 {displayProject.status}
                                             </p>
                                         </div>
-                                        <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
-                                            <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Created</p>
-                                            <p style={{ fontSize: 14, marginTop: 4, color: theme.colors.text.primary }}>
+                                        <div style={{ background: 'var(--color-background)', padding: 16, borderRadius: 8 }}>
+                                            <p style={{ fontSize: 14, margin: 0 }} className="text-secondary">Created</p>
+                                            <p style={{ fontSize: 14, marginTop: 4, color: 'var(--color-text-primary)' }}>
                                                 {new Date(displayProject.createdAt).toLocaleDateString()}
                                             </p>
                                         </div>
-                                        <div style={{ background: theme.colors.background, padding: 16, borderRadius: 8 }}>
-                                            <p style={{ fontSize: 14, color: theme.colors.text.secondary, margin: 0 }}>Total Scans</p>
-                                            <p style={{ fontSize: 24, fontWeight: 700, marginTop: 4, color: theme.colors.text.primary }}>
+                                        <div style={{ background: 'var(--color-background)', padding: 16, borderRadius: 8 }}>
+                                            <p style={{ fontSize: 14, margin: 0 }} className="text-secondary">Total Scans</p>
+                                            <p style={{ fontSize: 24, fontWeight: 700, marginTop: 4, color: 'var(--color-text-primary)' }}>
                                                 {projectScans.length}
                                             </p>
                                         </div>
@@ -408,7 +407,7 @@ export const ProjectDetailPage = () => {
                                             disabled={startingScan}
                                             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                             style={{
-                                                background: theme.colors.primary,
+                                                background: 'var(--color-primary)',
                                                 color: 'white',
                                                 padding: '8px 16px',
                                                 borderRadius: 8,
@@ -435,17 +434,17 @@ export const ProjectDetailPage = () => {
                                             zIndex: 1000
                                         }}>
                                             <div style={{
-                                                background: theme.colors.surface,
+                                                background: 'var(--color-surface)',
                                                 padding: 24,
                                                 borderRadius: 12,
                                                 width: '100%',
                                                 maxWidth: 500,
-                                                border: `1px solid ${theme.colors.border}`
+                                                border: '1px solid var(--color-border)'
                                             }}>
-                                                <h3 style={{ marginTop: 0, marginBottom: 16, color: theme.colors.text.primary }}>Start Security Scan</h3>
+                                                <h3 style={{ marginTop: 0, marginBottom: 16, color: 'var(--color-text-primary)' }}>Start Security Scan</h3>
                                                 <form onSubmit={handleStartScan}>
                                                     <div style={{ marginBottom: 16 }}>
-                                                        <label style={{ display: 'block', marginBottom: 8, color: theme.colors.text.secondary }}>
+                                                        <label style={{ display: 'block', marginBottom: 8 }} className="text-secondary">
                                                             Target Repository URL {['SAST', 'SCA', 'FULL'].includes(scanForm.scanType) && '(Required)'}
                                                         </label>
                                                         <input
@@ -458,14 +457,14 @@ export const ProjectDetailPage = () => {
                                                                 width: '100%',
                                                                 padding: '8px 12px',
                                                                 borderRadius: 6,
-                                                                border: `1px solid ${theme.colors.border}`,
-                                                                background: theme.colors.background,
-                                                                color: theme.colors.text.primary
+                                                                border: '1px solid var(--color-border)',
+                                                                background: 'var(--color-background)',
+                                                                color: 'var(--color-text-primary)'
                                                             }}
                                                         />
                                                     </div>
                                                     <div style={{ marginBottom: 16 }}>
-                                                        <label style={{ display: 'block', marginBottom: 8, color: theme.colors.text.secondary }}>
+                                                        <label style={{ display: 'block', marginBottom: 8 }} className="text-secondary">
                                                             Target URL {['DAST', 'CONTAINER'].includes(scanForm.scanType) && '(Required for DAST/Container)'}
                                                         </label>
                                                         <input
@@ -477,14 +476,14 @@ export const ProjectDetailPage = () => {
                                                                 width: '100%',
                                                                 padding: '8px 12px',
                                                                 borderRadius: 6,
-                                                                border: `1px solid ${theme.colors.border}`,
-                                                                background: theme.colors.background,
-                                                                color: theme.colors.text.primary
+                                                                border: '1px solid var(--color-border)',
+                                                                background: 'var(--color-background)',
+                                                                color: 'var(--color-text-primary)'
                                                             }}
                                                         />
                                                     </div>
                                                     <div style={{ marginBottom: 24 }}>
-                                                        <label style={{ display: 'block', marginBottom: 8, color: theme.colors.text.secondary }}>Scan Type</label>
+                                                        <label style={{ display: 'block', marginBottom: 8 }} className="text-secondary">Scan Type</label>
                                                         <select
                                                             value={scanForm.scanType}
                                                             onChange={(e) => setScanForm({ ...scanForm, scanType: e.target.value })}
@@ -492,9 +491,9 @@ export const ProjectDetailPage = () => {
                                                                 width: '100%',
                                                                 padding: '8px 12px',
                                                                 borderRadius: 6,
-                                                                border: `1px solid ${theme.colors.border}`,
-                                                                background: theme.colors.background,
-                                                                color: theme.colors.text.primary
+                                                                border: '1px solid var(--color-border)',
+                                                                background: 'var(--color-background)',
+                                                                color: 'var(--color-text-primary)'
                                                             }}
                                                         >
                                                             <option value="SAST">SAST (Static Analysis)</option>
@@ -508,9 +507,9 @@ export const ProjectDetailPage = () => {
                                                             onClick={() => setShowScanModal(false)}
                                                             style={{
                                                                 padding: '8px 16px',
-                                                                border: `1px solid ${theme.colors.border}`,
+                                                                border: '1px solid var(--color-border)',
                                                                 background: 'transparent',
-                                                                color: theme.colors.text.primary,
+                                                                color: 'var(--color-text-primary)',
                                                                 borderRadius: 6,
                                                                 cursor: 'pointer'
                                                             }}
@@ -522,7 +521,7 @@ export const ProjectDetailPage = () => {
                                                             disabled={startingScan}
                                                             style={{
                                                                 padding: '8px 16px',
-                                                                background: theme.colors.primary,
+                                                                background: 'var(--color-primary)',
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: 6,
@@ -539,27 +538,27 @@ export const ProjectDetailPage = () => {
                                     )}
 
                                     {scansLoading ? (
-                                        <p style={{ color: theme.colors.text.secondary }}>Loading scans...</p>
+                                        <p className="text-secondary">Loading scans...</p>
                                     ) : projectScans.length === 0 ? (
-                                        <p style={{ color: theme.colors.text.secondary }}>No scans yet. Start your first scan!</p>
+                                        <p className="text-secondary">No scans yet. Start your first scan!</p>
                                     ) : (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                             {projectScans.map((scan: any) => (
                                                 <div
                                                     key={scan.id}
                                                     style={{
-                                                        background: theme.colors.background,
+                                                        background: 'var(--color-background)',
                                                         padding: 16,
                                                         borderRadius: 8,
-                                                        border: `1px solid ${theme.colors.border}`
+                                                        border: '1px solid var(--color-border)'
                                                     }}
                                                 >
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                                         <div>
-                                                            <p style={{ fontWeight: 600, margin: 0, color: theme.colors.text.primary }}>
+                                                            <p style={{ fontWeight: 600, margin: 0, color: 'var(--color-text-primary)' }}>
                                                                 Scan #{scan.id.substring(0, 8)}
                                                             </p>
-                                                            <p style={{ fontSize: 14, color: theme.colors.text.secondary, marginTop: 4 }}>
+                                                            <p style={{ fontSize: 14, marginTop: 4 }} className="text-secondary">
                                                                 {new Date(scan.createdAt).toLocaleString()}
                                                             </p>
                                                         </div>
@@ -568,7 +567,7 @@ export const ProjectDetailPage = () => {
                                                             borderRadius: 12,
                                                             fontSize: 12,
                                                             fontWeight: 500,
-                                                            background: scan.status === 'COMPLETED' ? '#10b981' : scan.status === 'RUNNING' ? '#3b82f6' : '#6b7280',
+                                                            background: scan.status === 'COMPLETED' ? 'var(--color-success)' : scan.status === 'RUNNING' ? 'var(--color-info)' : 'var(--color-text-tertiary)',
                                                             color: 'white'
                                                         }}>
                                                             {scan.status}
@@ -583,15 +582,15 @@ export const ProjectDetailPage = () => {
 
                             {activeTab === 'domains' && (
                                 <div>
-                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: theme.colors.text.primary }}>Domains</h2>
-                                    <p style={{ color: theme.colors.text.secondary }}>Domain management coming soon...</p>
+                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: 'var(--color-text-primary)' }}>Domains</h2>
+                                    <p className="text-secondary">Domain management coming soon...</p>
                                 </div>
                             )}
 
                             {activeTab === 'repos' && (
                                 <div>
-                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: theme.colors.text.primary }}>Repositories</h2>
-                                    <p style={{ color: theme.colors.text.secondary }}>Repository management coming soon...</p>
+                                    <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: 'var(--color-text-primary)' }}>Repositories</h2>
+                                    <p className="text-secondary">Repository management coming soon...</p>
                                 </div>
                             )}
                         </div>
@@ -614,15 +613,15 @@ export const ProjectDetailPage = () => {
                     zIndex: 2000
                 }}>
                     <form onSubmit={handleEditProject} style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         padding: 24,
                         borderRadius: 12,
                         width: 400,
-                        border: `1px solid ${theme.colors.border}`
+                        border: '1px solid var(--color-border)'
                     }}>
-                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>Edit Project</h2>
+                        <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>Edit Project</h2>
                         <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                            <label style={{ display: 'block', marginBottom: 8, fontSize: 14 }} className="text-secondary">
                                 Project Name
                             </label>
                             <input
@@ -634,14 +633,14 @@ export const ProjectDetailPage = () => {
                                     width: '100%',
                                     padding: '10px',
                                     borderRadius: 8,
-                                    border: `1px solid ${theme.colors.border}`,
-                                    background: theme.colors.background,
-                                    color: theme.colors.text.primary
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-background)',
+                                    color: 'var(--color-text-primary)'
                                 }}
                             />
                         </div>
                         <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: 'block', color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                            <label style={{ display: 'block', marginBottom: 8, fontSize: 14 }} className="text-secondary">
                                 Description
                             </label>
                             <input
@@ -651,9 +650,9 @@ export const ProjectDetailPage = () => {
                                     width: '100%',
                                     padding: '10px',
                                     borderRadius: 8,
-                                    border: `1px solid ${theme.colors.border}`,
-                                    background: theme.colors.background,
-                                    color: theme.colors.text.primary
+                                    border: '1px solid var(--color-border)',
+                                    background: 'var(--color-background)',
+                                    color: 'var(--color-text-primary)'
                                 }}
                             />
                         </div>
@@ -664,7 +663,7 @@ export const ProjectDetailPage = () => {
                                 style={{
                                     padding: '8px 16px',
                                     background: 'transparent',
-                                    color: theme.colors.text.secondary,
+                                    color: 'var(--color-text-secondary)',
                                     border: 'none',
                                     cursor: 'pointer'
                                 }}
@@ -676,8 +675,8 @@ export const ProjectDetailPage = () => {
                                 disabled={saving}
                                 style={{
                                     padding: '8px 16px',
-                                    background: theme.colors.primary,
-                                    color: theme.colors.onPrimary,
+                                    background: 'var(--color-primary)',
+                                    color: 'var(--color-on-primary)',
                                     border: 'none',
                                     borderRadius: 8,
                                     cursor: 'pointer',
@@ -706,14 +705,14 @@ export const ProjectDetailPage = () => {
                     zIndex: 2000
                 }}>
                     <div style={{
-                        background: theme.colors.surface,
+                        background: 'var(--color-surface)',
                         padding: 24,
                         borderRadius: 12,
                         width: 400,
-                        border: `1px solid ${theme.colors.border}`
+                        border: '1px solid var(--color-border)'
                     }}>
-                        <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>Delete Project</h2>
-                        <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                        <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>Delete Project</h2>
+                        <p className="text-secondary" style={{ marginBottom: 24 }}>
                             Are you sure you want to delete <strong>{displayProject.name}</strong>? This action cannot be undone.
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
@@ -722,8 +721,8 @@ export const ProjectDetailPage = () => {
                                 style={{
                                     padding: '8px 16px',
                                     background: 'transparent',
-                                    color: theme.colors.text.secondary,
-                                    border: `1px solid ${theme.colors.border}`,
+                                    color: 'var(--color-text-secondary)',
+                                    border: '1px solid var(--color-border)',
                                     borderRadius: 8,
                                     cursor: 'pointer'
                                 }}
@@ -735,7 +734,7 @@ export const ProjectDetailPage = () => {
                                 disabled={saving}
                                 style={{
                                     padding: '8px 16px',
-                                    background: theme.colors.danger,
+                                    background: 'var(--color-danger)',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: 8,

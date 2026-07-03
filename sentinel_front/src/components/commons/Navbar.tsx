@@ -8,7 +8,7 @@ import { IconButton } from "./toggleButton";
 import Logo from "@/assets/icons/sentinel-logo.svg?react";
 
 export const Navbar = () => {
-  const { theme, mode, setTheme } = useTheme();
+  const { mode, setTheme } = useTheme();
 
   const { i18n, t } = useTranslation();
   const location = useLocation();
@@ -33,7 +33,7 @@ export const Navbar = () => {
         alignItems: "center",
         padding: "20px 40px",
         backdropFilter: "blur(10px)",
-        borderBottom: `1px solid ${theme.colors.border}`,
+        borderBottom: '1px solid var(--color-border)',
         position: "sticky",
         top: 0,
         zIndex: 100,
@@ -44,14 +44,14 @@ export const Navbar = () => {
       >
         <Logo style={{ width: 24, height: 24,}} />
         EN
-        <span style={{ color: theme.colors.primary }}>TIN</span>EL
+        <span style={{ color: 'var(--color-primary)' }}>TIN</span>EL
       </div>
 
       <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
         <Link
           to="/"
           style={{
-            color: theme.colors.text.secondary,
+            color: 'var(--color-text-secondary)',
             textDecoration: "none",
             cursor: "pointer",
           }}
@@ -61,7 +61,7 @@ export const Navbar = () => {
         <Link
           to="/"
           style={{
-            color: theme.colors.text.secondary,
+            color: 'var(--color-text-secondary)',
             textDecoration: "none",
             cursor: "pointer",
           }}
@@ -71,7 +71,7 @@ export const Navbar = () => {
         <a
            href="https://docs.laziness.crudzaso.com"
           style={{
-            color: theme.colors.text.secondary,
+            color: 'var(--color-text-secondary)',
             textDecoration: "none",
             cursor: "pointer",
           }}
@@ -93,7 +93,7 @@ export const Navbar = () => {
             </>
           }
           onClick={toggleLanguage}
-          color={theme.colors.primary}
+          color={'var(--color-primary)'}
           size={18}
           ariaLabel={`Current language: ${
             i18n.language === "es" ? "Spanish" : "English"

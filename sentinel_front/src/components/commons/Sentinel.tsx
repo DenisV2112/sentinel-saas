@@ -1,9 +1,6 @@
 import Logo from "@/assets/icons/sentinel-logo.svg?react";
-import { useTheme } from '../../utils/store/themeContext';
 
 export default function Sentinel() {
-    
-      const { theme, toggleTheme, mode } = useTheme();
     return( <div style={{
     fontSize: '18px',
     fontWeight: 'bold',
@@ -14,9 +11,9 @@ export default function Sentinel() {
     justifyContent: 'center',
     gap: '8px'
   }}>
-    <Logo style={{ width: 20, height: 20, fill: theme.colors.primary }} />
-    <span style={{ color: theme.colors.text.primary }}>
-      SEN<span style={{ color: theme.colors.primary }}>TIN</span>EL
+    <Logo style={{ width: 20, height: 20, fill: 'var(--color-primary)' }} />
+    <span style={{ color: 'var(--color-text-primary)' }}>
+      SEN<span style={{ color: 'var(--color-primary)' }}>TIN</span>EL
     </span>
   </div>)
  }

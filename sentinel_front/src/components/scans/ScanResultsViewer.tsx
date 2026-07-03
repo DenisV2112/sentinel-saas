@@ -4,6 +4,7 @@ import {
     parseScanResults,
     getSeverityColor,
     getSeverityBgColor,
+    getStatTintColor,
     groupBySeverity,
     getSeverityStats,
 } from '../../utils/scanResultsParser';
@@ -19,7 +20,7 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
 
     if (!scan) {
         return (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#6B7280' }}>
+            <div style={{ padding: '40px', textAlign: 'center' }} className="text-secondary">
                 <Info size={48} style={{ margin: '0 auto 16px' }} />
                 <p>No scan data available</p>
             </div>
@@ -56,7 +57,7 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
                 <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>
                     Scan Results
                 </h2>
-                <p style={{ color: '#6B7280' }}>
+                <p className="text-secondary">
                     {scan.scanType} scan completed on {new Date(scan.completedAt || scan.createdAt).toLocaleString()}
                 </p>
             </div>
@@ -71,35 +72,35 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
                 <StatCard
                     label="Total"
                     value={stats.total}
-                    color="#6B7280"
+                    severity="TOTAL"
                     active={selectedSeverity === 'ALL'}
                     onClick={() => setSelectedSeverity('ALL')}
                 />
                 <StatCard
                     label="Critical"
                     value={stats.CRITICAL}
-                    color={getSeverityColor('CRITICAL')}
+                    severity="CRITICAL"
                     active={selectedSeverity === 'CRITICAL'}
                     onClick={() => setSelectedSeverity('CRITICAL')}
                 />
                 <StatCard
                     label="High"
                     value={stats.HIGH}
-                    color={getSeverityColor('HIGH')}
+                    severity="HIGH"
                     active={selectedSeverity === 'HIGH'}
                     onClick={() => setSelectedSeverity('HIGH')}
                 />
                 <StatCard
                     label="Medium"
                     value={stats.MEDIUM}
-                    color={getSeverityColor('MEDIUM')}
+                    severity="MEDIUM"
                     active={selectedSeverity === 'MEDIUM'}
                     onClick={() => setSelectedSeverity('MEDIUM')}
                 />
                 <StatCard
                     label="Low"
                     value={stats.LOW}
-                    color={getSeverityColor('LOW')}
+                    severity="LOW"
                     active={selectedSeverity === 'LOW'}
                     onClick={() => setSelectedSeverity('LOW')}
                 />
@@ -110,15 +111,15 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
                 <div style={{
                     padding: '40px',
                     textAlign: 'center',
-                    backgroundColor: '#F9FAFB',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB'
+                    border: '1px solid var(--color-border, #2A2A2A)',
+                    backgroundColor: 'var(--color-surface-light, #2D2D2D)',
                 }}>
-                    <CheckCircle size={48} style={{ color: '#10B981', margin: '0 auto 16px' }} />
+                    <CheckCircle size={48} style={{ color: 'var(--color-success, #10B981)', margin: '0 auto 16px' }} />
                     <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
                         No vulnerabilities found
                     </p>
-                    <p style={{ color: '#6B7280' }}>
+                    <p className="text-secondary">
                         {selectedSeverity === 'ALL'
                             ? 'This scan completed successfully with no issues detected.'
                             : `No ${selectedSeverity.toLowerCase()} severity issues found.`}
@@ -144,31 +145,36 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
 interface StatCardProps {
     label: string;
     value: number;
-    color: string;
+    severity: string;
     active: boolean;
     onClick: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, color, active, onClick }) => (
-    <div
-        onClick={onClick}
-        style={{
-            padding: '16px',
-            borderRadius: '8px',
-            border: `2px solid ${active ? color : '#E5E7EB'}`,
-            backgroundColor: active ? `${color}10` : '#FFFFFF',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-        }}
-    >
-        <div style={{ fontSize: '28px', fontWeight: 'bold', color, marginBottom: '4px' }}>
-            {value}
+const StatCard: React.FC<StatCardProps> = ({ label, value, severity, active, onClick }) => {
+    const color = getSeverityColor(severity);
+    const bgTint = getStatTintColor(severity);
+
+    return (
+        <div
+            onClick={onClick}
+            style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: `2px solid ${active ? color : 'var(--color-border, #2A2A2A)'}`,
+                backgroundColor: active ? bgTint : 'var(--color-surface, #1A1A1A)',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+            }}
+        >
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color, marginBottom: '4px' }}>
+                {value}
+            </div>
+            <div style={{ fontSize: '14px' }} className="text-secondary">
+                {label}
+            </div>
         </div>
-        <div style={{ fontSize: '14px', color: '#6B7280' }}>
-            {label}
-        </div>
-    </div>
-);
+    );
+};
 
 // Vulnerability Card Component
 interface VulnerabilityCardProps {
@@ -183,10 +189,10 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
 
     return (
         <div style={{
-            border: '1px solid #E5E7EB',
+            border: '1px solid var(--color-border, #2A2A2A)',
             borderRadius: '8px',
             overflow: 'hidden',
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'var(--color-surface, #1A1A1A)',
         }}>
             {/* Header */}
             <div
@@ -197,7 +203,7 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    backgroundColor: expanded ? '#F9FAFB' : '#FFFFFF',
+                    backgroundColor: expanded ? 'var(--color-surface-light, #2D2D2D)' : 'var(--color-surface, #1A1A1A)',
                     transition: 'background-color 0.2s',
                 }}
             >
@@ -227,20 +233,20 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                         {vulnerability.title}
                     </div>
                     {vulnerability.file && (
-                        <div style={{ fontSize: '14px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }} className="text-secondary">
                             <FileText size={14} />
                             {vulnerability.file}
                             {vulnerability.line && `:${vulnerability.line}`}
                         </div>
                     )}
                     {vulnerability.package && (
-                        <div style={{ fontSize: '14px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }} className="text-secondary">
                             <Package size={14} />
                             {vulnerability.package} {vulnerability.version && `(${vulnerability.version})`}
                         </div>
                     )}
                     {vulnerability.url && (
-                        <div style={{ fontSize: '14px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }} className="text-secondary">
                             <Globe size={14} />
                             {vulnerability.url}
                         </div>
@@ -250,13 +256,13 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
 
             {/* Expanded Details */}
             {expanded && (
-                <div style={{ padding: '16px', borderTop: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
+                <div style={{ padding: '16px', borderTop: '1px solid var(--color-border, #2A2A2A)', backgroundColor: 'var(--color-surface-light, #2D2D2D)' }}>
                     {/* Description */}
                     <div style={{ marginBottom: '16px' }}>
                         <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
                             Description
                         </h4>
-                        <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6' }}>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-primary, #FFFFFF)', lineHeight: '1.6' }}>
                             {vulnerability.description}
                         </p>
                     </div>
@@ -269,8 +275,8 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                                 Code
                             </h4>
                             <pre style={{
-                                backgroundColor: '#1F2937',
-                                color: '#F3F4F6',
+                                backgroundColor: 'var(--color-bg-code, #1F2937)',
+                                color: 'var(--color-text-on-code, #F3F4F6)',
                                 padding: '12px',
                                 borderRadius: '4px',
                                 fontSize: '13px',
@@ -290,8 +296,8 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                             </h4>
                             <p style={{
                                 fontSize: '14px',
-                                color: '#059669',
-                                backgroundColor: '#D1FAE5',
+                                color: 'var(--color-success, #10B981)',
+                                backgroundColor: 'var(--color-bg-success, #D1FAE5)',
                                 padding: '12px',
                                 borderRadius: '4px',
                                 lineHeight: '1.6',
@@ -302,7 +308,7 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                     )}
 
                     {/* Metadata */}
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '13px', color: '#6B7280' }}>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '13px' }} className="text-secondary">
                         {vulnerability.cve && (
                             <div>
                                 <strong>CVE:</strong> {vulnerability.cve}

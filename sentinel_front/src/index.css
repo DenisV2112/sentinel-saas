@@ -3,10 +3,14 @@
   --color-primary: #FF1B6D;
   --color-primary-light: #FF4D8D;
   --color-primary-dark: #CC1558;
+  --color-on-primary: #FFFFFF;
+  --color-on-danger: #FFFFFF;
+  --color-on-surface: #FFFFFF;
 
   /* Secondary */
   --color-secondary: #1A1A1A;
   --color-secondary-light: #2D2D2D;
+  --color-secondary-dark: #0F0F0F;
 
   /* Surface & Background */
   --color-background: #0A0A0A;
@@ -21,12 +25,41 @@
   /* Border */
   --color-border: #2A2A2A;
   --color-border-light: #404040;
+  --color-border-dark: #1F1F1F;
 
   /* States */
   --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #E53935;
   --color-info: #3B82F6;
+
+  /* Severity colors */
+  --color-severity-critical: #EF4444;
+  --color-severity-high: #F97316;
+  --color-severity-medium: #F59E0B;
+  --color-severity-low: #60A5FA;
+
+  /* Severity badge backgrounds */
+  --color-bg-severity-critical: #FEE2E2;
+  --color-bg-severity-high: #FFEDD5;
+  --color-bg-severity-medium: #FEF3C7;
+  --color-bg-severity-low: #DBEAFE;
+  --color-bg-severity-info: #F3F4F6;
+
+  /* Semantic backgrounds */
+  --color-bg-success: #D1FAE5;
+  --color-bg-code: #1F2937;
+  --color-text-on-code: #F3F4F6;
+
+  /* Stat card active state tints (10% opacity) */
+  --color-stat-tint-critical: rgba(239, 68, 68, 0.1);
+  --color-stat-tint-high: rgba(249, 115, 22, 0.1);
+  --color-stat-tint-medium: rgba(245, 158, 11, 0.1);
+  --color-stat-tint-low: rgba(96, 165, 250, 0.1);
+  --color-stat-tint-total: rgba(176, 176, 176, 0.1);
+
+  /* Primary glow (25% opacity) — for boxShadow highlights; hex-alpha concat cannot be used with CSS vars */
+  --color-primary-glow: rgba(255, 27, 109, 0.25);
 }
 
 * {
@@ -85,6 +118,9 @@ html, body, #root {
 .text-primary { color: var(--color-text-primary); }
 .text-secondary { color: var(--color-text-secondary); }
 .text-tertiary { color: var(--color-text-tertiary); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-success { color: var(--color-success); }
 
 /* Background utility classes */
 .bg-surface { background-color: var(--color-surface); }

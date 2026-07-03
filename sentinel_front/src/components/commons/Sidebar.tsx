@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useTheme } from "@/utils/store/themeContext";
 import {
   ShieldCheck,
   LayoutDashboard,
@@ -19,7 +18,6 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ activeItem = "dashboard", children }: SidebarProps) {
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   // 👉 Usuario desde sessionStorage
@@ -45,15 +43,15 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
       <aside
         className="sidebar"
         style={{
-          background: theme.colors.surface,
-          borderRight: `1px solid ${theme.colors.border}`,
+          background: 'var(--color-surface)',
+          borderRight: '1px solid var(--color-border)',
         }}
       >
         {/* Logo */}
         <div
           className="logo"
           style={{
-            color: theme.colors.text.primary,
+            color: 'var(--color-text-primary)',
             display: "flex",
             alignItems: "center",
             gap: 10,
@@ -72,10 +70,10 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
               to={path}
               className={({ isActive }) => (isActive ? "active" : "")}
               style={({ isActive }) => ({
-                background: isActive ? theme.colors.primary : "transparent",
+                background: isActive ? 'var(--color-primary)' : "transparent",
                 color: isActive
-                  ? theme.colors.onPrimary
-                  : theme.colors.text.secondary,
+                  ? 'var(--color-on-primary)'
+                  : 'var(--color-text-secondary)',
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
@@ -93,18 +91,18 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
           <div
             className="avatar"
             style={{
-              background: theme.colors.primary,
-              color: theme.colors.onPrimary,
+              background: 'var(--color-primary)',
+              color: 'var(--color-on-primary)',
             }}
           >
             {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
           </div>
 
           <div style={{ flex: 1 }}>
-            <strong style={{ color: theme.colors.text.primary }}>
+            <strong style={{ color: 'var(--color-text-primary)' }}>
               {user?.name || "Unknown User "}
             </strong>
-            <span style={{ color: theme.colors.text.secondary }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>
               {user?.company || "No company"}
             </span>
           </div>
@@ -117,7 +115,7 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              color: theme.colors.danger,
+              color: 'var(--color-danger)',
             }}
           >
             <LogOut size={18} />

@@ -12,7 +12,7 @@ interface IconButtonProps {
 export const IconButton = ({ 
   icon, 
   onClick, 
-  color = '#00ff88', 
+  color = 'var(--color-primary)', 
   size = 20,
   ariaLabel 
 }: IconButtonProps) => {

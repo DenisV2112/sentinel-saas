@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "@/components/commons/Sidebar";
-import { useTheme } from "@/utils/store/themeContext";
 import { ProjectsList } from "@/ui/components/ProjectsList";
 import { useInvitations } from "@/hooks/useInvitations";
 import { useProjects } from "@/hooks/useProjects";
@@ -22,7 +21,6 @@ import {
 export default function WorkspaceDetailsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { theme } = useTheme();
     const [activeTab, setActiveTab] = useState<"projects" | "members">("projects");
     const workspaceId = id || null;
 
@@ -81,7 +79,7 @@ export default function WorkspaceDetailsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <div className="app" style={{ background: theme.colors.background }}>
+            <div className="app" style={{ background: 'var(--color-background)' }}>
             <Sidebar />
 
             <main className="main">
@@ -89,8 +87,8 @@ export default function WorkspaceDetailsPage() {
                 <header
                     className="header"
                     style={{
-                        background: theme.colors.surface,
-                        borderBottom: `1px solid ${theme.colors.border}`,
+                        background: 'var(--color-surface)',
+                        borderBottom: '1px solid var(--color-border)',
                         padding: "0 24px",
                         height: 64,
                         display: "flex",
@@ -105,14 +103,14 @@ export default function WorkspaceDetailsPage() {
                                 background: "transparent",
                                 border: "none",
                                 cursor: "pointer",
-                                color: theme.colors.text.secondary,
+                                color: 'var(--color-text-secondary)',
                                 display: "flex",
                                 alignItems: "center"
                             }}
                         >
                             <ArrowLeft size={20} />
                         </button>
-                        <h1 style={{ color: theme.colors.text.primary, fontSize: 20, margin: 0 }}>
+                        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 20, margin: 0 }}>
                             Workspace Dashboard
                         </h1>
                     </div>
@@ -121,7 +119,7 @@ export default function WorkspaceDetailsPage() {
                 {/* Tabs */}
                 <div style={{
                     padding: "24px 24px 0",
-                    borderBottom: `1px solid ${theme.colors.border}`,
+                    borderBottom: '1px solid var(--color-border)',
                     display: "flex",
                     gap: 32
                 }}>
@@ -132,8 +130,8 @@ export default function WorkspaceDetailsPage() {
                             border: "none",
                             padding: "12px 4px",
                             cursor: "pointer",
-                            borderBottom: activeTab === "projects" ? `2px solid ${theme.colors.primary}` : "2px solid transparent",
-                            color: activeTab === "projects" ? theme.colors.primary : theme.colors.text.secondary,
+                            borderBottom: activeTab === "projects" ? '2px solid var(--color-primary)' : "2px solid transparent",
+                            color: activeTab === "projects" ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                             fontWeight: 600,
                             display: "flex",
                             alignItems: "center",
@@ -150,8 +148,8 @@ export default function WorkspaceDetailsPage() {
                             border: "none",
                             padding: "12px 4px",
                             cursor: "pointer",
-                            borderBottom: activeTab === "members" ? `2px solid ${theme.colors.primary}` : "2px solid transparent",
-                            color: activeTab === "members" ? theme.colors.primary : theme.colors.text.secondary,
+                            borderBottom: activeTab === "members" ? '2px solid var(--color-primary)' : "2px solid transparent",
+                            color: activeTab === "members" ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                             fontWeight: 600,
                             display: "flex",
                             alignItems: "center",
@@ -173,7 +171,7 @@ export default function WorkspaceDetailsPage() {
                     {activeTab === "members" && (
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                                <h3 style={{ color: theme.colors.text.primary, margin: 0 }}>Pending Invitations</h3>
+                                <h3 style={{ color: 'var(--color-text-primary)', margin: 0 }}>Pending Invitations</h3>
                                 <button
                                     onClick={() => setIsInviteModalOpen(true)}
                                     style={{
@@ -181,8 +179,8 @@ export default function WorkspaceDetailsPage() {
                                         alignItems: "center",
                                         gap: 8,
                                         padding: "8px 16px",
-                                        background: theme.colors.primary,
-                                        color: theme.colors.onPrimary,
+                                        background: 'var(--color-primary)',
+                                        color: 'var(--color-on-primary)',
                                         border: "none",
                                         borderRadius: 6,
                                         cursor: "pointer",
@@ -199,21 +197,21 @@ export default function WorkspaceDetailsPage() {
                             )}
 
                             {inviteError && (
-                                <div style={{ color: theme.colors.danger, padding: 10 }}>Error: {inviteError}</div>
+                                <div style={{ color: 'var(--color-danger)', padding: 10 }}>Error: {inviteError}</div>
                             )}
 
                             {/* Invitations List */}
                             <div style={{ display: "grid", gap: 12 }}>
                                 {!loadingInvites && invitations.length === 0 && (
-                                    <div style={{ color: theme.colors.text.secondary, fontStyle: "italic" }}>No pending invitations.</div>
+                                    <div style={{ color: 'var(--color-text-secondary)', fontStyle: "italic" }}>No pending invitations.</div>
                                 )}
 
                                 {invitations.map((inv) => (
                                     <div
                                         key={inv.id}
                                         style={{
-                                            background: theme.colors.surface,
-                                            border: `1px solid ${theme.colors.border}`,
+                                            background: 'var(--color-surface)',
+                                            border: '1px solid var(--color-border)',
                                             borderRadius: 8,
                                             padding: "16px 20px",
                                             display: "flex",
@@ -222,9 +220,9 @@ export default function WorkspaceDetailsPage() {
                                         }}
                                     >
                                         <div>
-                                            <div style={{ color: theme.colors.text.primary, fontWeight: 500 }}>{inv.email}</div>
-                                            <div style={{ color: theme.colors.text.tertiary, fontSize: 13 }}>
-                                                Role: {inv.role} • Status: <span style={{ color: theme.colors.warning }}>{inv.status}</span>
+                                            <div style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{inv.email}</div>
+                                            <div style={{ color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+                                                Role: {inv.role} • Status: <span style={{ color: 'var(--color-warning)' }}>{inv.status}</span>
                                             </div>
                                         </div>
                                         <button
@@ -232,7 +230,7 @@ export default function WorkspaceDetailsPage() {
                                             style={{
                                                 background: "transparent",
                                                 border: "none",
-                                                color: theme.colors.danger,
+                                                color: 'var(--color-danger)',
                                                 cursor: "pointer",
                                                 display: "flex",
                                                 alignItems: "center",
@@ -268,17 +266,17 @@ export default function WorkspaceDetailsPage() {
                         <form
                             onSubmit={handleInvite}
                             style={{
-                                background: theme.colors.surface,
+                                background: 'var(--color-surface)',
                                 padding: 24,
                                 borderRadius: 12,
                                 width: 400,
-                                border: `1px solid ${theme.colors.border}`
+                                border: '1px solid var(--color-border)'
                             }}
                         >
-                            <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>Invite Member</h2>
+                            <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>Invite Member</h2>
 
                             <div style={{ marginBottom: 16 }}>
-                                <label style={{ display: "block", color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                                <label style={{ display: "block", color: 'var(--color-text-secondary)', marginBottom: 8, fontSize: 14 }}>
                                     Email Address
                                 </label>
                                 <input
@@ -292,15 +290,15 @@ export default function WorkspaceDetailsPage() {
                                         width: "100%",
                                         padding: "10px",
                                         borderRadius: 8,
-                                        border: `1px solid ${theme.colors.border}`,
-                                        background: theme.colors.background,
-                                        color: theme.colors.text.primary
+                                        border: '1px solid var(--color-border)',
+                                        background: 'var(--color-background)',
+                                        color: 'var(--color-text-primary)'
                                     }}
                                 />
                             </div>
 
                             <div style={{ marginBottom: 24 }}>
-                                <label style={{ display: "block", color: theme.colors.text.secondary, marginBottom: 8, fontSize: 14 }}>
+                                <label style={{ display: "block", color: 'var(--color-text-secondary)', marginBottom: 8, fontSize: 14 }}>
                                     Project Access
                                 </label>
                                 <div style={{ marginBottom: 12 }}>
@@ -316,7 +314,7 @@ export default function WorkspaceDetailsPage() {
                                             }}
                                             style={{ cursor: "pointer" }}
                                         />
-                                        <span style={{ color: theme.colors.text.primary, fontSize: 14 }}>
+                                        <span style={{ color: 'var(--color-text-primary)', fontSize: 14 }}>
                                             All Projects (current and future)
                                         </span>
                                     </label>
@@ -324,19 +322,19 @@ export default function WorkspaceDetailsPage() {
 
                                 {!allProjects && (
                                     <div>
-                                        <label style={{ display: "block", color: theme.colors.text.tertiary, marginBottom: 8, fontSize: 13 }}>
+                                        <label style={{ display: "block", color: 'var(--color-text-tertiary)', marginBottom: 8, fontSize: 13 }}>
                                             Select specific projects:
                                         </label>
                                         <div style={{
                                             maxHeight: 150,
                                             overflowY: "auto",
-                                            border: `1px solid ${theme.colors.border}`,
+                                            border: '1px solid var(--color-border)',
                                             borderRadius: 8,
                                             padding: 8,
-                                            background: theme.colors.background
+                                            background: 'var(--color-background)'
                                         }}>
                                             {projects.length === 0 ? (
-                                                <p style={{ color: theme.colors.text.tertiary, fontSize: 13, textAlign: "center", padding: 8 }}>
+                                                <p style={{ color: 'var(--color-text-tertiary)', fontSize: 13, textAlign: "center", padding: 8 }}>
                                                     No projects available
                                                 </p>
                                             ) : (
@@ -353,7 +351,7 @@ export default function WorkspaceDetailsPage() {
                                                             transition: "background 0.2s"
                                                         }}
                                                         onMouseEnter={(e) => {
-                                                            e.currentTarget.style.background = theme.colors.surface;
+                                                            e.currentTarget.style.background = 'var(--color-surface)';
                                                         }}
                                                         onMouseLeave={(e) => {
                                                             e.currentTarget.style.background = "transparent";
@@ -371,7 +369,7 @@ export default function WorkspaceDetailsPage() {
                                                             }}
                                                             style={{ cursor: "pointer" }}
                                                         />
-                                                        <span style={{ color: theme.colors.text.primary, fontSize: 14 }}>
+                                                        <span style={{ color: 'var(--color-text-primary)', fontSize: 14 }}>
                                                             {project.name}
                                                         </span>
                                                     </label>
@@ -379,7 +377,7 @@ export default function WorkspaceDetailsPage() {
                                             )}
                                         </div>
                                         {!allProjects && selectedProjects.length === 0 && (
-                                            <p style={{ color: theme.colors.warning, fontSize: 12, marginTop: 8 }}>
+                                            <p style={{ color: 'var(--color-warning)', fontSize: 12, marginTop: 8 }}>
                                                 ⚠️ Please select at least one project or check "All Projects"
                                             </p>
                                         )}
@@ -394,7 +392,7 @@ export default function WorkspaceDetailsPage() {
                                     style={{
                                         padding: "8px 16px",
                                         background: "transparent",
-                                        color: theme.colors.text.secondary,
+                                        color: 'var(--color-text-secondary)',
                                         border: "none",
                                         cursor: "pointer"
                                     }}
@@ -406,8 +404,8 @@ export default function WorkspaceDetailsPage() {
                                     disabled={inviting || (!allProjects && selectedProjects.length === 0)}
                                     style={{
                                         padding: "8px 16px",
-                                        background: theme.colors.primary,
-                                        color: theme.colors.onPrimary,
+                                        background: 'var(--color-primary)',
+                                        color: 'var(--color-on-primary)',
                                         border: "none",
                                         borderRadius: 8,
                                         cursor: "pointer",

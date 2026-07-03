@@ -14,8 +14,8 @@ export default function NotFoundPage() {
                 justifyContent: 'center',
                 minHeight: '100vh',
                 textAlign: 'center',
-                backgroundColor: theme.colors.background,
-                color: theme.colors.text.primary
+                backgroundColor: 'var(--color-background)',
+                color: 'var(--color-text-primary)'
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -25,7 +25,7 @@ export default function NotFoundPage() {
                 fontSize: '120px',
                 fontWeight: 'bold',
                 marginBottom: '20px',
-                background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.primaryLight} 100%)`,
+                background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
             }}>404</h1>
@@ -41,9 +41,8 @@ export default function NotFoundPage() {
             <p style={{
                 fontSize: '18px',
                 marginBottom: '40px',
-                color: theme.colors.text.secondary,
                 maxWidth: '500px'
-            }}>
+            }} className="text-secondary">
                 Lo sentimos, la página que buscas no existe o ha sido movida.
             </p>
 
@@ -51,7 +50,7 @@ export default function NotFoundPage() {
                 to="/"
                 style={{
                     padding: '16px 40px',
-                    backgroundColor: theme.colors.primary,
+                    backgroundColor: 'var(--color-primary)',
                     color: 'white',
                     borderRadius: '50px',
                     textDecoration: 'none',

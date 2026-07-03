@@ -1,6 +1,5 @@
-import React, { useMemo } from "react";
+import React from "react";
 import Sidebar from "@/components/commons/Sidebar";
-import { useTheme } from "@/utils/store/themeContext";
 import {
   ShieldCheck,
   LayoutDashboard,
@@ -17,6 +16,7 @@ import {
   PlayCircle,
   Flame,
   Search,
+  type LucideIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
@@ -29,13 +29,25 @@ import {
   useRecentScans,
   useTopRiskProjects,
 } from "@hooks/useDashboard";
+
+/* Static style objects — use CSS vars so they're theme-aware without per-render dependency */
+const cardStyle = {
+  background: 'var(--color-surface)',
+  borderColor: 'var(--color-border)',
+} as const;
+
+const headerStyle = {
+  background: 'var(--color-surface)',
+  borderBottom: '1px solid var(--color-border)',
+} as const;
+
+const appStyle = { background: 'var(--color-background)' } as const;
+
 /* ========================================================= */
 /* ====================== DASHBOARD ======================== */
 /* ========================================================= */
 
 export default function Dashboard() {
-  const { theme } = useTheme();
-
   const { data: summary, isLoading: summaryLoading } = useDashboardSummary();
   const { data: activeScans, isLoading: activeScansLoading } = useActiveScans();
   const { data: recentScans, isLoading: recentScansLoading } = useRecentScans();
@@ -43,27 +55,6 @@ export default function Dashboard() {
   const { data: trends, isLoading: trendsLoading } = useVulnerabilityTrends("30d");
 
   const isLoading = summaryLoading || activeScansLoading || recentScansLoading || riskLoading;
-
-  const cardStyle = useMemo(
-    () => ({
-      background: theme.colors.surface,
-      borderColor: theme.colors.border,
-    }),
-    [theme.colors.surface, theme.colors.border]
-  );
-
-  const headerStyle = useMemo(
-    () => ({
-      background: theme.colors.surface,
-      borderBottom: `1px solid ${theme.colors.border}`,
-    }),
-    [theme.colors.surface, theme.colors.border]
-  );
-
-  const appStyle = useMemo(
-    () => ({ background: theme.colors.background }),
-    [theme.colors.background]
-  );
 
   return (
     <motion.div
@@ -82,7 +73,7 @@ export default function Dashboard() {
             className="header"
             style={headerStyle}
           >
-            <h1 style={{ color: theme.colors.text.primary }}>Overview</h1>
+            <h1 style={{ color: 'var(--color-text-primary)' }}>Overview</h1>
 
             <div style={{ position: "relative" }}>
               <Search
@@ -92,16 +83,16 @@ export default function Dashboard() {
                   top: "50%",
                   left: 12,
                   transform: "translateY(-50%)",
-                  color: theme.colors.text.tertiary,
+                  color: 'var(--color-text-tertiary)',
                 }}
               />
               <input
                 placeholder="Search IPs, CVEs, or Projects..."
                 style={{
                   paddingLeft: 36,
-                  background: theme.colors.background,
-                  borderColor: theme.colors.border,
-                  color: theme.colors.text.primary,
+                  background: 'var(--color-background)',
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-primary)',
                 }}
               />
             </div>
@@ -128,28 +119,24 @@ export default function Dashboard() {
               title="Exposed Ports"
               value={summary?.exposedPorts ?? 0}
               icon={Activity}
-              theme={theme}
             />
 
             <Kpi
               title="Critical Findings"
               value={summary?.criticalFindingsOpen ?? 0}
               icon={AlertTriangle}
-              theme={theme}
             />
 
             <Kpi
               title="Quality Gate Pass"
               value={`${summary?.qualityGatePassRate ?? 0}%`}
               icon={ShieldCheck}
-              theme={theme}
             />
 
             <Kpi
               title="Projects Monitored"
               value={summary?.projectsMonitored ?? 0}
               icon={Layers}
-              theme={theme}
             />
           </div>
 
@@ -168,13 +155,13 @@ export default function Dashboard() {
                       style={{
                         display: "flex",
                         gap: 8,
-                        color: theme.colors.text.primary,
+                        color: 'var(--color-text-primary)',
                       }}
                     >
                       <TrendingUp size={18} />
                       Vulnerability Trends
                     </h3>
-                    <p style={{ color: theme.colors.text.secondary }}>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>
                       Last 30 Days Overview
                     </p>
                   </div>
@@ -184,13 +171,13 @@ export default function Dashboard() {
                   className="chart"
                   style={{
                     height: 180,
-                    background: theme.colors.background,
+                    background: 'var(--color-background)',
                     borderRadius: 12,
                     display: "flex",
                     alignItems: "flex-end",
                     gap: 8,
                     padding: "12px 16px",
-                    color: theme.colors.text.tertiary,
+                    color: 'var(--color-text-tertiary)',
                   }}
                 >
                   {trendsLoading ? (
@@ -235,28 +222,28 @@ export default function Dashboard() {
                             <div
                               style={{
                                 height: `${((t.low / maxVal) * 120) || 0}px`,
-                                background: theme.colors.info ?? "#58a6ff",
+                                background: 'var(--color-info)',
                                 borderRadius: "2px 2px 0 0",
                               }}
                             />
                             <div
                               style={{
                                 height: `${((t.medium / maxVal) * 120) || 0}px`,
-                                background: theme.colors.warning ?? "#d29922",
+                                background: 'var(--color-warning)',
                                 borderRadius: "2px 2px 0 0",
                               }}
                             />
                             <div
                               style={{
                                 height: `${((t.high / maxVal) * 120) || 0}px`,
-                                background: theme.colors.danger ?? "#f85149",
+                                background: 'var(--color-danger)',
                                 borderRadius: "2px 2px 0 0",
                               }}
                             />
                             <div
                               style={{
                                 height: `${((t.critical / maxVal) * 120) || 0}px`,
-                                background: theme.colors.critical ?? "#da3633",
+                                background: 'var(--color-severity-critical)',
                                 borderRadius: "2px 2px 0 0",
                               }}
                             />
@@ -281,7 +268,7 @@ export default function Dashboard() {
                     style={{
                       display: "flex",
                       gap: 8,
-                      color: theme.colors.text.primary,
+                      color: 'var(--color-text-primary)',
                     }}
                   >
                     <Clock size={18} />
@@ -296,7 +283,7 @@ export default function Dashboard() {
                         (h) => (
                           <th
                             key={h}
-                            style={{ color: theme.colors.text.secondary }}
+                            style={{ color: 'var(--color-text-secondary)' }}
                           >
                             {h}
                           </th>
@@ -308,13 +295,13 @@ export default function Dashboard() {
                   <tbody>
                     {(recentScans ?? []).map((scan) => (
                       <tr key={scan.scanId}>
-                        <td style={{ color: theme.colors.text.primary }}>
+                        <td style={{ color: 'var(--color-text-primary)' }}>
                           {scan.projectName}
                         </td>
                         <td>
                           <span className="tag">{scan.scanType}</span>
                         </td>
-                        <td style={{ color: theme.colors.text.secondary }}>
+                        <td style={{ color: 'var(--color-text-secondary)' }}>
                           {scan.status}
                         </td>
                         <td>
@@ -322,9 +309,9 @@ export default function Dashboard() {
                             className="badge"
                             style={{
                               background: scan.qualityGatePassed
-                                ? theme.colors.success
-                                : theme.colors.danger,
-                              color: theme.colors.onPrimary,
+                                ? 'var(--color-success)'
+                                : 'var(--color-danger)',
+                              color: 'var(--color-on-primary)',
                             }}
                           >
                             {scan.qualityGatePassed ? "PASS" : "FAIL"}
@@ -351,7 +338,7 @@ export default function Dashboard() {
                   style={{
                     display: "flex",
                     gap: 8,
-                    color: theme.colors.text.primary,
+                    color: 'var(--color-text-primary)',
                   }}
                 >
                   <PlayCircle size={18} />
@@ -368,7 +355,7 @@ export default function Dashboard() {
                           gap: 4,
                         }}
                       >
-                        <strong style={{ color: theme.colors.text.primary }}>
+                        <strong style={{ color: 'var(--color-text-primary)' }}>
                           {scan.projectName}
                         </strong>
 
@@ -376,12 +363,12 @@ export default function Dashboard() {
                           {scan.scanType}
                         </span>
 
-                        <p style={{ color: theme.colors.text.secondary }}>
+                        <p style={{ color: 'var(--color-text-secondary)' }}>
                           {scan.statusMessage ?? "Scanning..."}
                         </p>
                       </div>
 
-                      <span style={{ color: theme.colors.text.tertiary }}>
+                      <span style={{ color: 'var(--color-text-tertiary)' }}>
                         {scan.elapsedTime ?? "--:--"}
                       </span>
                     </li>
@@ -391,8 +378,8 @@ export default function Dashboard() {
                 <button
                   className="btn-outline"
                   style={{
-                    borderColor: theme.colors.primary,
-                    color: theme.colors.primary,
+                    borderColor: 'var(--color-primary)',
+                    color: 'var(--color-primary)',
                   }}
                 >
                   + Start New Scan
@@ -408,7 +395,7 @@ export default function Dashboard() {
                   style={{
                     display: "flex",
                     gap: 8,
-                    color: theme.colors.text.primary,
+                    color: 'var(--color-text-primary)',
                   }}
                 >
                   <Flame size={18} />
@@ -433,33 +420,33 @@ export default function Dashboard() {
                           {isSafe ? (
                             <ShieldCheck
                               size={16}
-                              color={theme.colors.success}
+                              color={'var(--color-success)'}
                             />
                           ) : project.critical > 0 ? (
-                            <Flame size={16} color={theme.colors.danger} />
+                            <Flame size={16} color={'var(--color-danger)'} />
                           ) : (
                             <AlertTriangle
                               size={16}
-                              color={theme.colors.warning}
+                              color={'var(--color-warning)'}
                             />
                           )}
 
-                          <strong style={{ color: theme.colors.text.primary }}>
+                          <strong style={{ color: 'var(--color-text-primary)' }}>
                             {project.project}
                           </strong>
                         </div>
 
                         <div style={{ marginTop: 6 }}>
                           {isSafe ? (
-                            <div style={{ color: theme.colors.success }}>
+                            <div style={{ color: 'var(--color-success)' }}>
                               Safe
                             </div>
                           ) : (
                             <>
-                              <div style={{ color: theme.colors.danger }}>
+                              <div style={{ color: 'var(--color-danger)' }}>
                                 {project.critical} Critical
                               </div>
-                              <div style={{ color: theme.colors.warning }}>
+                              <div style={{ color: 'var(--color-warning)' }}>
                                 {project.high} High
                               </div>
                             </>
@@ -490,22 +477,20 @@ function Kpi({
   value,
   icon: Icon,
   danger = false,
-  theme,
 }: {
   title: string;
   value: string | number;
-  icon: any;
+  icon: LucideIcon;
   danger?: boolean;
-  theme: any;
 }) {
   return (
     <div
       className="kpi"
       style={{
-        background: theme.colors.surface,
+        background: 'var(--color-surface)',
         borderColor: danger
-          ? theme.colors.danger
-          : theme.colors.border,
+          ? 'var(--color-danger)'
+          : 'var(--color-border)',
         display: "flex",
         gap: 16,
         alignItems: "center",
@@ -513,15 +498,15 @@ function Kpi({
     >
       <Icon
         size={28}
-        color={danger ? theme.colors.danger : theme.colors.primary}
+        color={danger ? 'var(--color-danger)' : 'var(--color-primary)'}
       />
       <div>
-        <p style={{ color: theme.colors.text.secondary }}>{title}</p>
+        <p style={{ color: 'var(--color-text-secondary)' }}>{title}</p>
         <h3
           style={{
             color: danger
-              ? theme.colors.danger
-              : theme.colors.text.primary,
+              ? 'var(--color-danger)'
+              : 'var(--color-text-primary)',
           }}
         >
           {value}

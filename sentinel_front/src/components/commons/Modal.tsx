@@ -142,8 +142,8 @@ export const Modal = React.memo(function Modal({
               maxHeight: "85vh",
               overflow: "auto",
               borderRadius: "12px",
-              background: "#1a1a1a",
-              border: "1px solid #2a2a2a",
+              background: "var(--color-surface, #1A1A1A)",
+              border: "1px solid var(--color-border, #2A2A2A)",
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
             }}
           >
@@ -153,10 +153,10 @@ export const Modal = React.memo(function Modal({
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "16px 20px",
-                borderBottom: "1px solid #2a2a2a",
+                borderBottom: "1px solid var(--color-border, #2A2A2A)",
               }}
             >
-              <h2 style={{ margin: 0, fontSize: "1.125rem", color: "#e5e5e5" }}>
+              <h2 style={{ margin: 0, fontSize: "1.125rem", color: "var(--color-text-primary, #FFFFFF)" }}>
                 {title}
               </h2>
               <button
@@ -165,7 +165,7 @@ export const Modal = React.memo(function Modal({
                 style={{
                   background: "none",
                   border: "none",
-                  color: "#888",
+                  color: "var(--color-text-tertiary, #808080)",
                   cursor: "pointer",
                   padding: "4px 8px",
                   fontSize: "1.25rem",

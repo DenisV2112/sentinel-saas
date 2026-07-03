@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/commons/Sidebar";
-import { useTheme } from "@/utils/store/themeContext";
 import {
     Folder,
     Plus,
@@ -28,7 +27,6 @@ const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> =
 };
 
 export default function WorkspacesPage() {
-    const { theme } = useTheme();
     const navigate = useNavigate();
     const { data: workspaces, isLoading, error, refetch } = useWorkspaces();
     const { data: subscription } = useSubscription(); // Check subscription
@@ -76,18 +74,18 @@ export default function WorkspacesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <div className="app" style={{ background: theme.colors.background }}>
+            <div className="app" style={{ background: 'var(--color-background)' }}>
             <Sidebar />
 
             <main className="main">
                 <header
                     className="header"
                     style={{
-                        background: theme.colors.surface,
-                        borderBottom: `1px solid ${theme.colors.border}`,
+                        background: 'var(--color-surface)',
+                        borderBottom: '1px solid var(--color-border)',
                     }}
                 >
-                    <h1 style={{ color: theme.colors.text.primary }}>Workspaces</h1>
+                    <h1 style={{ color: 'var(--color-text-primary)' }}>Workspaces</h1>
                     <button
                         onClick={() => {
                             if (canCreateWorkspace) {
@@ -105,9 +103,9 @@ export default function WorkspacesPage() {
                             alignItems: "center",
                             gap: 8,
                             padding: "10px 20px",
-                            background: canCreateWorkspace ? theme.colors.primary : theme.colors.surface,
-                            color: canCreateWorkspace ? theme.colors.onPrimary : theme.colors.text.tertiary,
-                            border: canCreateWorkspace ? "none" : `1px solid ${theme.colors.border}`,
+                            background: canCreateWorkspace ? 'var(--color-primary)' : 'var(--color-surface)',
+                            color: canCreateWorkspace ? 'var(--color-on-primary)' : 'var(--color-text-tertiary)',
+                            border: canCreateWorkspace ? "none" : '1px solid var(--color-border)',
                             borderRadius: 8,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -141,9 +139,9 @@ export default function WorkspacesPage() {
 
                     {/* Error State */}
                     {error && (
-                        <div style={{ color: theme.colors.danger, padding: 20, textAlign: "center" }}>
+                        <div style={{ color: 'var(--color-danger)', padding: 20, textAlign: "center" }}>
                             Error loading workspaces: {error}
-                            <button onClick={refetch} style={{ marginLeft: 10, color: theme.colors.primary }}>
+                            <button onClick={refetch} style={{ marginLeft: 10, color: 'var(--color-primary)' }}>
                                 Retry
                             </button>
                         </div>
@@ -163,8 +161,8 @@ export default function WorkspacesPage() {
                                     key={workspace.id}
                                     onClick={() => navigate(`/workspaces/${workspace.id}`)}
                                     style={{
-                                        background: theme.colors.surface,
-                                        border: `1px solid ${theme.colors.border}`,
+                                        background: 'var(--color-surface)',
+                                        border: '1px solid var(--color-border)',
                                         borderRadius: 12,
                                         padding: 20,
                                         cursor: "pointer",
@@ -186,21 +184,21 @@ export default function WorkspacesPage() {
                                                     width: 40,
                                                     height: 40,
                                                     borderRadius: 8,
-                                                    background: theme.colors.primary,
+                                                    background: 'var(--color-primary)',
                                                     display: "flex",
                                                     alignItems: "center",
                                                     justifyContent: "center",
                                                 }}
                                             >
-                                                <Folder size={20} color={theme.colors.onPrimary} />
+                                                <Folder size={20} color={'var(--color-on-primary)'} />
                                             </div>
                                             <div>
-                                                <h3 style={{ color: theme.colors.text.primary, margin: 0 }}>
+                                                <h3 style={{ color: 'var(--color-text-primary)', margin: 0 }}>
                                                     {workspace.name}
                                                 </h3>
                                                 <p
                                                     style={{
-                                                        color: theme.colors.text.secondary,
+                                                        color: 'var(--color-text-secondary)',
                                                         fontSize: 13,
                                                         margin: 0,
                                                     }}
@@ -217,7 +215,7 @@ export default function WorkspacesPage() {
                                                 background: "transparent",
                                                 border: "none",
                                                 cursor: "pointer",
-                                                color: theme.colors.text.tertiary,
+                                                color: 'var(--color-text-tertiary)',
                                             }}
                                         >
                                             <Settings size={18} />
@@ -231,18 +229,18 @@ export default function WorkspacesPage() {
                                             gap: 16,
                                             marginBottom: 16,
                                             paddingTop: 12,
-                                            borderTop: `1px solid ${theme.colors.border}`,
+                                            borderTop: '1px solid var(--color-border)',
                                         }}
                                     >
                                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                            <FileCode size={16} color={theme.colors.text.tertiary} />
-                                            <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>
+                                            <FileCode size={16} color={'var(--color-text-tertiary)'} />
+                                            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
                                                 {workspace.projectCount} Projects
                                             </span>
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                                            <Users size={16} color={theme.colors.text.tertiary} />
-                                            <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>
+                                            <Users size={16} color={'var(--color-text-tertiary)'} />
+                                            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
                                                 {workspace.memberCount} Members
                                             </span>
                                         </div>
@@ -256,10 +254,10 @@ export default function WorkspacesPage() {
                                             alignItems: "center",
                                         }}
                                     >
-                                        <span style={{ color: theme.colors.text.tertiary, fontSize: 12 }}>
+                                        <span style={{ color: 'var(--color-text-tertiary)', fontSize: 12 }}>
                                             Last activity: {workspace.lastActivity}
                                         </span>
-                                        <ChevronRight size={18} color={theme.colors.text.tertiary} />
+                                        <ChevronRight size={18} color={'var(--color-text-tertiary)'} />
                                     </div>
                                 </div>
                             ))}
@@ -272,16 +270,16 @@ export default function WorkspacesPage() {
                             style={{
                                 textAlign: "center",
                                 padding: 60,
-                                background: theme.colors.surface,
+                                background: 'var(--color-surface)',
                                 borderRadius: 12,
-                                border: `1px dashed ${theme.colors.border}`,
+                                border: '1px dashed var(--color-border)',
                             }}
                         >
-                            <Folder size={48} color={theme.colors.text.tertiary} />
-                            <h3 style={{ color: theme.colors.text.primary, marginTop: 16 }}>
+                            <Folder size={48} color={'var(--color-text-tertiary)'} />
+                            <h3 style={{ color: 'var(--color-text-primary)', marginTop: 16 }}>
                                 No Workspaces Yet
                             </h3>
-                            <p style={{ color: theme.colors.text.secondary, marginBottom: 24 }}>
+                            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 24 }}>
                                 Create your first workspace to organize your projects
                             </p>
                             <button
@@ -294,8 +292,8 @@ export default function WorkspacesPage() {
                                 }}
                                 style={{
                                     padding: "12px 24px",
-                                    background: theme.colors.primary,
-                                    color: theme.colors.onPrimary,
+                                    background: 'var(--color-primary)',
+                                    color: 'var(--color-on-primary)',
                                     border: "none",
                                     borderRadius: 8,
                                     fontWeight: 600,
@@ -310,7 +308,7 @@ export default function WorkspacesPage() {
 
                     {/* Projects Section */}
                     {selectedWorkspace && (
-                        <div style={{ marginTop: 40, borderTop: `1px solid ${theme.colors.border}`, paddingTop: 24 }}>
+                        <div style={{ marginTop: 40, borderTop: '1px solid var(--color-border)', paddingTop: 24 }}>
                             <ProjectsList workspaceId={selectedWorkspace} />
                         </div>
                     )}
@@ -335,21 +333,21 @@ export default function WorkspacesPage() {
                         <form
                             onSubmit={handleCreate}
                             style={{
-                                background: theme.colors.surface,
+                                background: 'var(--color-surface)',
                                 padding: 24,
                                 borderRadius: 12,
                                 width: 400,
-                                border: `1px solid ${theme.colors.border}`,
+                                border: '1px solid var(--color-border)',
                             }}
                         >
-                            <h2 style={{ color: theme.colors.text.primary, marginTop: 0 }}>
+                            <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>
                                 New Workspace
                             </h2>
                             <div style={{ marginBottom: 16 }}>
                                 <label
                                     style={{
                                         display: "block",
-                                        color: theme.colors.text.secondary,
+                                        color: 'var(--color-text-secondary)',
                                         marginBottom: 8,
                                         fontSize: 14,
                                     }}
@@ -366,9 +364,9 @@ export default function WorkspacesPage() {
                                         width: "100%",
                                         padding: "10px",
                                         borderRadius: 8,
-                                        border: `1px solid ${theme.colors.border}`,
-                                        background: theme.colors.background,
-                                        color: theme.colors.text.primary,
+                                        border: '1px solid var(--color-border)',
+                                        background: 'var(--color-background)',
+                                        color: 'var(--color-text-primary)',
                                     }}
                                 />
                             </div>
@@ -376,7 +374,7 @@ export default function WorkspacesPage() {
                                 <label
                                     style={{
                                         display: "block",
-                                        color: theme.colors.text.secondary,
+                                        color: 'var(--color-text-secondary)',
                                         marginBottom: 8,
                                         fontSize: 14,
                                     }}
@@ -391,9 +389,9 @@ export default function WorkspacesPage() {
                                         width: "100%",
                                         padding: "10px",
                                         borderRadius: 8,
-                                        border: `1px solid ${theme.colors.border}`,
-                                        background: theme.colors.background,
-                                        color: theme.colors.text.primary,
+                                        border: '1px solid var(--color-border)',
+                                        background: 'var(--color-background)',
+                                        color: 'var(--color-text-primary)',
                                     }}
                                 />
                             </div>
@@ -404,7 +402,7 @@ export default function WorkspacesPage() {
                                     style={{
                                         padding: "8px 16px",
                                         background: "transparent",
-                                        color: theme.colors.text.secondary,
+                                        color: 'var(--color-text-secondary)',
                                         border: "none",
                                         cursor: "pointer",
                                     }}
@@ -416,8 +414,8 @@ export default function WorkspacesPage() {
                                     disabled={creating}
                                     style={{
                                         padding: "8px 16px",
-                                        background: theme.colors.primary,
-                                        color: theme.colors.onPrimary,
+                                        background: 'var(--color-primary)',
+                                        color: 'var(--color-on-primary)',
                                         border: "none",
                                         borderRadius: 8,
                                         cursor: "pointer",

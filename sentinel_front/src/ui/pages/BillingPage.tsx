@@ -57,18 +57,18 @@ export default function BillingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <div className="app" style={{ background: theme.colors.background }}>
+            <div className="app" style={{ background: 'var(--color-background)' }}>
             <Sidebar />
 
             <main className="main">
                 <header
                     className="header"
                     style={{
-                        background: theme.colors.surface,
-                        borderBottom: `1px solid ${theme.colors.border}`,
+                        background: 'var(--color-surface)',
+                        borderBottom: '1px solid var(--color-border)',
                     }}
                 >
-                    <h1 style={{ color: theme.colors.text.primary }}>Billing & Plans</h1>
+                    <h1 style={{ color: 'var(--color-text-primary)' }}>Billing & Plans</h1>
                 </header>
 
                 <section className="content" style={{ padding: 24, position: 'relative' }}>
@@ -90,22 +90,22 @@ export default function BillingPage() {
                             {/* Current Plan */}
                             <div
                                 style={{
-                                    background: theme.colors.surface,
-                                    border: `1px solid ${theme.colors.border}`,
+                                    background: 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)',
                                     borderRadius: 12,
                                     padding: 24,
                                     marginBottom: 24,
                                 }}
                             >
                                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                                    <CreditCard size={24} color={theme.colors.primary} />
-                                    <h2 style={{ color: theme.colors.text.primary, margin: 0 }}>Current Plan</h2>
+                                    <CreditCard size={24} color="var(--color-primary)" />
+                                    <h2 style={{ color: 'var(--color-text-primary)', margin: 0 }}>Current Plan</h2>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                                     <span
                                         style={{
-                                            background: theme.colors.primary,
-                                            color: theme.colors.onPrimary,
+                                            background: 'var(--color-primary)',
+                                            color: 'var(--color-on-primary)',
                                             padding: "8px 16px",
                                             borderRadius: 8,
                                             fontWeight: 600,
@@ -113,7 +113,7 @@ export default function BillingPage() {
                                     >
                                         {formatPlan(displayPlan)}
                                     </span>
-                                    <span style={{ color: theme.colors.text.secondary }}>
+                                    <span className="text-secondary">
                                         {subscription?.currentPeriodEnd
                                             ? `Renews on ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
                                             : "Active via User Plan"}
@@ -124,7 +124,7 @@ export default function BillingPage() {
                             {/* Sandbox Mode Banner Removed */}
 
                             {/* Plans Grid */}
-                            <h3 style={{ color: theme.colors.text.primary, marginBottom: 16 }}>Planes Disponibles</h3>
+                            <h3 style={{ color: 'var(--color-text-primary)', marginBottom: 16 }}>Planes Disponibles</h3>
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
                                 {(plans || []).sort((a, b) => {
                                     // Sort: FREE first, then PRO, then ENTERPRISE
@@ -152,10 +152,10 @@ export default function BillingPage() {
                                         <div
                                             key={plan.id}
                                             style={{
-                                                background: theme.colors.surface,
+                                                background: 'var(--color-surface)',
                                                 border: isCurrent
-                                                    ? `2px solid ${theme.colors.primary}`
-                                                    : `1px solid ${theme.colors.border}`,
+                                                    ? '2px solid var(--color-primary)'
+                                                    : '1px solid var(--color-border)',
                                                 borderRadius: 12,
                                                 padding: 24,
                                                 position: "relative",
@@ -168,8 +168,8 @@ export default function BillingPage() {
                                                         position: "absolute",
                                                         top: -12,
                                                         right: 16,
-                                                        background: theme.colors.primary,
-                                                        color: theme.colors.onPrimary,
+                                                        background: 'var(--color-primary)',
+                                                        color: 'var(--color-on-primary)',
                                                         padding: "4px 12px",
                                                         borderRadius: 12,
                                                         fontSize: 12,
@@ -180,12 +180,12 @@ export default function BillingPage() {
                                                 </span>
                                             )}
 
-                                            <h3 style={{ color: theme.colors.text.primary, marginBottom: 8 }}>{plan.name}</h3>
+                                            <h3 style={{ color: 'var(--color-text-primary)', marginBottom: 8 }}>{plan.name}</h3>
                                             <div style={{ marginBottom: 16 }}>
-                                                <span style={{ fontSize: 32, fontWeight: 700, color: theme.colors.text.primary }}>
+                                                <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                                                     {plan.price === 0 ? 'Gratis' : `$${plan.price.toLocaleString('es-CO')}`}
                                                 </span>
-                                                <span style={{ color: theme.colors.text.secondary }}>
+                                                <span className="text-secondary">
                                                     {plan.price > 0 ? ' COP/mes' : ''}
                                                 </span>
                                             </div>
@@ -198,11 +198,11 @@ export default function BillingPage() {
                                                             display: "flex",
                                                             alignItems: "center",
                                                             gap: 8,
-                                                            color: theme.colors.text.secondary,
                                                             marginBottom: 8,
                                                         }}
+                                                        className="text-secondary"
                                                     >
-                                                        <CheckCircle size={16} color={theme.colors.success} />
+                                                        <CheckCircle size={16} color="var(--color-success)" />
                                                         {feature}
                                                     </li>
                                                 ))}
@@ -214,9 +214,9 @@ export default function BillingPage() {
                                                     width: "100%",
                                                     padding: "12px 24px",
                                                     borderRadius: 8,
-                                                    border: isCurrent || isDowngrade ? "none" : `1px solid ${theme.colors.primary}`,
-                                                    background: isUpgrade ? theme.colors.primary : theme.colors.surface,
-                                                    color: isUpgrade ? theme.colors.onPrimary : theme.colors.text.tertiary,
+                                                    border: isCurrent || isDowngrade ? "none" : "1px solid var(--color-primary)",
+                                                    background: isUpgrade ? 'var(--color-primary)' : 'var(--color-surface)',
+                                                    color: isUpgrade ? 'var(--color-on-primary)' : 'var(--color-text-tertiary)',
                                                     fontWeight: 600,
                                                     cursor: isUpgrade && !upgradeLoading ? "pointer" : "not-allowed",
                                                     opacity: upgradeLoading ? 0.7 : 1,
@@ -236,16 +236,16 @@ export default function BillingPage() {
                             {/* Payment History */}
                             <div
                                 style={{
-                                    background: theme.colors.surface,
-                                    border: `1px solid ${theme.colors.border}`,
+                                    background: 'var(--color-surface)',
+                                    border: '1px solid var(--color-border)',
                                     borderRadius: 12,
                                     padding: 24,
                                     marginTop: 24,
                                 }}
                             >
                                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                                    <Clock size={20} color={theme.colors.primary} />
-                                    <h3 style={{ color: theme.colors.text.primary, margin: 0 }}>Payment History</h3>
+                                    <Clock size={20} color="var(--color-primary)" />
+                                    <h3 style={{ color: 'var(--color-text-primary)', margin: 0 }}>Payment History</h3>
                                 </div>
                                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                                     <thead>
@@ -256,10 +256,10 @@ export default function BillingPage() {
                                                     style={{
                                                         textAlign: "left",
                                                         padding: "12px 8px",
-                                                        borderBottom: `1px solid ${theme.colors.border}`,
-                                                        color: theme.colors.text.secondary,
+                                                        borderBottom: '1px solid var(--color-border)',
                                                         fontWeight: 500,
                                                     }}
+                                                    className="text-secondary"
                                                 >
                                                     {h}
                                                 </th>
@@ -269,13 +269,13 @@ export default function BillingPage() {
                                     <tbody>
                                         {(payments || []).map((payment) => (
                                             <tr key={payment.id}>
-                                                <td style={{ padding: "12px 8px", color: theme.colors.text.primary }}>
+                                                <td style={{ padding: "12px 8px", color: 'var(--color-text-primary)' }}>
                                                     {new Date(payment.createdAt).toLocaleDateString()}
                                                 </td>
-                                                <td style={{ padding: "12px 8px", color: theme.colors.text.secondary }}>
+                                                <td style={{ padding: "12px 8px" }} className="text-secondary">
                                                     {payment.description}
                                                 </td>
-                                                <td style={{ padding: "12px 8px", color: theme.colors.text.primary }}>
+                                                <td style={{ padding: "12px 8px", color: 'var(--color-text-primary)' }}>
                                                     ${payment.amount.toLocaleString('es-CO')} COP
                                                 </td>
                                                 <td style={{ padding: "12px 8px" }}>
@@ -283,11 +283,11 @@ export default function BillingPage() {
                                                         style={{
                                                             background:
                                                                 payment.status === "PAID"
-                                                                    ? theme.colors.success
+                                                                    ? 'var(--color-success)'
                                                                     : payment.status === "PENDING"
-                                                                        ? theme.colors.warning
-                                                                        : theme.colors.danger,
-                                                            color: theme.colors.onPrimary,
+                                                                        ? 'var(--color-warning)'
+                                                                        : 'var(--color-danger)',
+                                                            color: 'var(--color-on-primary)',
                                                             padding: "4px 8px",
                                                             borderRadius: 4,
                                                             fontSize: 12,
@@ -300,7 +300,7 @@ export default function BillingPage() {
                                         ))}
                                         {payments.length === 0 && (
                                             <tr>
-                                                <td colSpan={4} style={{ textAlign: "center", padding: 20, color: theme.colors.text.tertiary }}>
+                                                <td colSpan={4} style={{ textAlign: "center", padding: 20 }} className="text-tertiary">
                                                     No payments yet
                                                 </td>
                                             </tr>
@@ -319,7 +319,7 @@ export default function BillingPage() {
                             justifyContent: 'center', alignItems: 'center', zIndex: 1000
                         }}>
                             <div style={{
-                                backgroundColor: theme.colors.surface, padding: '24px',
+                                backgroundColor: 'var(--color-surface)', padding: '24px',
                                 borderRadius: '12px', width: '100%', maxWidth: '500px',
                                 position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                             }}>
@@ -328,20 +328,21 @@ export default function BillingPage() {
                                     style={{
                                         position: 'absolute', top: 12, right: 12,
                                         background: 'transparent', border: 'none',
-                                        cursor: 'pointer', color: theme.colors.text.secondary
+                                        cursor: 'pointer',
                                     }}
+                                    className="text-secondary"
                                 >
                                     <X size={24} />
                                 </button>
 
-                                <h2 style={{ lineHeight: '1.5', marginBottom: '16px', color: theme.colors.text.primary }}>
+                                <h2 style={{ lineHeight: '1.5', marginBottom: '16px', color: 'var(--color-text-primary)' }}>
                                     {isMock ? "Confirm Subscription (Test Mode)" : "Complete Subscription"}
                                 </h2>
 
                                 <div id="wallet_container">
                                     {isMock ? (
                                         <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                            <p style={{ marginBottom: 20, color: theme.colors.text.secondary }}>
+                                            <p style={{ marginBottom: 20 }} className="text-secondary">
                                                 You are in Development Mode. <br />
                                                 Click below to simulate a successful payment.
                                             </p>
@@ -350,7 +351,7 @@ export default function BillingPage() {
                                                     if (initPoint) window.location.href = initPoint;
                                                 }}
                                                 style={{
-                                                    background: theme.colors.success,
+                                                    background: 'var(--color-success)',
                                                     color: '#fff',
                                                     border: 'none',
                                                     padding: '12px 24px',
@@ -371,7 +372,7 @@ export default function BillingPage() {
                                                 if (initPoint) window.location.href = initPoint;
                                             }}
                                             style={{
-                                                background: theme.colors.primary,
+                                                background: 'var(--color-primary)',
                                                 color: '#fff',
                                                 border: 'none',
                                                 padding: '12px 24px',

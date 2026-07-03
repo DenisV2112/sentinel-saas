@@ -51,8 +51,8 @@ export default function ScanDetailPage() {
     return (
       <div className="scans-layout">
         <Sidebar activeItem="scans" />
-        <main className="scans-main" style={{ background: theme.colors.surface }}>
-          <div style={{ padding: 40, textAlign: "center", color: theme.colors.text.secondary }}>
+        <main className="scans-main" style={{ background: 'var(--color-surface)' }}>
+          <div style={{ padding: 40, textAlign: "center" }} className="text-secondary">
             Loading scan details...
           </div>
         </main>
@@ -65,28 +65,28 @@ export default function ScanDetailPage() {
     return (
       <div className="scans-layout">
         <Sidebar activeItem="scans" />
-        <main className="scans-main" style={{ background: theme.colors.surface }}>
+        <main className="scans-main" style={{ background: 'var(--color-surface)' }}>
           <div
             style={{
               margin: "40px auto",
               maxWidth: 500,
               padding: 32,
               borderRadius: 16,
-              background: theme.colors.background,
-              border: `1px solid ${theme.colors.border}`,
+              background: 'var(--color-background)',
+              border: '1px solid var(--color-border)',
               textAlign: "center",
             }}
           >
-            <h2 style={{ color: theme.colors.danger, marginBottom: 12 }}>Error</h2>
-            <p style={{ color: theme.colors.text.secondary, marginBottom: 20 }}>
+            <h2 style={{ color: 'var(--color-danger)', marginBottom: 12 }}>Error</h2>
+            <p style={{ marginBottom: 20 }} className="text-secondary">
               {error ? (error as Error).message : "Scan not found"}
             </p>
             <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <button
                 className="primary-btn"
                 style={{
-                  background: theme.colors.primary,
-                  color: theme.colors.onPrimary,
+                  background: 'var(--color-primary)',
+                  color: 'var(--color-on-primary)',
                 }}
                 onClick={() => navigate(-1)}
               >
@@ -115,7 +115,7 @@ export default function ScanDetailPage() {
     <div className="scans-layout">
       <Sidebar activeItem="scans" />
 
-      <main className="scans-main" style={{ background: theme.colors.surface }}>
+      <main className="scans-main" style={{ background: 'var(--color-surface)' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -125,8 +125,8 @@ export default function ScanDetailPage() {
         <header
           className="scans-header"
           style={{
-            background: theme.colors.background,
-            borderColor: theme.colors.border,
+            background: 'var(--color-background)',
+            borderColor: 'var(--color-border)',
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -137,7 +137,7 @@ export default function ScanDetailPage() {
             >
               <ArrowLeft size={20} />
             </button>
-            <h1 style={{ color: theme.colors.text.primary }}>
+            <h1 style={{ color: 'var(--color-text-primary)' }}>
               Scan Details
             </h1>
           </div>
@@ -149,8 +149,8 @@ export default function ScanDetailPage() {
             margin: 20,
             padding: 24,
             borderRadius: 16,
-            background: theme.colors.background,
-            border: `1px solid ${theme.colors.border}`,
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)',
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, flexWrap: "wrap" }}>
@@ -174,10 +174,10 @@ export default function ScanDetailPage() {
                 fontWeight: 600,
                 background:
                   scan.status === "COMPLETED"
-                    ? theme.colors.success || "#22c55e"
+                    ? 'var(--color-success)'
                     : scan.status === "FAILED"
-                    ? theme.colors.danger || "#ef4444"
-                    : theme.colors.warning || "#f59e0b",
+                    ? 'var(--color-danger)'
+                    : 'var(--color-warning)',
                 color: "#fff",
               }}
             >
@@ -193,14 +193,14 @@ export default function ScanDetailPage() {
             }}
           >
             <div>
-              <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>Project</span>
-              <p style={{ color: theme.colors.text.primary, fontWeight: 600 }}>
+              <span style={{ fontSize: 13 }} className="text-secondary">Project</span>
+              <p style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
                 {scan.projectName}
               </p>
             </div>
             <div>
-              <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>Created</span>
-              <p style={{ color: theme.colors.text.primary, fontWeight: 600 }}>
+              <span style={{ fontSize: 13 }} className="text-secondary">Created</span>
+              <p style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
                 {scan.createdAt
                   ? new Date(scan.createdAt).toLocaleDateString("en-US", {
                       month: "short",
@@ -213,8 +213,8 @@ export default function ScanDetailPage() {
               </p>
             </div>
             <div>
-              <span style={{ color: theme.colors.text.secondary, fontSize: 13 }}>Completed</span>
-              <p style={{ color: theme.colors.text.primary, fontWeight: 600 }}>
+              <span style={{ fontSize: 13 }} className="text-secondary">Completed</span>
+              <p style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
                 {scan.completedAt
                   ? new Date(scan.completedAt).toLocaleDateString("en-US", {
                       month: "short",
@@ -235,11 +235,11 @@ export default function ScanDetailPage() {
             margin: "0 20px 20px",
             padding: 24,
             borderRadius: 16,
-            background: theme.colors.background,
-            border: `1px solid ${theme.colors.border}`,
+            background: 'var(--color-background)',
+            border: '1px solid var(--color-border)',
           }}
         >
-          <h3 style={{ color: theme.colors.text.primary, marginBottom: 16 }}>
+          <h3 style={{ color: 'var(--color-text-primary)', marginBottom: 16 }}>
             Findings
           </h3>
 
@@ -248,8 +248,8 @@ export default function ScanDetailPage() {
               style={{
                 padding: "40px 20px",
                 textAlign: "center",
-                color: theme.colors.text.secondary,
               }}
+              className="text-secondary"
             >
               <p style={{ fontSize: 16, marginBottom: 8 }}>
                 No findings yet
@@ -268,8 +268,8 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: "#fef2f2",
-                  border: "1px solid #fecaca",
+                  background: 'var(--color-bg-severity-critical, #FEE2E2)',
+                  border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
                   minWidth: 120,
@@ -279,14 +279,14 @@ export default function ScanDetailPage() {
                   style={{
                     display: "block",
                     fontSize: 14,
-                    color: "#991b1b",
                     fontWeight: 500,
                     marginBottom: 4,
                   }}
+                  className="text-danger"
                 >
                   Critical
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: "#dc2626" }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-critical, #EF4444)' }}>
                   {scan.findings.critical}
                 </span>
               </div>
@@ -295,8 +295,8 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: "#fffbeb",
-                  border: "1px solid #fde68a",
+                  background: 'var(--color-bg-severity-high, #FFEDD5)',
+                  border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
                   minWidth: 120,
@@ -306,14 +306,14 @@ export default function ScanDetailPage() {
                   style={{
                     display: "block",
                     fontSize: 14,
-                    color: "#92400e",
                     fontWeight: 500,
                     marginBottom: 4,
                   }}
+                  className="text-warning"
                 >
                   High
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-high, #F97316)' }}>
                   {scan.findings.high}
                 </span>
               </div>
@@ -322,8 +322,8 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: "#f0fdf4",
-                  border: "1px solid #bbf7d0",
+                  background: 'var(--color-bg-success, #D1FAE5)',
+                  border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
                   minWidth: 120,
@@ -333,14 +333,14 @@ export default function ScanDetailPage() {
                   style={{
                     display: "block",
                     fontSize: 14,
-                    color: "#166534",
                     fontWeight: 500,
                     marginBottom: 4,
                   }}
+                  className="text-success"
                 >
                   Medium
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-success, #10B981)' }}>
                   {scan.findings.medium}
                 </span>
               </div>

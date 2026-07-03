@@ -1,6 +1,4 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { useTheme } from '@/utils/store/themeContext';
 import { useTranslation } from 'react-i18next';
 import { Crosshair } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -12,7 +10,6 @@ import { Navbar } from '@/components/commons/Navbar';
 export default function HomePage() {
 
   const API_URL = import.meta.env.VITE_API_URL as string;
-  const { theme } = useTheme();
   const { i18n, t } = useTranslation();
 
   const toggleLanguage = () => {
@@ -51,7 +48,7 @@ export default function HomePage() {
             fontWeight: 'bold',
             lineHeight: '1.2',
             marginBottom: '20px',
-            backgroundImage: `linear-gradient(135deg, ${theme.colors.text.primary} 0%, ${theme.colors.primaryLight} 100%)`,
+            backgroundImage: 'linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-primary-light) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -62,7 +59,7 @@ export default function HomePage() {
 
           <p style={{
             fontSize: '16px',
-            color: theme.colors.text.secondary,
+            color: 'var(--color-text-secondary)',
             lineHeight: '1.6',
             marginBottom: '40px',
             maxWidth: '500px'
@@ -71,8 +68,8 @@ export default function HomePage() {
           </p>
 
           <button style={{
-            backgroundColor: theme.colors.primary,
-            color: '#fff',
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-on-primary)',
             border: 'none',
             padding: '16px 40px',
             borderRadius: '50px',
@@ -81,14 +78,14 @@ export default function HomePage() {
             cursor: 'pointer',
             letterSpacing: '1px',
             transition: 'all 0.3s ease',
-            boxShadow: `0 0 20px ${theme.colors.primary}40`
+            boxShadow: '0 0 20px var(--color-primary-glow)'
           }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = theme.colors.primaryDark;
+              e.currentTarget.style.backgroundColor = 'var(--color-primary-dark)';
               e.currentTarget.style.transform = 'scale(1.05)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = theme.colors.primary;
+              e.currentTarget.style.backgroundColor = 'var(--color-primary)';
               e.currentTarget.style.transform = 'scale(1)';
             }}>
             {t('hero.cta')}
@@ -117,9 +114,9 @@ export default function HomePage() {
               textAlign: 'center',
               marginBottom: '20px'
             }}>
-              {t('services.title.part1')} <span style={{ color: theme.colors.primary }}>{t('services.title.highlight')}</span>
+              {t('services.title.part1')} <span style={{ color: 'var(--color-primary)' }}>{t('services.title.highlight')}</span>
               <br />
-              <span style={{ color: theme.colors.primary }}>{t('services.title.part2')}</span> {t('services.title.part3')}
+              <span style={{ color: 'var(--color-primary)' }}>{t('services.title.part2')}</span> {t('services.title.part3')}
             </h3>
 
           </div>
@@ -140,10 +137,10 @@ export default function HomePage() {
             lineHeight: '1.2',
             marginBottom: '60px'
           }}>
-            <span style={{ color: theme.colors.text.primary }}>{t('services.title.part1')} </span>
-            <span style={{ color: theme.colors.primary }}>{t('services.title.highlight')}</span>
+            <span style={{ color: 'var(--color-text-primary)' }}>{t('services.title.part1')} </span>
+            <span style={{ color: 'var(--color-primary)' }}>{t('services.title.highlight')}</span>
             <br />
-            <span style={{ color: theme.colors.text.primary }}>{t('services.title.part2')}</span>
+            <span style={{ color: 'var(--color-text-primary)' }}>{t('services.title.part2')}</span>
           </h3>
 
           {/* Grid de servicios */}
@@ -173,11 +170,11 @@ export default function HomePage() {
                     ? '32px 32px 50% 50%' 
                     : '32px',
                   backgroundColor: '#fff',
-                  color: theme.colors.secondaryDark,
+                  color: 'var(--color-secondary-dark)',
                   textAlign: 'center',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
-                  border: `2px solid ${theme.colors.border}`,
+                  border: '2px solid var(--color-border)',
                   minHeight: '220px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -188,9 +185,9 @@ export default function HomePage() {
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget;
-                  el.style.backgroundColor = theme.colors.primary;
-                  el.style.borderColor = theme.colors.primary;
-                  el.style.color = '#fff';
+                  el.style.backgroundColor = 'var(--color-primary)';
+                  el.style.borderColor = 'var(--color-primary)';
+                  el.style.color = 'var(--color-on-primary)';
                   el.style.transform = 'translateY(-8px)';
 
                   el.style.overflow = 'visible';
@@ -202,8 +199,8 @@ export default function HomePage() {
                 onMouseLeave={(e) => {
                   const el = e.currentTarget;
                   el.style.backgroundColor = '#fff';
-                  el.style.borderColor = theme.colors.border;
-                  el.style.color = theme.colors.secondaryDark;
+                  el.style.borderColor = 'var(--color-border)';
+                  el.style.color = 'var(--color-secondary-dark)';
                   el.style.transform = 'translateY(0)';
 
                   el.style.overflow = 'hidden';
@@ -221,7 +218,7 @@ export default function HomePage() {
                     top: '-110px',
                     right: '-20px',
                     fontSize: '120px',
-                    color: theme.colors.primaryDark,
+                    color: 'var(--color-primary-dark)',
 
                     opacity: 0,
                     transform: 'rotate(15deg)',

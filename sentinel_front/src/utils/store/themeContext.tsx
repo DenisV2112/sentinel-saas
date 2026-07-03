@@ -16,19 +16,24 @@ function applyThemeVariables(theme: ThemeConfig) {
   root.setProperty('--color-primary', c.primary);
   root.setProperty('--color-primary-light', c.primaryLight ?? c.primary);
   root.setProperty('--color-primary-dark', c.primaryDark ?? c.primary);
+  root.setProperty('--color-on-primary', c.onPrimary ?? '#FFFFFF');
   root.setProperty('--color-secondary', c.secondary);
   root.setProperty('--color-secondary-light', c.secondaryLight ?? c.secondary);
+  root.setProperty('--color-secondary-dark', c.secondaryDark ?? c.secondary);
   root.setProperty('--color-background', c.background);
   root.setProperty('--color-surface', c.surface);
   root.setProperty('--color-surface-light', c.surfaceLight ?? c.surface);
+  root.setProperty('--color-on-surface', c.onSurface ?? '#FFFFFF');
   root.setProperty('--color-text-primary', c.text.primary);
   root.setProperty('--color-text-secondary', c.text.secondary);
   root.setProperty('--color-text-tertiary', c.text.tertiary);
   root.setProperty('--color-border', c.border);
   root.setProperty('--color-border-light', c.borderLight ?? c.border);
+  root.setProperty('--color-border-dark', c.borderDark ?? c.border);
   root.setProperty('--color-success', c.success);
   root.setProperty('--color-warning', c.warning);
   root.setProperty('--color-danger', c.danger);
+  root.setProperty('--color-on-danger', c.onDanger ?? '#FFFFFF');
   root.setProperty('--color-info', c.info);
 }
 

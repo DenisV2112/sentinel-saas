@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from '@/utils/store/themeContext';
 import { AlertTriangle, CreditCard, X } from 'lucide-react';
 
 interface LimitReachedModalProps {
@@ -19,8 +18,6 @@ export default function LimitReachedModal({
     maxLimit,
     currentPlan
 }: LimitReachedModalProps) {
-    const { theme } = useTheme();
-
     if (!isOpen) return null;
 
     const isEnterprise = currentPlan.toUpperCase() === 'ENTERPRISE';
@@ -57,12 +54,12 @@ export default function LimitReachedModal({
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    background: theme.colors.surface,
+                    background: 'var(--color-surface)',
                     padding: '32px',
                     borderRadius: '16px',
                     width: '90%',
                     maxWidth: '500px',
-                    border: `1px solid ${theme.colors.border}`,
+                    border: '1px solid var(--color-border)',
                     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
                 }}
             >
@@ -75,20 +72,20 @@ export default function LimitReachedModal({
                                 height: '48px',
                                 borderRadius: '12px',
                                 background: isEnterprise
-                                    ? `linear-gradient(135deg, ${theme.colors.warning}, #f59e0b)`
-                                    : `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
+                                    ? 'linear-gradient(135deg, var(--color-warning), var(--color-warning))'
+                                    : 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
                         >
-                            {isEnterprise ? <AlertTriangle size={24} color="#fff" /> : <CreditCard size={24} color="#fff" />}
+                            {isEnterprise ? <AlertTriangle size={24} color="var(--color-on-primary)" /> : <CreditCard size={24} color="var(--color-on-primary)" />}
                         </div>
                         <div>
-                            <h2 style={{ color: theme.colors.text.primary, margin: 0, fontSize: '24px' }}>
+                            <h2 style={{ color: 'var(--color-text-primary)', margin: 0, fontSize: '24px' }}>
                                 {isEnterprise ? 'Límite Alcanzado' : 'Actualiza tu Plan'}
                             </h2>
-                            <p style={{ color: theme.colors.text.secondary, margin: '4px 0 0 0', fontSize: '14px' }}>
+                            <p style={{ color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontSize: '14px' }}>
                                 Máximo de {resourceName.toLowerCase()} alcanzado
                             </p>
                         </div>
@@ -99,7 +96,7 @@ export default function LimitReachedModal({
                             background: 'transparent',
                             border: 'none',
                             cursor: 'pointer',
-                            color: theme.colors.text.tertiary,
+                            color: 'var(--color-text-tertiary)',
                             padding: '8px',
                         }}
                     >
@@ -111,21 +108,21 @@ export default function LimitReachedModal({
                 <div
                     style={{
                         padding: '20px',
-                        background: theme.colors.background,
+                        background: 'var(--color-background)',
                         borderRadius: '12px',
                         marginBottom: '24px',
-                        borderLeft: `4px solid ${isEnterprise ? theme.colors.warning : theme.colors.primary}`,
+                        borderLeft: `4px solid ${isEnterprise ? 'var(--color-warning)' : 'var(--color-primary)'}`,
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <span style={{ color: theme.colors.text.secondary, fontSize: '14px' }}>Uso actual</span>
-                        <span style={{ color: theme.colors.text.primary, fontWeight: 600, fontSize: '18px' }}>
+                        <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Uso actual</span>
+                        <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: '18px' }}>
                             {currentCount} / {maxLimit}
                         </span>
                     </div>
                     <div style={{
                         height: '8px',
-                        background: theme.colors.border,
+                        background: 'var(--color-border)',
                         borderRadius: '4px',
                         overflow: 'hidden'
                     }}>
@@ -133,8 +130,8 @@ export default function LimitReachedModal({
                             height: '100%',
                             width: '100%',
                             background: isEnterprise
-                                ? `linear-gradient(90deg, ${theme.colors.warning}, #f59e0b)`
-                                : `linear-gradient(90deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
+                                ? 'linear-gradient(90deg, var(--color-warning), var(--color-warning))'
+                                : 'linear-gradient(90deg, var(--color-primary), var(--color-primary-dark))',
                             borderRadius: '4px',
                         }} />
                     </div>
@@ -144,19 +141,19 @@ export default function LimitReachedModal({
                 <div
                     style={{
                         padding: '16px',
-                        background: theme.colors.background,
+                        background: 'var(--color-background)',
                         borderRadius: '8px',
                         marginBottom: '24px',
                     }}
                 >
                     {isEnterprise ? (
-                        <p style={{ color: theme.colors.text.primary, margin: 0, lineHeight: '1.6' }}>
+                        <p style={{ color: 'var(--color-text-primary)', margin: 0, lineHeight: '1.6' }}>
                             Has alcanzado el límite máximo de <strong>{resourceName.toLowerCase()}</strong> para tu plan Enterprise.
                             <br /><br />
                             Para obtener más capacidad, contacta a nuestro equipo de ventas para una solución personalizada.
                         </p>
                     ) : (
-                        <p style={{ color: theme.colors.text.primary, margin: 0, lineHeight: '1.6' }}>
+                        <p style={{ color: 'var(--color-text-primary)', margin: 0, lineHeight: '1.6' }}>
                             Has alcanzado el límite de <strong>{resourceName.toLowerCase()}</strong> para tu plan actual.
                             <br /><br />
                             Actualiza a <strong>Enterprise</strong> para obtener mayor capacidad y características premium.
@@ -172,15 +169,15 @@ export default function LimitReachedModal({
                             flex: canUpgrade ? 1 : 2,
                             padding: '12px 24px',
                             background: 'transparent',
-                            color: theme.colors.text.secondary,
-                            border: `1px solid ${theme.colors.border}`,
+                            color: 'var(--color-text-secondary)',
+                            border: '1px solid var(--color-border)',
                             borderRadius: '8px',
                             cursor: 'pointer',
                             fontWeight: 600,
                             transition: 'all 0.2s',
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = theme.colors.background;
+                            e.currentTarget.style.background = 'var(--color-background)';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'transparent';
@@ -194,8 +191,8 @@ export default function LimitReachedModal({
                             style={{
                                 flex: 2,
                                 padding: '12px 24px',
-                                background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
-                                color: '#fff',
+                                background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))',
+                                color: 'var(--color-on-primary)',
                                 border: 'none',
                                 borderRadius: '8px',
                                 cursor: 'pointer',

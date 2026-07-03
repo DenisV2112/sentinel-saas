@@ -54,10 +54,10 @@ export const Button: React.FC<ButtonProps> = ({
   const color = getColorByVariant(variant);
   const sizeStyles = getSizeStyles(size);
 
-  // Validar tema y cambiar colores
-  const buttonColor = mode === 'dark' ? '#FFFFFF' : theme.colors.primary;
-  const iconCircleColor = mode === 'dark' ? theme.colors.primary : '#FFFFFF';
-  const textColor = mode === 'dark' ? theme.colors.primary : '#FFFFFF';
+  // Use variant color for button background, theme-aware text/icon colors
+  const buttonColor = color;
+  const iconCircleColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary, #FFFFFF)';
+  const textColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary, #FFFFFF)';
 
   const baseStyles: React.CSSProperties = {
     display: 'inline-flex',

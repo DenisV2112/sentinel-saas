@@ -157,41 +157,63 @@ function mapZAPRisk(risk: string): UnifiedVulnerability['severity'] {
 
 /**
  * Get severity color for UI
+ * Returns CSS variable references for theme-aware colors
  */
 export function getSeverityColor(severity: string): string {
     switch (severity?.toUpperCase()) {
         case 'CRITICAL':
-            return '#DC2626'; // red-600
+            return 'var(--color-severity-critical, #DC2626)';
         case 'HIGH':
-            return '#EA580C'; // orange-600
+            return 'var(--color-severity-high, #EA580C)';
         case 'MEDIUM':
-            return '#F59E0B'; // amber-500
+            return 'var(--color-severity-medium, #F59E0B)';
         case 'LOW':
-            return '#3B82F6'; // blue-500
+            return 'var(--color-severity-low, #3B82F6)';
         case 'INFO':
-            return '#6B7280'; // gray-500
+            return 'var(--color-text-tertiary, #808080)';
         default:
-            return '#9CA3AF'; // gray-400
+            return 'var(--color-text-tertiary, #808080)';
     }
 }
 
 /**
  * Get severity badge background color
+ * Returns CSS variable references for theme-aware colors
  */
 export function getSeverityBgColor(severity: string): string {
     switch (severity?.toUpperCase()) {
         case 'CRITICAL':
-            return '#FEE2E2'; // red-100
+            return 'var(--color-bg-severity-critical, #FEE2E2)';
         case 'HIGH':
-            return '#FFEDD5'; // orange-100
+            return 'var(--color-bg-severity-high, #FFEDD5)';
         case 'MEDIUM':
-            return '#FEF3C7'; // amber-100
+            return 'var(--color-bg-severity-medium, #FEF3C7)';
         case 'LOW':
-            return '#DBEAFE'; // blue-100
+            return 'var(--color-bg-severity-low, #DBEAFE)';
         case 'INFO':
-            return '#F3F4F6'; // gray-100
+            return 'var(--color-bg-severity-info, #F3F4F6)';
         default:
-            return '#F9FAFB'; // gray-50
+            return 'var(--color-surface-light, #2D2D2D)';
+    }
+}
+
+/**
+ * Get stat card active background tint
+ */
+export function getStatTintColor(severity: string): string {
+    switch (severity?.toUpperCase()) {
+        case 'CRITICAL':
+            return 'var(--color-stat-tint-critical, rgba(239,68,68,0.1))';
+        case 'HIGH':
+            return 'var(--color-stat-tint-high, rgba(249,115,22,0.1))';
+        case 'MEDIUM':
+            return 'var(--color-stat-tint-medium, rgba(245,158,11,0.1))';
+        case 'LOW':
+            return 'var(--color-stat-tint-low, rgba(96,165,250,0.1))';
+        case 'INFO':
+            return 'var(--color-stat-tint-low, rgba(96,165,250,0.1))';
+        default:
+            return 'var(--color-stat-tint-total, rgba(176,176,176,0.1))';
     }
 }
 

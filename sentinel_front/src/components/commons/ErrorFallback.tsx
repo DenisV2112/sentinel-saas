@@ -1,5 +1,3 @@
-import { palette } from '@utils/theme/colors';
-
 interface ErrorFallbackProps {
   error: Error | null;
   onReset: () => void;
@@ -9,8 +7,8 @@ export default function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
   const isDev = import.meta.env.DEV;
 
   const cardStyle: React.CSSProperties = {
-    background: palette.colors.layout.surface,
-    border: `1px solid ${palette.colors.layout.border}`,
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
     borderRadius: '12px',
     padding: '24px',
     maxWidth: '600px',
@@ -19,24 +17,24 @@ export default function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
   };
 
   const titleStyle: React.CSSProperties = {
-    color: palette.colors.layout.danger,
+    color: 'var(--color-danger)',
     fontSize: '20px',
     fontWeight: '600',
     marginBottom: '12px',
   };
 
   const messageStyle: React.CSSProperties = {
-    color: palette.colors.layout.text.secondary,
+    color: 'var(--color-text-secondary)',
     fontSize: '14px',
     marginBottom: '16px',
   };
 
   const stackStyle: React.CSSProperties = {
-    background: palette.colors.layout.secondaryDark,
-    border: `1px solid ${palette.colors.layout.borderDark}`,
+    background: 'var(--color-secondary-dark)',
+    border: '1px solid var(--color-border-dark)',
     borderRadius: '8px',
     padding: '12px',
-    color: palette.colors.layout.text.tertiary,
+    color: 'var(--color-text-tertiary)',
     fontSize: '12px',
     fontFamily: 'monospace',
     textAlign: 'left',
@@ -46,8 +44,8 @@ export default function ErrorFallback({ error, onReset }: ErrorFallbackProps) {
   };
 
   const buttonStyle: React.CSSProperties = {
-    background: palette.colors.layout.primary,
-    color: palette.colors.layout.onPrimary,
+    background: 'var(--color-primary)',
+    color: 'var(--color-on-primary)',
     border: 'none',
     borderRadius: '8px',
     padding: '10px 24px',
