@@ -113,20 +113,19 @@ Every Java service connects to `sentinel_db` on the same PostgreSQL instance. Th
 
 Hardcoded in local compose files (`X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=`). Must be set via env var in production. If services have mismatched secrets, auth tokens will be rejected silently.
 
-### Production CI uses base `docker-compose.yml`
+### Production CI uses `docker-compose.prod.yml`
 
 The deploy workflow uses:
 ```yaml
-docker-compose -f docker-compose.yml --env-file .env.production build --no-cache
-docker-compose -f docker-compose.yml --env-file .env.production up -d
+docker-compose -f docker-compose.prod.yml --env-file .env.production build --no-cache
+docker-compose -f docker-compose.prod.yml --env-file .env.production up -d
 ```
 
-**NOT** `docker-compose.prod.yml`. The base compose has:
-- Hardcoded dev credentials (`sentinel123`)
-- `logging: driver: "none"` — production logs are discarded
-- `mongo:latest` (unpinned, different from local's `mongo:7`)
-
-`docker-compose.prod.yml` exists with proper env var substitution, `restart: always`, and no exposed infra ports — but it's not used by CI.
+CI uses `docker-compose.prod.yml` (not the base compose). The prod compose has:
+- All values from env vars (no hardcoded credentials)
+- `restart: always` on all services
+- No exposed infra ports (PostgreSQL, MongoDB, RabbitMQ internal only)
+- `mongo:7` (pinned, unlike base's `mongo:latest`)
 
 ### Frontend env vars are build-time, not runtime
 
@@ -178,7 +177,7 @@ sentinel_front/src/
 |------|---------|-----------|
 | `docker-compose.local.yml` | Local dev | Exposed ports, MailHog, healthchecks, `--env-file .env.local`, `mongo:7`, Java `-Xms64m -Xmx128m` |
 | `docker-compose.yml` | Base / CI | Hardcoded dev creds, `logging: driver: "none"`, `mongo:latest`, Java `-Xms128m -Xmx256m` |
-| `docker-compose.prod.yml` | Production proper | All values from env vars, no exposed infra ports, `restart: always`, `mongo:7` — **NOT USED BY CI** |
+| `docker-compose.prod.yml` | Production proper | All values from env vars, no exposed infra ports, `restart: always`. CI uses this via `docker-compose -f docker-compose.prod.yml --env-file .env.production` |
 
 ## CI/CD
 

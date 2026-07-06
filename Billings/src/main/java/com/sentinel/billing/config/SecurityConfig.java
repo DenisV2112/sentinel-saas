@@ -1,6 +1,6 @@
 package com.sentinel.billing.config;
 
-import com.sentinel.billing.security.jwt.JwtAuthenticationFilter;
+import com.sentinel.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

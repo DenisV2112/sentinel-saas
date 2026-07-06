@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Crosshair } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Sentinel from '@/components/commons/Sentinel';
-import Footer from '@/components/commons/Footer';
+
 import { Navbar } from '@/components/commons/Navbar';
 
 
@@ -269,8 +269,6 @@ export default function HomePage() {
 
 
       </motion.div>
-
-      <Footer />
 
     </>
   );

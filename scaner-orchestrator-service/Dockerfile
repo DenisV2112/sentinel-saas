@@ -1,10 +1,13 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
-
 WORKDIR /build
 
-COPY . .
+# Install shared security module to local Maven repo
+COPY sentinel-common-security /build/sentinel-common-security
+RUN mvn -f sentinel-common-security/pom.xml install -DskipTests -q
 
+# Build this service
 ARG CACHE_BUST=1
+COPY scaner-orchestrator-service /build
 RUN mvn clean package -DskipTests -q
 
 FROM eclipse-temurin:17-jre-alpine

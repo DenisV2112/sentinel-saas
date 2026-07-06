@@ -1,11 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
-
 WORKDIR /build
 
-COPY . .
+# Copy shared infrastructure project
+COPY Sentinel.Common.Infrastructure /build/Sentinel.Common.Infrastructure
 
+# Build this service
 ARG CACHE_BUST=1
-RUN dotnet publish -c Release -o out
+COPY Sentinel.CodeQuality.Service /build/Sentinel.CodeQuality.Service
+RUN dotnet publish Sentinel.CodeQuality.Service/Sentinel.CodeQuality.Service.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 

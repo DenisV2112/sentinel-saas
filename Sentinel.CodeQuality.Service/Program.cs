@@ -1,7 +1,8 @@
 using Serilog;
 using Serilog.Formatting.Compact;
-using Sentinel.CodeQuality.Service.Publishers;
+using Sentinel.CodeQuality.Service.DTOs;
 using Sentinel.CodeQuality.Service.Services;
+using Sentinel.Common.Infrastructure.Publishers;
 
 var loggerConfig = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -20,7 +21,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<IReportPublisher, ReportPublisher>();
+builder.Services.AddSingleton<IReportPublisher<ScanFinalResultDto>, ReportPublisher<ScanFinalResultDto>>();
 
 // Servicios de dominio
 builder.Services.AddScoped<IResultReader, VolumeFileReader>();

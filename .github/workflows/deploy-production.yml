@@ -28,6 +28,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: 📦 Install Shared Java Module
+      run: mvn -f sentinel-common-security/pom.xml install -DskipTests -q
+
     - name: 🧪 Run Java Tests
       run: |
         echo "Running tests for auth-service-java..."

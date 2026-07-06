@@ -1,6 +1,6 @@
 package com.sentinel.tenant_service.config;
 
-import com.sentinel.tenant_service.security.jwt.JwtAuthenticationFilter;
+import com.sentinel.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

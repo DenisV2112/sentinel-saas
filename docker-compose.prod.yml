@@ -157,8 +157,8 @@ services:
 
   auth-service:
     build:
-      context: ./auth-service-java
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./auth-service-java/Dockerfile
     container_name: sentinel-auth-service
     restart: always
     environment:
@@ -193,8 +193,8 @@ services:
 
   billing:
     build:
-      context: ./Billings
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Billings/Dockerfile
     container_name: sentinel-billing
     restart: always
     environment:
@@ -223,8 +223,8 @@ services:
 
   tenant-service:
     build:
-      context: ./tenant-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./tenant-service/Dockerfile
     container_name: sentinel-tenant-service
     restart: always
     environment:
@@ -258,8 +258,8 @@ services:
 
   project-service:
     build:
-      context: ./project-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./project-service/Dockerfile
     container_name: sentinel-project-service
     restart: always
     environment:
@@ -294,8 +294,8 @@ services:
 
   user-management-service:
     build:
-      context: ./user-management-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./user-management-service/Dockerfile
     container_name: sentinel-user-management
     restart: always
     environment:
@@ -365,8 +365,8 @@ services:
 
   results-aggregator:
     build:
-      context: ./results-aggregator-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./results-aggregator-service/Dockerfile
     container_name: sentinel-results-aggregator
     restart: always
     environment:
@@ -393,8 +393,8 @@ services:
 
   vulnerability-scanner:
     build:
-      context: ./Sentinel.Vulnerability.Service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Sentinel.Vulnerability.Service/Dockerfile
     container_name: sentinel-vulnerability
     restart: always
     environment:
@@ -420,8 +420,8 @@ services:
 
   code-quality-scanner:
     build:
-      context: ./Sentinel.CodeQuality.Service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Sentinel.CodeQuality.Service/Dockerfile
     container_name: sentinel-code-quality
     restart: always
     environment:
@@ -479,8 +479,8 @@ services:
 
   scaner-orchestrator:
     build:
-      context: ./scaner-orchestrator-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./scaner-orchestrator-service/Dockerfile
     container_name: sentinel-scaner-orchestrator
     restart: always
     environment:

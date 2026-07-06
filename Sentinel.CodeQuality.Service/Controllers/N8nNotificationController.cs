@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Sentinel.CodeQuality.Service.DTOs;
 using Sentinel.CodeQuality.Service.Models;
-using Sentinel.CodeQuality.Service.Publishers;
 using Sentinel.CodeQuality.Service.Services;
+using Sentinel.Common.Infrastructure.Publishers;
 
 namespace Sentinel.CodeQuality.Service.Controllers
 {
@@ -13,7 +13,7 @@ namespace Sentinel.CodeQuality.Service.Controllers
         private readonly IResultReader _reader;
         private readonly SemgrepMapper _mapper;
         private readonly QualityGateEvaluator _evaluator;
-        private readonly IReportPublisher _publisher;
+        private readonly IReportPublisher<ScanFinalResultDto> _publisher;
         private readonly ILogger<N8nNotificationController> _logger;
         private readonly string _allowedBasePath;
 
@@ -21,7 +21,7 @@ namespace Sentinel.CodeQuality.Service.Controllers
             IResultReader reader,
             SemgrepMapper mapper,
             QualityGateEvaluator evaluator,
-            IReportPublisher publisher,
+            IReportPublisher<ScanFinalResultDto> publisher,
             IConfiguration configuration,
             ILogger<N8nNotificationController> logger)
         {

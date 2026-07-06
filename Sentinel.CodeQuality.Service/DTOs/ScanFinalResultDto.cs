@@ -1,6 +1,8 @@
+using Sentinel.Common.Infrastructure.Publishers;
+
 namespace Sentinel.CodeQuality.Service.DTOs;
 
-public class ScanFinalResultDto
+public class ScanFinalResultDto : IHasScanId
 {
     public string ScanId { get; set; }
     public string Status { get; set; } // "PASS" | "FAIL"

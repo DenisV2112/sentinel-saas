@@ -1,6 +1,6 @@
 package com.sentinel.results_aggregator_service.config;
 
-import com.sentinel.results_aggregator_service.security.jwt.JwtAuthenticationFilter;
+import com.sentinel.common.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

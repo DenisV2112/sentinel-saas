@@ -1,7 +1,7 @@
 package com.sentinel.scaner_orchestrator_service.controller;
 
 import com.sentinel.scaner_orchestrator_service.dto.response.ScanResponseDTO;
-import com.sentinel.scaner_orchestrator_service.security.jwt.JwtService;
+import com.sentinel.common.security.jwt.JwtService;
 import com.sentinel.scaner_orchestrator_service.service.ScanService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

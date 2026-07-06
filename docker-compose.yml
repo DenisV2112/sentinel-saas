@@ -247,8 +247,8 @@ services:
   # Java Services
   auth-service:
     build:
-      context: ./auth-service-java
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./auth-service-java/Dockerfile
     container_name: sentinel-auth-service
     ports:
       - "8081:8081"
@@ -326,8 +326,8 @@ services:
 
   tenant-service:
     build:
-      context: ./tenant-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./tenant-service/Dockerfile
     container_name: sentinel-tenant-service
     ports:
       - "8082:8082"
@@ -363,8 +363,8 @@ services:
 
   project-service:
     build:
-      context: ./project-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./project-service/Dockerfile
     container_name: sentinel-project-service
     ports:
       - "8083:8083"
@@ -399,8 +399,8 @@ services:
 
   scaner-orchestrator-service:
     build:
-      context: ./scaner-orchestrator-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./scaner-orchestrator-service/Dockerfile
     container_name: sentinel-scaner-orchestrator
     ports:
       - "8086:8086"
@@ -435,8 +435,8 @@ services:
 
   results-aggregator-service:
     build:
-      context: ./results-aggregator-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./results-aggregator-service/Dockerfile
     container_name: sentinel-results-aggregator
     ports:
       - "8087:8087"
@@ -474,8 +474,8 @@ services:
 
   user-management-service:
     build:
-      context: ./user-management-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./user-management-service/Dockerfile
     container_name: sentinel-user-management
     ports:
       - "8088:8083" # External:Internal (App listens on 8083)
@@ -564,8 +564,8 @@ services:
 
   billing-service:
     build:
-      context: ./Billings
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Billings/Dockerfile
     container_name: sentinel-billing
     ports:
       - "8084:8084"
@@ -640,8 +640,8 @@ services:
 
   code-quality-service:
     build:
-      context: ./Sentinel.CodeQuality.Service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Sentinel.CodeQuality.Service/Dockerfile
     container_name: sentinel-code-quality
     ports:
       - "5002:5001"
@@ -672,8 +672,8 @@ services:
 
   vulnerability-service:
     build:
-      context: ./Sentinel.Vulnerability.Service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Sentinel.Vulnerability.Service/Dockerfile
     container_name: sentinel-vulnerability
     ports:
       - "5003:5001"
