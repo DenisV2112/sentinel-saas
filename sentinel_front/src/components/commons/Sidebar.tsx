@@ -33,9 +33,13 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
   ];
 
   const logout = () => {
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    navigate("/auth");
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('tenantId');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    navigate('/auth');
   };
 
   return (
@@ -68,6 +72,7 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
             <NavLink
               key={id}
               to={path}
+              aria-label={label}
               className={({ isActive }) => (isActive ? "active" : "")}
               style={({ isActive }) => ({
                 background: isActive ? 'var(--color-primary)' : "transparent",
@@ -111,6 +116,7 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
           <button
             onClick={logout}
             title="Cerrar sesión"
+            aria-label="Cerrar sesión"
             style={{
               background: "transparent",
               border: "none",

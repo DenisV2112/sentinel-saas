@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { API, getAuthHeaders } from "../api/fetch-helpers";
+import { API, fetchJSON } from "../api/fetch-helpers";
 
 /* ======================================================
    QUERY KEYS
@@ -17,12 +17,6 @@ export const dashboardKeys = {
 /* ======================================================
    FETCHERS
 ====================================================== */
-
-async function fetchJSON<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-  return res.json();
-}
 
 /* ======================================================
    TYPES
@@ -101,8 +95,8 @@ export function useDashboardSummary() {
         (s: any) => s.qualityGatePassed || s.qualityGate === "PASS"
       );
       return {
-        exposedPorts: undefined,
-        criticalFindingsOpen: undefined,
+        exposedPorts: undefined, // ponytail: backend gap — no endpoint yet
+        criticalFindingsOpen: undefined, // ponytail: backend gap — no endpoint yet
         qualityGatePassRate:
           completedScans.length > 0
             ? Math.round((passedScans.length / completedScans.length) * 100)

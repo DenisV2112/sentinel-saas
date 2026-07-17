@@ -1,7 +1,42 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/commons/Navbar";
-import { login, register, getGoogleOAuthUrl } from "@/api/auth.api";
+import { API, getAuthHeaders } from "@/api/fetch-helpers";
+
+/* ── Inline auth helpers (ponytail: no auth.api module needed) ── */
+
+interface LoginPayload { email: string; password: string }
+interface RegisterPayload { username: string; email: string; password: string; role: string }
+
+async function apiLogin(payload: LoginPayload) {
+  const res = await fetch(`${API}/api/auth/login`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? "Login failed");
+  }
+  return res.json();
+}
+
+async function apiRegister(payload: RegisterPayload) {
+  const res = await fetch(`${API}/api/auth/register`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? "Registration failed");
+  }
+  return res.json();
+}
+
+function getGoogleOAuthUrl() {
+  return `${API}/api/auth/oauth2/google`;
+}
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -47,7 +82,7 @@ export default function AuthPage() {
     setError(null);
 
     try {
-      const response = await login(loginData);
+      const response = await apiLogin(loginData);
       const data = response.data;
 
       // Store tokens
@@ -80,7 +115,7 @@ export default function AuthPage() {
     setError(null);
 
     try {
-      await register(registerData);
+      await apiRegister(registerData);
 
       // Registration successful - switch to login
       setActive(false);
@@ -175,8 +210,8 @@ export default function AuthPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
-                  background: 'white',
-                  border: '1px solid #ddd',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '24px',
                   padding: '10px 24px',
                   cursor: 'pointer',
@@ -184,12 +219,12 @@ export default function AuthPage() {
                   maxWidth: '300px',
                   fontSize: '16px',
                   fontWeight: '500',
-                  color: '#3c4043',
+                  color: 'var(--color-text-primary)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                   transition: 'background-color 0.2s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface-light)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface)'}
                 title="Login with Google"
               >
                 <img
@@ -261,8 +296,8 @@ export default function AuthPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '10px',
-                  background: 'white',
-                  border: '1px solid #ddd',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '24px',
                   padding: '10px 24px',
                   cursor: 'pointer',
@@ -270,12 +305,12 @@ export default function AuthPage() {
                   maxWidth: '300px',
                   fontSize: '16px',
                   fontWeight: '500',
-                  color: '#3c4043',
+                  color: 'var(--color-text-primary)',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                   transition: 'background-color 0.2s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface-light)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-surface)'}
                 title="Register with Google"
               >
                 <img

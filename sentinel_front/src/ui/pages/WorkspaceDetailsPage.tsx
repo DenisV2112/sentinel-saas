@@ -57,7 +57,6 @@ export default function WorkspaceDetailsPage() {
             setAllProjects(true);
             toast.success("Invitation sent successfully!");
         } catch (err: any) {
-            console.error("Failed to invite", err);
 
             const errorMessage = err.message || "Unknown error";
 
@@ -99,6 +98,7 @@ export default function WorkspaceDetailsPage() {
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                         <button
                             onClick={() => navigate("/workspaces")}
+                            aria-label="Back to workspaces"
                             style={{
                                 background: "transparent",
                                 border: "none",
@@ -236,6 +236,7 @@ export default function WorkspaceDetailsPage() {
                                                 alignItems: "center",
                                                 gap: 6
                                             }}
+                                            aria-label={`Cancel invitation for ${inv.email}`}
                                             title="Cancel Invitation"
                                         >
                                             <Trash2 size={16} />

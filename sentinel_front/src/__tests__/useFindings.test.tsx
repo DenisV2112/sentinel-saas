@@ -32,44 +32,19 @@ const sampleScans = {
   content: [
     {
       id: 's1', scanId: 's1', status: 'COMPLETED',
-      projectId: 'p1', tenantId: 't1',
-      createdAt: '2026-01-01T00:00:00Z',
+      projectId: 'p1', tenantId: 't1', scanType: 'SAST',
+      projectName: 'my-project', createdAt: '2026-01-01T00:00:00Z',
+      completedAt: '2026-01-01T00:05:00Z',
     },
     {
       id: 's2', scanId: 's2', status: 'COMPLETED',
-      projectId: 'p1', tenantId: 't1',
-      createdAt: '2026-01-02T00:00:00Z',
+      projectId: 'p1', tenantId: 't1', scanType: 'DAST',
+      projectName: 'my-project', createdAt: '2026-01-02T00:00:00Z',
     },
     {
       id: 's3', scanId: 's3', status: 'RUNNING',
-      projectId: 'p1', tenantId: 't1',
+      projectId: 'p1', tenantId: 't1', scanType: 'SAST',
       createdAt: '2026-01-03T00:00:00Z',
-    },
-  ],
-};
-
-const sampleResultsScan1 = {
-  findings: [
-    {
-      id: 'f1', title: 'SQL Injection', severity: 'CRITICAL',
-      description: 'SQL injection vulnerability found',
-      file: 'app/login.ts', line: 42,
-      solution: 'Use parameterized queries', cwe: 'CWE-89',
-    },
-    {
-      id: 'f2', title: 'XSS Vulnerability', severity: 'HIGH',
-      description: 'Cross-site scripting',
-      file: 'app/ui.tsx', line: 15,
-    },
-  ],
-};
-
-const sampleResultsScan2 = {
-  findings: [
-    {
-      id: 'f3', title: 'Info Leak', severity: 'MEDIUM',
-      description: 'Sensitive data exposure',
-      file: 'config.ts', line: 1,
     },
   ],
 };
@@ -81,60 +56,47 @@ describe('useFindings', () => {
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     expect(result.current.isLoading).toBe(true);
-    expect(result.current.data).toBeUndefined();
-    expect(result.current.findings).toEqual([]);
+    expect(result.current.scans).toEqual([]);
   });
 
-  it('fetches findings from all completed scans and flattens them', async () => {
-    mockFetch
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleScans })
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleResultsScan1 })
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleResultsScan2 });
+  it('fetches completed scans only and returns scan items', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => sampleScans });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.findings).toHaveLength(3);
+    // Should return 2 completed scans, not 3 (s3 is RUNNING)
+    expect(result.current.scans).toHaveLength(2);
+    expect(result.current.scans[0].scanId).toBe('s1');
+    expect(result.current.scans[0].status).toBe('COMPLETED');
+    expect(result.current.scans[0].projectName).toBe('my-project');
+    expect(result.current.scans[0].scanType).toBe('SAST');
+    expect(result.current.scans[1].scanId).toBe('s2');
+    expect(result.current.scans[1].scanType).toBe('DAST');
 
-    // Finding from scan 1
-    expect(result.current.findings[0].title).toBe('SQL Injection');
-    expect(result.current.findings[0].severity).toBe('CRITICAL');
-    expect(result.current.findings[0].file).toBe('app/login.ts');
-    expect(result.current.findings[0].line).toBe(42);
-
-    // Finding from scan 1
-    expect(result.current.findings[1].title).toBe('XSS Vulnerability');
-    expect(result.current.findings[1].severity).toBe('HIGH');
-
-    // Finding from scan 2
-    expect(result.current.findings[2].title).toBe('Info Leak');
-    expect(result.current.findings[2].severity).toBe('MEDIUM');
-
-    // Filter out RUNNING scan (s3) — no results fetched for it
-    const scanIds = new Set(result.current.findings.map((f: any) => f.id.split('-')[1]));
-    expect(scanIds.has('s3')).toBe(false);
+    // Should only make ONE fetch call (scans list, no per-scan results)
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
-  it('returns empty array when no scans exist', async () => {
+  it('returns empty scans array when no scans exist', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ content: [] }) });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.findings).toHaveLength(0);
+    expect(result.current.scans).toHaveLength(0);
   });
 
-  it('returns empty array when no completed scans exist', async () => {
+  it('returns empty scans array when no completed scans exist', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         content: [
-          { id: 's1', status: 'RUNNING' },
-          { id: 's2', status: 'PENDING' },
-          { id: 's3', status: 'FAILED' },
+          { id: 's1', status: 'RUNNING', scanId: 's1' },
+          { id: 's2', status: 'PENDING', scanId: 's2' },
+          { id: 's3', status: 'FAILED', scanId: 's3' },
         ],
       }),
     });
@@ -143,10 +105,10 @@ describe('useFindings', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.findings).toHaveLength(0);
+    expect(result.current.scans).toHaveLength(0);
   });
 
-  it('handles error on first fetch (scans)', async () => {
+  it('handles error on scan fetch', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network failure'));
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
@@ -155,10 +117,10 @@ describe('useFindings', () => {
 
     expect(result.current.error).toBeTruthy();
     expect((result.current.error as Error).message).toBe('Network failure');
-    expect(result.current.findings).toEqual([]);
+    expect(result.current.scans).toEqual([]);
   });
 
-  it('handles non-200 response on scans fetch', async () => {
+  it('handles non-200 response on scan fetch', async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Server Error' });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
@@ -169,55 +131,62 @@ describe('useFindings', () => {
     expect((result.current.error as Error).message).toBe('Failed to load scans');
   });
 
-  it('skips per-scan results that fail and returns remaining findings', async () => {
-    mockFetch
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleScans })
-      .mockRejectedValueOnce(new Error('Failed scan 1 results')) // s1 fails
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleResultsScan2 }); // s2 succeeds
+  it('filters out non-completed scans', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        content: [
+          { id: 's1', scanId: 's1', status: 'COMPLETED', createdAt: '2026-01-01T00:00:00Z' },
+          { id: 's2', scanId: 's2', status: 'COMPLETED', createdAt: '2026-01-02T00:00:00Z' },
+          { id: 's3', scanId: 's3', status: 'RUNNING', createdAt: '2026-01-03T00:00:00Z' },
+          { id: 's4', scanId: 's4', status: 'FAILED', createdAt: '2026-01-04T00:00:00Z' },
+        ],
+      }),
+    });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // Should only have findings from scan 2 (s1 failed)
-    expect(result.current.findings).toHaveLength(1);
-    expect(result.current.findings[0].title).toBe('Info Leak');
-    // No error exposed because individual scan failures are skipped
-    expect(result.current.error).toBeNull();
+    expect(result.current.scans).toHaveLength(2);
+    const scanIds = result.current.scans.map((s) => s.scanId);
+    expect(scanIds).toContain('s1');
+    expect(scanIds).toContain('s2');
+    expect(scanIds).not.toContain('s3');
+    expect(scanIds).not.toContain('s4');
   });
 
-  it('normalizes severity correctly', async () => {
-    mockFetch
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleScans })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          findings: [
-            { id: 'f1', severity: 'ERROR', title: 'Err', description: '' },
-            { id: 'f2', severity: 'WARNING', title: 'Warn', description: '' },
-            { id: 'f3', severity: 'LOW', title: 'Low', description: '' },
-            { id: 'f4', severity: 'UNKNOWN', title: 'Unknown', description: '' },
-            { id: 'f5', title: 'Default', description: '' }, // no severity
-          ],
-        }),
-      })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ findings: [] }) });
+  it('handles items-based response shape', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        items: [
+          { id: 's1', scanId: 's1', status: 'COMPLETED', createdAt: '2026-01-01T00:00:00Z' },
+        ],
+      }),
+    });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.findings).toHaveLength(5);
-    // ERROR maps to HIGH
-    expect(result.current.findings[0].severity).toBe('HIGH');
-    // WARNING maps to MEDIUM
-    expect(result.current.findings[1].severity).toBe('MEDIUM');
-    // LOW stays LOW
-    expect(result.current.findings[2].severity).toBe('LOW');
-    // UNKNOWN maps to INFO
-    expect(result.current.findings[3].severity).toBe('INFO');
-    // No severity defaults to INFO
-    expect(result.current.findings[4].severity).toBe('INFO');
+    expect(result.current.scans).toHaveLength(1);
+    expect(result.current.scans[0].scanId).toBe('s1');
+  });
+
+  it('handles flat-array response shape', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        { id: 's1', scanId: 's1', status: 'COMPLETED', createdAt: '2026-01-01T00:00:00Z' },
+      ],
+    });
+
+    const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.scans).toHaveLength(1);
   });
 
   it('manages filter state locally', async () => {
@@ -227,18 +196,14 @@ describe('useFindings', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    // Initial state
     expect(result.current.filter).toEqual({ severity: null, status: null });
 
-    // Set severity
     act(() => { result.current.setFilter({ severity: 'CRITICAL' }); });
     expect(result.current.filter).toEqual({ severity: 'CRITICAL', status: null });
 
-    // Set status
     act(() => { result.current.setFilter({ status: 'Open' }); });
     expect(result.current.filter).toEqual({ severity: 'CRITICAL', status: 'Open' });
 
-    // Partial update preserves other values
     act(() => { result.current.setFilter({ severity: null }); });
     expect(result.current.filter).toEqual({ severity: null, status: 'Open' });
   });
@@ -246,22 +211,19 @@ describe('useFindings', () => {
   it('has working refetch function', async () => {
     mockFetch
       .mockResolvedValueOnce({ ok: true, json: async () => ({ content: [] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleScans })
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleResultsScan1 })
-      .mockResolvedValueOnce({ ok: true, json: async () => sampleResultsScan2 });
+      .mockResolvedValueOnce({ ok: true, json: async () => sampleScans });
 
     const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.findings).toHaveLength(0);
+    expect(result.current.scans).toHaveLength(0);
 
     await waitFor(async () => {
       await result.current.refetch();
     });
 
     await waitFor(() => {
-      expect(result.current.findings).toHaveLength(3);
+      expect(result.current.scans).toHaveLength(2);
     });
   });
 });

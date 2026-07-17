@@ -12,7 +12,7 @@ export default React.memo(function PageSkeleton() {
           width: "40%",
           marginBottom: "2rem",
           borderRadius: "8px",
-          background: "linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%)",
+          background: "linear-gradient(90deg, var(--color-surface-light) 25%, var(--color-border) 50%, var(--color-surface-light) 75%)",
           backgroundSize: "200% 100%",
           animation: "shimmer 1.5s ease-in-out infinite",
         }}
@@ -28,7 +28,7 @@ export default React.memo(function PageSkeleton() {
               flex: 1,
               height: "120px",
               borderRadius: "12px",
-              background: "linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%)",
+              background: "linear-gradient(90deg, var(--color-surface-light) 25%, var(--color-border) 50%, var(--color-surface-light) 75%)",
               backgroundSize: "200% 100%",
               animation: "shimmer 1.5s ease-in-out infinite",
               animationDelay: `${i * 0.1}s`,
@@ -43,7 +43,7 @@ export default React.memo(function PageSkeleton() {
         style={{
           height: "300px",
           borderRadius: "12px",
-          background: "linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%)",
+          background: "linear-gradient(90deg, var(--color-surface-light) 25%, var(--color-border) 50%, var(--color-surface-light) 75%)",
           backgroundSize: "200% 100%",
           animation: "shimmer 1.5s ease-in-out infinite",
         }}

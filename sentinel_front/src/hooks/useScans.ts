@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { API, getAuthHeaders } from "../api/fetch-helpers";
+import { API, fetchJSON } from "../api/fetch-helpers";
 
 export interface ScanRequest {
     projectId: string;
@@ -28,16 +28,6 @@ export const scansKeys = {
     list: (tenantId: string | null) => [...scansKeys.all, "list", tenantId] as const,
     detail: (scanId: string | null) => [...scansKeys.all, "detail", scanId] as const,
 };
-
-/* ======================================================
-   FETCHER
-====================================================== */
-async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
-    const headers = { ...getAuthHeaders(), ...(options?.headers as Record<string, string>) };
-    const res = await fetch(url, { ...options, headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-    return res.json();
-}
 
 /* ======================================================
    HOOKS

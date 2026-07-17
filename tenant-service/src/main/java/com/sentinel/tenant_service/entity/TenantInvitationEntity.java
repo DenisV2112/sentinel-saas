@@ -1,7 +1,7 @@
 package com.sentinel.tenant_service.entity;
 
 import com.sentinel.tenant_service.enums.InvitationStatus;
-import com.sentinel.tenant_service.enums.TenantRole;
+import com.sentinel.common.security.enums.TenantRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

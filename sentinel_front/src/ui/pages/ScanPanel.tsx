@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
@@ -88,35 +88,6 @@ export default function ScansPage() {
   const isLoading = activeLoading || recentLoading;
   const combinedError = activeError || recentError;
 
-  const mainStyle = useMemo(
-    () => ({ background: theme.colors.surface }),
-    [theme.colors.surface]
-  );
-
-  const headerStyle = useMemo(
-    () => ({
-      background: theme.colors.background,
-      borderColor: theme.colors.border,
-    }),
-    [theme.colors.background, theme.colors.border]
-  );
-
-  const filtersStyle = useMemo(
-    () => ({
-      background: theme.colors.background,
-      borderColor: theme.colors.border,
-    }),
-    [theme.colors.background, theme.colors.border]
-  );
-
-  const tableWrapperStyle = useMemo(
-    () => ({
-      background: theme.colors.background,
-      borderColor: theme.colors.border,
-    }),
-    [theme.colors.background, theme.colors.border]
-  );
-
   /* ── map API data to table rows ── */
   const activeRows = ((activeScansData) ?? []).map((s) => ({
     id: s.scanId,
@@ -205,12 +176,10 @@ export default function ScansPage() {
 
       <main
         className="scans-main"
-        style={mainStyle}
       >
         {/* HEADER */}
         <header
           className="scans-header"
-          style={headerStyle}
         >
           <h1 style={{ color: theme.colors.text.primary }}>
             Scan Management
@@ -386,7 +355,7 @@ export default function ScansPage() {
               padding: "12px 20px",
               borderRadius: 12,
               background: theme.colors.danger,
-              color: theme.colors.onPrimary || "#fff",
+              color: theme.colors.onPrimary || "var(--color-on-primary)",
               fontSize: 14,
             }}
           >
@@ -414,14 +383,14 @@ export default function ScansPage() {
                 <span>
                   <i
                     className="dot"
-                    style={{ background: "#ea580c" }}
+                    style={{ background: "var(--color-warning)" }}
                   />{" "}
                   SCA
                 </span>
                 <span>
                   <i
                     className="dot"
-                    style={{ background: "#059669" }}
+                    style={{ background: "var(--color-success)" }}
                   />{" "}
                   CONTAINER
                 </span>
@@ -443,14 +412,14 @@ export default function ScansPage() {
                     <span
                       style={{
                         height: `${d.sca * 10}px`,
-                        background: "#ea580c",
+                        background: "var(--color-warning)",
                         borderRadius: 6,
                       }}
                     />
                     <span
                       style={{
                         height: `${d.container * 10}px`,
-                        background: "#059669",
+                        background: "var(--color-success)",
                         borderRadius: 6,
                       }}
                     />
@@ -488,7 +457,6 @@ export default function ScansPage() {
         {/* FILTERS */}
         <section
           className="filters"
-          style={filtersStyle}
         >
           <div className="search">
             <Search size={18} />
@@ -515,7 +483,6 @@ export default function ScansPage() {
         {/* TABLE */}
         <section
           className="table-wrapper"
-          style={tableWrapperStyle}
         >
           <table>
             <thead>

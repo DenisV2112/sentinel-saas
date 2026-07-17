@@ -16,21 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@assets/*": ["src/assets/*"],
-      "@icons/*": ["src/assets/icons/*"],
-      "@images/*": ["src/assets/images/*"],
-      "@styles/*": ["src/assets/styles/*"],
       "@components/*": ["src/ui/components/*"],
       "@pages/*": ["src/ui/pages/*"],
-      "@constants/*": ["src/constants/*"],
-      "@helpers/*": ["src/helpers/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@i18n/*": ["src/i18n/*"],
-      "@locales/*": ["src/i18n/locales/*"],
-      "@router/*": ["src/router/*"],
-      "@services/*": ["src/services/*"],
-      "@store/*": ["src/store/*"],
-      "@theme/*": ["src/theme/*"],
       "@utils/*": ["src/utils/*"]
     }
 

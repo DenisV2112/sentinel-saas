@@ -12,7 +12,7 @@ import com.sentinel.project_service.exception.LimitExceededException;
 import com.sentinel.project_service.exception.ProjectNotFoundException;
 import com.sentinel.project_service.repository.ProjectRepository;
 import com.sentinel.project_service.repository.TenantLimitsCacheRepository;
-import com.sentinel.project_service.service.impl.ProjectServiceImpl;
+import com.sentinel.project_service.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ class ProjectServiceImplTest {
     private ProjectEventPublisher eventPublisher;
 
     @InjectMocks
-    private ProjectServiceImpl projectService;
+    private ProjectService projectService;
 
     private UUID tenantId;
     private UUID userId;

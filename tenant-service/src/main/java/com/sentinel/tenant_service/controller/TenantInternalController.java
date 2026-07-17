@@ -1,7 +1,7 @@
 package com.sentinel.tenant_service.controller;
 
 import com.sentinel.tenant_service.dto.response.LimitValidationResponse;
-import com.sentinel.tenant_service.dto.response.TenantDTO;
+import com.sentinel.common.security.dto.TenantDTO;
 import com.sentinel.tenant_service.service.TenantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.sentinel.results_aggregator_service.domain;
 
-import com.sentinel.results_aggregator_service.domain.enums.ScanStatus;
-import com.sentinel.results_aggregator_service.domain.enums.ScanType;
+import com.sentinel.common.security.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

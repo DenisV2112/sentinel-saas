@@ -1,7 +1,7 @@
 package com.sentinel.user_management_service.repository;
 
 import com.sentinel.user_management_service.entity.ProjectMemberEntity;
-import com.sentinel.user_management_service.enums.ProjectRole;
+import com.sentinel.common.security.enums.ProjectRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

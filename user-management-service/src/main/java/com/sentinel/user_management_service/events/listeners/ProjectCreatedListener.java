@@ -1,6 +1,6 @@
 package com.sentinel.user_management_service.events.listeners;
 
-import com.sentinel.user_management_service.enums.ProjectRole;
+import com.sentinel.common.security.enums.ProjectRole;
 import com.sentinel.user_management_service.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

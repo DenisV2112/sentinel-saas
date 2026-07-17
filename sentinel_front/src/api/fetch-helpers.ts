@@ -18,4 +18,11 @@ export function getAuthHeaders(extra: Record<string, string> = {}): Record<strin
   return headers;
 }
 
+export async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+  const headers = { ...getAuthHeaders(), ...(options?.headers as Record<string, string>) };
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
 export { API };

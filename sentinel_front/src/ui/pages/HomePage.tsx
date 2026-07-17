@@ -9,12 +9,7 @@ import { Navbar } from '@/components/commons/Navbar';
 
 export default function HomePage() {
 
-  const API_URL = import.meta.env.VITE_API_URL as string;
-  const { i18n, t } = useTranslation();
-
-  const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'es' ? 'en' : 'es');
-  };
+  const { t } = useTranslation();
 
 
 
@@ -48,11 +43,7 @@ export default function HomePage() {
             fontWeight: 'bold',
             lineHeight: '1.2',
             marginBottom: '20px',
-            backgroundImage: 'linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-primary-light) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            backgroundColor: 'transparent'
+            color: 'var(--color-text-primary)',
           }}>
             {t('hero.title')}
           </h1>
@@ -169,7 +160,7 @@ export default function HomePage() {
                     : idx === arr.length - 1
                     ? '32px 32px 50% 50%' 
                     : '32px',
-                  backgroundColor: '#fff',
+                  backgroundColor: 'var(--color-surface)',
                   color: 'var(--color-secondary-dark)',
                   textAlign: 'center',
                   transition: 'all 0.3s ease',
@@ -198,7 +189,7 @@ export default function HomePage() {
 
                 onMouseLeave={(e) => {
                   const el = e.currentTarget;
-                  el.style.backgroundColor = '#fff';
+                  el.style.backgroundColor = 'var(--color-surface)';
                   el.style.borderColor = 'var(--color-border)';
                   el.style.color = 'var(--color-secondary-dark)';
                   el.style.transform = 'translateY(0)';

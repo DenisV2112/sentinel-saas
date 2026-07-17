@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import Sidebar from "@/components/commons/Sidebar";
-import StatCard from "@/components/StatCard"; 
+import StatCard from "@/components/StatCard";
 import FindingsTable, { type Finding } from "@/components/FindingsTable";
 import { useTheme } from "@/utils/store/themeContext";
 import { useFindings } from "@hooks/useFindings";
+import { useFindingsByScan } from "@hooks/useFindingsByScan";
 import type { UnifiedVulnerability } from "@/types/scanResults";
 import {
   Search,
@@ -13,6 +14,7 @@ import {
   Filter,
   ChevronDown,
   X,
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
@@ -130,34 +132,37 @@ export default function FindingsPage() {
   const [search, setSearch] = useState("");
   const [showSeverityMenu, setShowSeverityMenu] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [expandedScanId, setExpandedScanId] = useState<string | null>(null);
 
-  const { data: rawFindings, isLoading, error, filter, setFilter } = useFindings();
+  const { scans, isLoading, error, filter, setFilter } = useFindings();
+
+  // Lazy-loaded findings for the expanded scan only
+  const {
+    data: expandedFindings,
+    isLoading: findingsLoading,
+  } = useFindingsByScan(expandedScanId, expandedScanId !== null);
 
   // VERIFICACIÓN DE SEGURIDAD: Si theme no está disponible, mostrar error visible.
   if (!theme || !theme.colors) {
-      console.error("CRITICAL: Theme context is undefined. Is the app wrapped in ThemeProvider?");
-      return (
-         <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', color: '#FFF' }}>
-            <h1>Theme Unavailable</h1>
-            <p>Please check your ThemeProvider setup.</p>
-         </div>
-      );
+    return (
+      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--color-background)', color: 'var(--color-text-primary)' }}>
+        <h1>Theme Unavailable</h1>
+        <p>Please check your ThemeProvider setup.</p>
+      </div>
+    );
   }
 
-  /* ─── Map + filter findings ─── */
-  const allFindings: Finding[] = (rawFindings ?? []).map(mapToFinding);
+  /* ─── Map expanded findings ─── */
+  const allFindings: Finding[] = (expandedFindings ?? []).map(mapToFinding);
 
   const filteredFindings = allFindings.filter((f) => {
-    /* severity filter */
     if (filter.severity && f.severity !== filter.severity) return false;
-    /* status filter — map UI status to Finding status */
     if (filter.status) {
       const mappedStatus = filter.status as Finding["status"];
       if (mappedStatus === "Open" || mappedStatus === "In Review" || mappedStatus === "Fixed") {
         if (f.status !== mappedStatus) return false;
       }
     }
-    /* text search */
     if (search.trim()) {
       const q = search.toLowerCase();
       return (
@@ -187,6 +192,10 @@ export default function FindingsPage() {
     setSearch("");
   };
 
+  const handleScanClick = (scanId: string) => {
+    setExpandedScanId((prev) => (prev === scanId ? null : scanId));
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -194,7 +203,7 @@ export default function FindingsPage() {
       transition={{ duration: 0.3 }}
     >
       <div className="findings-layout app" style={layoutStyle}>
-      <Sidebar activeItem="findings" /> 
+      <Sidebar activeItem="findings" />
 
       <main className="findings-main main">
         {/* HEADER */}
@@ -234,7 +243,11 @@ export default function FindingsPage() {
                 />
             </div>
             {/* Notification Bell */}
-            <button className="icon-btn" style={{ color: 'var(--color-text-secondary)' }}>
+            <button
+              className="icon-btn"
+              aria-label="Notifications"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               <Bell size={22} />
               <span className="notification-dot" style={{ backgroundColor: 'var(--color-danger)' }}/>
             </button>
@@ -243,11 +256,12 @@ export default function FindingsPage() {
 
         {/* Scrollable Page Content */}
         <section className="page-content-scrollable content">
-          {/* LOADING / ERROR STATES */}
+          {/* LOADING STATE */}
           {isLoading && (
             <TableSkeleton columns={6} rows={4} />
           )}
 
+          {/* ERROR STATE */}
           {error && !isLoading && (
             <div
               style={{
@@ -259,114 +273,191 @@ export default function FindingsPage() {
                 fontSize: 14,
               }}
             >
-              Failed to load findings: {error}
+              Failed to load scans: {error.message}
             </div>
           )}
 
-          {/* Statistics Row */}
-          <div className="stats-grid kpis">
-            {stats.map((stat, index) => (
-              <StatCard key={index} {...stat} theme={theme} />
-            ))}
-          </div>
-
-          {/* Filters & Actions Toolbar */}
-          <div className="toolbar" style={{ marginTop: '0.5rem' }}>
-            <div className="filters-group">
-              {/* Severity Filter */}
-              <div style={{ position: "relative" }}>
-                <button 
-                  className="filter-btn"
-                  onClick={() => { setShowSeverityMenu(!showSeverityMenu); setShowStatusMenu(false); }}
-                  style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: filter.severity ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
-                >
-                  <Filter size={18} style={{ color: filter.severity ? 'var(--color-primary)' : 'var(--color-text-secondary)' }} />
-                  {filter.severity ? filter.severity : "Severity"}
-                  <ChevronDown size={18} />
-                </button>
-                {showSeverityMenu && (
-                  <div style={dropdownMenuStyle}>
-                    {SEVERITY_OPTIONS.map((sev) => (
-                      <div
-                        key={sev}
-                        style={dropdownItemStyle(filter.severity === sev)}
-                        onClick={() => handleSeveritySelect(sev)}
-                      >
-                        {sev}
-                        {filter.severity === sev && <X size={14} />}
-                      </div>
+          {/* SCAN LIST */}
+          {!isLoading && !error && scans.length > 0 && !expandedScanId && (
+            <div className="table-card" style={{ marginTop: '1.5rem' }}>
+              <div className="table-scroll-wrapper">
+                <table className="findings-table">
+                  <thead>
+                    <tr>
+                      <th>Scan ID</th>
+                      <th>Project</th>
+                      <th>Type</th>
+                      <th>Completed</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scans.map((scan) => (
+                      <tr key={scan.scanId} onClick={() => handleScanClick(scan.scanId)}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                          {scan.scanId}
+                        </td>
+                        <td>{scan.projectName ?? 'N/A'}</td>
+                        <td>
+                          <span className="tag">{scan.scanType ?? 'N/A'}</span>
+                        </td>
+                        <td style={{ fontSize: '0.8rem', color: 'var(--color-text-tertiary)' }}>
+                          {scan.completedAt ? new Date(scan.completedAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                )}
+                  </tbody>
+                </table>
               </div>
-              {/* Status Filter */}
-              <div style={{ position: "relative" }}>
-                <button 
-                  className="filter-btn"
-                  onClick={() => { setShowStatusMenu(!showStatusMenu); setShowSeverityMenu(false); }}
-                  style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: filter.status ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
-                >
-                  Status: <span className="highlight" style={{ color: filter.status ? 'var(--color-primary)' : 'var(--color-primary)', fontWeight: 600 }}>{filter.status || "Open"}</span>
-                  <ChevronDown size={18} />
-                </button>
-                {showStatusMenu && (
-                  <div style={dropdownMenuStyle}>
-                    {STATUS_OPTIONS.map((st) => (
-                      <div
-                        key={st}
-                        style={dropdownItemStyle(filter.status === st)}
-                        onClick={() => handleStatusSelect(st)}
-                      >
-                        {st}
-                        {filter.status === st && <X size={14} />}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button 
-                className="reset-btn" 
-                onClick={handleReset}
-                style={{ color: 'var(--color-text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}
-              >
-                Reset
-              </button>
             </div>
-            
-            <div className="actions-group">
-              <button 
-                className="action-btn secondary btn-outline"
-                style={{ 
-                    borderColor: 'var(--color-primary)', 
-                    color: 'var(--color-primary)', 
-                    background: 'var(--color-surface)' 
-                }}
-              >
-                <Download size={18} />
-                Export
-              </button>
-              <button 
-                className="action-btn primary btn-primary"
-                style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', border: `1px solid ${'var(--color-primary)'}` }}
-              >
-                <Plus size={18} />
-                Manual Finding
-              </button>
-            </div>
-          </div>
+          )}
 
-          {/* Data Table */}
-          <div 
-            className="card"
-            style={{ 
-              background: 'var(--color-surface)', 
-              borderColor: 'var(--color-border)',
-              marginTop: '1.5rem',
-              padding: 0 
-            }}
-          >
-            <FindingsTable theme={theme} findings={filteredFindings} /> 
-          </div>
+          {/* EXPANDED SCAN FINDINGS */}
+          {expandedScanId && (
+            <>
+              {/* Back to scan list */}
+              <button
+                className="btn-sm"
+                onClick={() => setExpandedScanId(null)}
+                style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}
+              >
+                ← Back to scans
+              </button>
+
+              {/* Findings loading */}
+              {findingsLoading && <TableSkeleton columns={6} rows={4} />}
+
+              {/* Statistics Row */}
+              {!findingsLoading && (
+                <div className="stats-grid kpis">
+                  {stats.map((stat, index) => (
+                    <StatCard key={index} {...stat} theme={theme} />
+                  ))}
+                </div>
+              )}
+
+              {/* Filters & Actions Toolbar */}
+              {!findingsLoading && (
+                <div className="toolbar" style={{ marginTop: '0.5rem' }}>
+                  <div className="filters-group">
+                    <div style={{ position: "relative" }}>
+                      <button
+                        className="filter-btn"
+                        onClick={() => { setShowSeverityMenu(!showSeverityMenu); setShowStatusMenu(false); }}
+                        style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: filter.severity ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                      >
+                        <Filter size={18} style={{ color: filter.severity ? 'var(--color-primary)' : 'var(--color-text-secondary)' }} />
+                        {filter.severity ? filter.severity : "Severity"}
+                        <ChevronDown size={18} />
+                      </button>
+                      {showSeverityMenu && (
+                        <div style={dropdownMenuStyle}>
+                          {SEVERITY_OPTIONS.map((sev) => (
+                            <div
+                              key={sev}
+                              style={dropdownItemStyle(filter.severity === sev)}
+                              onClick={() => handleSeveritySelect(sev)}
+                            >
+                              {sev}
+                              {filter.severity === sev && <X size={14} />}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <button
+                        className="filter-btn"
+                        onClick={() => { setShowStatusMenu(!showStatusMenu); setShowSeverityMenu(false); }}
+                        style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', color: filter.status ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                      >
+                        Status: <span className="highlight" style={{ color: filter.status ? 'var(--color-primary)' : 'var(--color-primary)', fontWeight: 600 }}>{filter.status || "Open"}</span>
+                        <ChevronDown size={18} />
+                      </button>
+                      {showStatusMenu && (
+                        <div style={dropdownMenuStyle}>
+                          {STATUS_OPTIONS.map((st) => (
+                            <div
+                              key={st}
+                              style={dropdownItemStyle(filter.status === st)}
+                              onClick={() => handleStatusSelect(st)}
+                            >
+                              {st}
+                              {filter.status === st && <X size={14} />}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="reset-btn"
+                      onClick={handleReset}
+                      style={{ color: 'var(--color-text-tertiary)', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                  <div className="actions-group">
+                    <button
+                      className="action-btn secondary btn-outline"
+                      style={{
+                          borderColor: 'var(--color-primary)',
+                          color: 'var(--color-primary)',
+                          background: 'var(--color-surface)'
+                      }}
+                    >
+                      <Download size={18} />
+                      Export
+                    </button>
+                    <button
+                      className="action-btn primary btn-primary"
+                      style={{ background: 'var(--color-primary)', color: 'var(--color-on-primary)', border: `1px solid ${'var(--color-primary)'}` }}
+                    >
+                      <Plus size={18} />
+                      Manual Finding
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Findings Data Table */}
+              {!findingsLoading && (
+                <div
+                  className="card"
+                  style={{
+                    background: 'var(--color-surface)',
+                    borderColor: 'var(--color-border)',
+                    marginTop: '1.5rem',
+                    padding: 0
+                  }}
+                >
+                  <FindingsTable theme={theme} findings={filteredFindings} />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* EMPTY STATE — no scans found */}
+          {!isLoading && !error && scans.length === 0 && (
+            <div
+              style={{
+                textAlign: "center",
+                padding: 60,
+                background: 'var(--color-surface)',
+                borderRadius: 16,
+                border: '1px solid var(--color-border)',
+                marginTop: '1.5rem',
+              }}
+            >
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-md)' }}>
+                No completed scans found. Run a scan to see findings here.
+              </p>
+            </div>
+          )}
         </section>
       </main>
     </div>

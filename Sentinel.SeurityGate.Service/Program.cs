@@ -21,8 +21,6 @@ builder.Host.UseSerilog();
 
 // Add services to the container
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // HttpClient Factory
 builder.Services.AddHttpClient();
@@ -34,7 +32,7 @@ builder.Services.AddSingleton(rabbitMqConfig);
 
 // Register Services
 builder.Services.AddSingleton<IRabbitMqService, RabbitMqService>();
-builder.Services.AddScoped<IScanOrchestrator, HttpScanOrchestrator>();
+builder.Services.AddScoped<HttpScanOrchestrator>();
 
 // Background Services
 builder.Services.AddHostedService<ScanResultListener>();
@@ -54,12 +52,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseHttpsRedirection(); // Only needed in dev; production is behind Kong reverse proxy
-}
+// Production is behind Kong reverse proxy — Swagger and HTTPS handled externally.
 
 app.UseCors("AllowJavaBFF");
 app.UseAuthorization();

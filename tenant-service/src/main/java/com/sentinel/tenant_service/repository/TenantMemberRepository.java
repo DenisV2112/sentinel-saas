@@ -1,7 +1,7 @@
 package com.sentinel.tenant_service.repository;
 
 import com.sentinel.tenant_service.entity.TenantMemberEntity;
-import com.sentinel.tenant_service.enums.TenantRole;
+import com.sentinel.common.security.enums.TenantRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

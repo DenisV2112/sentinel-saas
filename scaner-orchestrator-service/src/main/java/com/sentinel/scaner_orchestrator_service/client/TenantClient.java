@@ -1,6 +1,6 @@
 package com.sentinel.scaner_orchestrator_service.client;
 
-import com.sentinel.scaner_orchestrator_service.dto.TenantDTO;
+import com.sentinel.common.security.dto.TenantDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

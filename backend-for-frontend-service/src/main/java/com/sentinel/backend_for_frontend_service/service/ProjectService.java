@@ -1,15 +1,87 @@
 package com.sentinel.backend_for_frontend_service.service;
 
+import com.sentinel.backend_for_frontend_service.client.ProjectClient;
 import com.sentinel.backend_for_frontend_service.dto.ProjectDto;
+import com.sentinel.backend_for_frontend_service.util.JwtUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ProjectService {
-    List<ProjectDto> listProjects(String token, String tenantId);
-    ProjectDto getProjectDetails(String projectId, String token, String tenantId);
-    ProjectDto createProject(ProjectDto projectDto, String token, String tenantId);
-    ProjectDto updateProject(String projectId, ProjectDto projectDto, String token, String tenantId);
-    Map<String, String> deleteProject(String projectId, String token, String tenantId);
-    Map<String, Object> getProjectStatistics(String projectId, String token, String tenantId);
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ProjectService {
+
+    private final ProjectClient projectClient;
+    private final JwtUtils jwtUtils;
+
+    public List<ProjectDto> listProjects(String token, String tenantId) {
+        log.info("📁 Service: Listing projects");
+        try {
+            return projectClient.listProjects(token, tenantId);
+        } catch (Exception e) {
+            log.error("Error listing projects", e);
+            return List.of();
+        }
+    }
+
+    public ProjectDto getProjectDetails(String projectId, String token, String tenantId) {
+        log.info("🔍 Service: Getting project details: {}", projectId);
+        try {
+            return projectClient.getProjectDetails(projectId, token, tenantId);
+        } catch (Exception e) {
+            log.error("Error getting project details", e);
+            return ProjectDto.builder().build();
+        }
+    }
+
+    public ProjectDto createProject(ProjectDto projectDto, String token, String tenantId) {
+        log.info("➕ Service: Creating project: {}", projectDto.getName());
+        try {
+            String userId = jwtUtils.extractUserId(token);
+            return projectClient.createProject(projectDto, token, tenantId, userId);
+        } catch (Exception e) {
+            log.error("Error creating project", e);
+            return projectDto;
+        }
+    }
+
+    public ProjectDto updateProject(String projectId, ProjectDto projectDto, String token, String tenantId) {
+        log.info("✏️ Service: Updating project: {}", projectId);
+        try {
+            String userId = jwtUtils.extractUserId(token);
+            return projectClient.updateProject(projectId, projectDto, token, tenantId, userId);
+        } catch (Exception e) {
+            log.error("Error updating project", e);
+            return projectDto;
+        }
+    }
+
+    public Map<String, String> deleteProject(String projectId, String token, String tenantId) {
+        log.info("🗑️ Service: Deleting project: {}", projectId);
+        try {
+            String userId = jwtUtils.extractUserId(token);
+            projectClient.deleteProject(projectId, token, tenantId, userId);
+            return Map.of("message", "Project deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting project", e);
+            return Map.of("error", e.getMessage());
+        }
+    }
+
+    public Map<String, Object> getProjectStatistics(String projectId, String token, String tenantId) {
+        log.info("📊 Service: Getting project statistics: {}", projectId);
+        try {
+            return projectClient.getProjectStatistics(projectId, token, tenantId);
+        } catch (Exception e) {
+            log.error("Error getting project statistics", e);
+            return Map.of("error", e.getMessage());
+        }
+    }
 }

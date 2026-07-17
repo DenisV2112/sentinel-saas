@@ -77,7 +77,6 @@ export const ProjectDetailPage = () => {
             setScanForm({ repoUrl: '', targetUrl: '', scanType: 'FULL' });
             refetchScans();
         } catch (error) {
-            console.error(error);
             toast.error('Failed to start scan');
         } finally {
             setStartingScan(false);
@@ -96,7 +95,6 @@ export const ProjectDetailPage = () => {
             setShowEditModal(false);
             toast.success('Project updated successfully!');
         } catch (error) {
-            console.error('Failed to update project:', error);
             toast.error('Failed to update project');
         } finally {
             setSaving(false);
@@ -112,7 +110,6 @@ export const ProjectDetailPage = () => {
             toast.success('Project deleted successfully!');
             navigate('/workspaces');
         } catch (error) {
-            console.error('Failed to delete project:', error);
             toast.error('Failed to delete project');
         } finally {
             setSaving(false);
@@ -318,7 +315,7 @@ export const ProjectDetailPage = () => {
                                         gap: 6,
                                         padding: '8px 16px',
                                         background: 'var(--color-danger)',
-                                        color: '#fff',
+                                        color: 'var(--color-on-primary)',
                                         border: 'none',
                                         borderRadius: 8,
                                         cursor: 'pointer',
@@ -735,7 +732,7 @@ export const ProjectDetailPage = () => {
                                 style={{
                                     padding: '8px 16px',
                                     background: 'var(--color-danger)',
-                                    color: '#fff',
+                                    color: 'var(--color-on-primary)',
                                     border: 'none',
                                     borderRadius: 8,
                                     cursor: 'pointer',

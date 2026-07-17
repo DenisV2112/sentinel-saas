@@ -10,7 +10,7 @@ import PublicOnlyRoute from "../../components/commons/PublicOnlyRoute";
 // Each page is loaded only when the user navigates to its route
 const HomePage = lazy(() => import("../../ui/pages/HomePage"));
 const AuthPage = lazy(() => import("../../ui/pages/AuthPage"));
-const Dashboard = lazy(() => import("../../ui/pages/Dashboard"));
+const Dashboard = lazy(() => import("../../ui/pages/dashboard/DashboardContainer"));
 const ScansPage = lazy(() => import("../../ui/pages/ScanPanel"));
 const WorkspacesPage = lazy(() => import("../../ui/pages/WorkspacesPage"));
 const WorkspaceDetailsPage = lazy(() => import("../../ui/pages/WorkspaceDetailsPage"));

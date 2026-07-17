@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.sentinel.user_management_service.dto.response.UserPlanDTO;
-import com.sentinel.user_management_service.enums.TenantRole;
+import com.sentinel.common.security.enums.TenantRole;
 import com.sentinel.user_management_service.exception.MemberAlreadyExistsException;
 
 import java.util.HashMap;

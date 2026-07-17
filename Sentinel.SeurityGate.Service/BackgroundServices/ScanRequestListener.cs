@@ -57,7 +57,7 @@ public class ScanRequestListener : BackgroundService
             if (jsonDoc.RootElement.TryGetProperty("clientGitToken", out var token)) cmd.ClientGitToken = token.GetString();
 
             // Iniciar workflow (llama a n8n vía HttpScanOrchestrator)
-            var orchestrator = serviceProvider.GetRequiredService<IScanOrchestrator>();
+            var orchestrator = serviceProvider.GetRequiredService<HttpScanOrchestrator>();
             
             // Actualizar estado a RUNNING
             await orchestrator.UpdateScanStatusAsync(cmd.ScanId, "RUNNING");

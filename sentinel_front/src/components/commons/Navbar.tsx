@@ -4,7 +4,7 @@ import { useTheme } from "../../utils/store/themeContext";
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import { Button } from "./Button";
-import { IconButton } from "./toggleButton";
+import { IconButton } from "./IconButton";
 import Logo from "@/assets/icons/sentinel-logo.svg?react";
 
 export const Navbar = () => {

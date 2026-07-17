@@ -1,6 +1,6 @@
 package com.sentinel.user_management_service.entity;
 
-import com.sentinel.user_management_service.enums.ProjectRole;
+import com.sentinel.common.security.enums.ProjectRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

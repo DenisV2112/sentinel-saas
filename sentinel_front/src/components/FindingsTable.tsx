@@ -43,10 +43,7 @@ const statusMap: Record<Finding['status'], string> = {
 const FindingsTable = React.memo(function FindingsTable({ theme, findings }: FindingsTableProps) {
   
   // VERIFICACIÓN DE SEGURIDAD
-  if (!theme || !theme.colors) {
-      console.warn("Theme or theme.colors is undefined in FindingsTable. Rendering fallback.");
-      return null;
-  }
+  if (!theme?.colors) return null;
 
   // ALIAS CORRECTO: Accede directamente a theme.colors
   const c = theme.colors; 

@@ -3,6 +3,7 @@ using Serilog.Formatting.Compact;
 using Sentinel.CodeQuality.Service.DTOs;
 using Sentinel.CodeQuality.Service.Services;
 using Sentinel.Common.Infrastructure.Publishers;
+using Sentinel.Common.Infrastructure.Services;
 
 var loggerConfig = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -24,7 +25,7 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<IReportPublisher<ScanFinalResultDto>, ReportPublisher<ScanFinalResultDto>>();
 
 // Servicios de dominio
-builder.Services.AddScoped<IResultReader, VolumeFileReader>();
+builder.Services.AddScoped<Sentinel.Common.Infrastructure.Services.VolumeFileReader>();
 builder.Services.AddScoped<SemgrepMapper>();
 builder.Services.AddScoped<QualityGateEvaluator>();
 

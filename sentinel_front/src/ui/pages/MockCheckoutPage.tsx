@@ -58,7 +58,6 @@ export default function MockCheckoutPage() {
             }, 2000);
 
         } catch (error) {
-            console.error('Payment error:', error);
             toast.error('Error processing payment. Please try again.');
         } finally {
             setProcessing(false);
@@ -114,7 +113,7 @@ export default function MockCheckoutPage() {
                                             margin: '0 auto 16px',
                                         }}
                                     >
-                                        <CreditCard size={40} color="#fff" />
+                                        <CreditCard size={40} color="var(--color-on-primary)" />
                                     </div>
                                     <h2 style={{ color: theme.colors.text.primary, margin: 0 }}>
                                         Upgrade to {plan.name}
@@ -185,7 +184,7 @@ export default function MockCheckoutPage() {
                                             flex: 2,
                                             padding: '14px 24px',
                                             background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
-                                            color: '#fff',
+                                            color: 'var(--color-on-primary)',
                                             border: 'none',
                                             borderRadius: 8,
                                             cursor: processing ? 'not-allowed' : 'pointer',
@@ -223,7 +222,7 @@ export default function MockCheckoutPage() {
                                         margin: '0 auto 24px',
                                     }}
                                 >
-                                    <CheckCircle size={48} color="#fff" />
+                                    <CheckCircle size={48} color="var(--color-on-primary)" />
                                 </div>
                                 <h2 style={{ color: theme.colors.text.primary, margin: 0 }}>
                                     Payment Successful! 🎉

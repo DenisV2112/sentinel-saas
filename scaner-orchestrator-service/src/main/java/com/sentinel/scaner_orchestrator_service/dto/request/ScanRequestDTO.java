@@ -1,6 +1,6 @@
 package com.sentinel.scaner_orchestrator_service.dto.request;
 
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanType;
+import com.sentinel.common.security.enums.ScanType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

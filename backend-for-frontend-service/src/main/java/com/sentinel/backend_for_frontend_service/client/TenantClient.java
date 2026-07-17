@@ -38,4 +38,23 @@ public interface TenantClient {
                         @PathVariable String tenantId,
                         @RequestHeader("Authorization") String token,
                         @RequestHeader("X-User-Id") String userId);
+
+        @GetMapping("/api/tenants/{tenantId}/invitations")
+        Object getInvitations(
+                        @PathVariable String tenantId,
+                        @RequestHeader("Authorization") String token,
+                        @RequestHeader("X-User-Id") String userId);
+
+        @PostMapping("/api/tenants/{tenantId}/invitations")
+        Object createInvitation(
+                        @PathVariable String tenantId,
+                        @RequestHeader("Authorization") String token,
+                        @RequestHeader("X-User-Id") String userId,
+                        @RequestBody Object invitationRequest);
+
+        @DeleteMapping("/api/tenants/invitations/{invitationId}")
+        void cancelInvitation(
+                        @PathVariable String invitationId,
+                        @RequestHeader("Authorization") String token,
+                        @RequestHeader("X-User-Id") String userId);
 }

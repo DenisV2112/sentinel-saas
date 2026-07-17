@@ -1,22 +1,17 @@
 package com.sentinel.auth.config;
 
-import com.sentinel.auth.security.filters.JWTAuthenticationFilter;
+import com.sentinel.common.security.jwt.JwtAuthenticationFilter;
 import com.sentinel.auth.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Slf4j
 @Configuration
@@ -24,13 +19,10 @@ import java.util.Arrays;
 @org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class SecurityConfig {
 
-        private final JWTAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final com.sentinel.auth.security.filters.RateLimitingFilter rateLimitingFilter;
         private final AuthenticationProvider authenticationProvider;
         private final OAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
-
-        @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:3001,http://localhost:5173,http://localhost:5174,http://localhost:8000}")
-        private String allowedOriginsString;
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +32,7 @@ public class SecurityConfig {
                 http
                                 .csrf(csrf -> csrf.disable())
                                 // CORS enabled for local dev, handled by Kong in prod
-                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .cors(Customizer.withDefaults())
 
                                 .authorizeHttpRequests(auth -> auth
                                                 // Public endpoints
@@ -107,27 +99,4 @@ public class SecurityConfig {
                 return http.build();
         }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration config = new CorsConfiguration();
-
-                // Split and trim the allowed origins
-                String[] origins = Arrays.stream(allowedOriginsString.split(","))
-                                .map(String::trim)
-                                .toArray(String[]::new);
-
-                log.info("🌐 CORS Allowed Origins: {}", Arrays.toString(origins));
-
-                config.setAllowedOrigins(Arrays.asList(origins));
-                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                config.setAllowedHeaders(Arrays.asList("*"));
-                config.setAllowCredentials(true);
-                // Do not expose Authorization header; tokens are delivered via secure cookies
-                config.setExposedHeaders(Arrays.asList("Content-Type", "Authorization"));
-                config.setMaxAge(3600L);
-
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-                return source;
-        }
 }

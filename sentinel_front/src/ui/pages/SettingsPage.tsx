@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "@/components/commons/Sidebar";
 import { useTheme } from "@/utils/store/themeContext";
 import { motion } from "framer-motion";
@@ -13,12 +13,7 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { theme } = useTheme();
-  const [mode, setMode] = useState("dark");
-
-  if (!theme || !theme.colors) return null;
-
-  const c = theme.colors;
+  const { mode, setTheme } = useTheme();
 
   return (
     <div className="settings-layout">
@@ -33,9 +28,9 @@ export default function SettingsPage() {
         {/* HEADER */}
         <header
           className="settings-header"
-          style={{ borderBottomColor: c.border }}
+          style={{ borderBottomColor: 'var(--color-border)' }}
         >
-          <h1 style={{ color: c.text.primary }}>
+          <h1 style={{ color: 'var(--color-text-primary)' }}>
             <Shield size={20} />
             System Settings
           </h1>
@@ -44,14 +39,20 @@ export default function SettingsPage() {
         {/* CONTENT */}
         <section className="settings-content">
           {/* APPEARANCE */}
-          <h2 className="settings-section-title" style={{ color: c.text.primary }}>
+          <h2
+            className="settings-section-title"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
             <Palette size={18} />
             Appearance
           </h2>
 
           <div
             className="settings-card"
-            style={{ background: c.surface, borderColor: c.border }}
+            style={{
+              background: 'var(--color-surface)',
+              borderColor: 'var(--color-border)',
+            }}
           >
             <div className="setting-row">
               <div>
@@ -63,13 +64,13 @@ export default function SettingsPage() {
 
               <div className="theme-toggle">
                 <button
+                  aria-label="Dark theme"
                   className={mode === "dark" ? "active" : ""}
-                  onClick={() => setMode("dark")}
+                  onClick={() => setTheme("dark")}
                   style={{
-                    background: mode === "dark" ? c.primary : "transparent",
-                    color:
-                      mode === "dark" ? c.onPrimary : c.text.secondary,
-                    borderColor: c.border,
+                    background: mode === "dark" ? 'var(--color-primary)' : "transparent",
+                    color: mode === "dark" ? 'var(--color-on-primary)' : 'var(--color-text-secondary)',
+                    borderColor: 'var(--color-border)',
                   }}
                 >
                   <Moon size={16} />
@@ -78,13 +79,13 @@ export default function SettingsPage() {
                 </button>
 
                 <button
+                  aria-label="Light theme"
                   className={mode === "light" ? "active" : ""}
-                  onClick={() => setMode("light")}
+                  onClick={() => setTheme("light")}
                   style={{
-                    background: mode === "light" ? c.primary : "transparent",
-                    color:
-                      mode === "light" ? c.onPrimary : c.text.secondary,
-                    borderColor: c.border,
+                    background: mode === "light" ? 'var(--color-primary)' : "transparent",
+                    color: mode === "light" ? 'var(--color-on-primary)' : 'var(--color-text-secondary)',
+                    borderColor: 'var(--color-border)',
                   }}
                 >
                   <Sun size={16} />
@@ -96,14 +97,17 @@ export default function SettingsPage() {
           </div>
 
           {/* NOTIFICATIONS */}
-          <h2 className="settings-section-title" style={{ color: c.text.primary }}>
+          <h2 className="settings-section-title" style={{ color: 'var(--color-text-primary)' }}>
             <Bell size={18} />
             Notifications
           </h2>
 
           <div
             className="settings-card"
-            style={{ background: c.surface, borderColor: c.border }}
+            style={{
+              background: 'var(--color-surface)',
+              borderColor: 'var(--color-border)',
+            }}
           >
             <div className="setting-link">
               <div>
@@ -131,4 +135,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-/* ---------------- SIDEBAR COMPONENT ---------------- */

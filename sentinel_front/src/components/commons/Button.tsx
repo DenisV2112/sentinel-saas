@@ -56,8 +56,8 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Use variant color for button background, theme-aware text/icon colors
   const buttonColor = color;
-  const iconCircleColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary, #FFFFFF)';
-  const textColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary, #FFFFFF)';
+  const iconCircleColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary)';
+  const textColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary)';
 
   const baseStyles: React.CSSProperties = {
     display: 'inline-flex',

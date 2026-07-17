@@ -1,7 +1,7 @@
 package com.sentinel.scaner_orchestrator_service.messaging;
 
 import com.sentinel.scaner_orchestrator_service.domain.ScanJob;
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanStatus;
 import com.sentinel.scaner_orchestrator_service.repository.ScanJobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

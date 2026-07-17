@@ -1,6 +1,6 @@
 package com.sentinel.user_management_service.dto.response;
 
-import com.sentinel.user_management_service.enums.TenantRole;
+import com.sentinel.common.security.enums.TenantRole;
 import lombok.*;
 
 import java.time.LocalDateTime;

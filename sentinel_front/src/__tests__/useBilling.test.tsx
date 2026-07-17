@@ -123,7 +123,7 @@ describe('usePlans', () => {
     expect(f).toContain('⭐ Recomendado');
   });
 
-  it('falls back to mock data when API fails with network error', async () => {
+  it('returns error on API failure instead of mock data', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     const { result } = renderHook(() => usePlans(), { wrapper: createWrapper() });
@@ -132,20 +132,12 @@ describe('usePlans', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    // Must have mock fallback data
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data!.length).toBeGreaterThanOrEqual(3);
-    expect(result.current.data![0].id).toBe('FREE');
-    expect(result.current.data![1].id).toBe('PRO');
-    expect(result.current.data![2].id).toBe('ENTERPRISE');
-    expect(result.current.data![0].price).toBe(0);
-    expect(result.current.data![1].price).toBe(120000);
-    expect(result.current.data![2].price).toBe(400000);
-    // Error should NOT be set — queryFn caught and returned mock data
-    expect(result.current.error).toBeNull();
+    /* Should NOT return mock data — error state instead */
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.error).toEqual(new Error('Network error'));
   });
 
-  it('falls back to mock data on non-200 response', async () => {
+  it('returns error on non-200 response instead of mock data', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -157,10 +149,8 @@ describe('usePlans', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data![0].id).toBe('FREE');
-    expect(result.current.data![1].id).toBe('PRO');
-    expect(result.current.error).toBeNull();
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.error).toEqual(new Error('HTTP 500: undefined'));
   });
 });
 

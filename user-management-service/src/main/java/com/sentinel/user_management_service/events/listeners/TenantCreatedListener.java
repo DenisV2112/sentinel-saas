@@ -1,6 +1,6 @@
 package com.sentinel.user_management_service.events.listeners;
 
-import com.sentinel.user_management_service.enums.TenantRole;
+import com.sentinel.common.security.enums.TenantRole;
 import com.sentinel.user_management_service.service.TenantMemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

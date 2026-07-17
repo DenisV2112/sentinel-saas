@@ -352,7 +352,7 @@ export default function BillingPage() {
                                                 }}
                                                 style={{
                                                     background: 'var(--color-success)',
-                                                    color: '#fff',
+                                                    color: 'var(--color-on-primary)',
                                                     border: 'none',
                                                     padding: '12px 24px',
                                                     borderRadius: '8px',
@@ -373,7 +373,7 @@ export default function BillingPage() {
                                             }}
                                             style={{
                                                 background: 'var(--color-primary)',
-                                                color: '#fff',
+                                                color: 'var(--color-on-primary)',
                                                 border: 'none',
                                                 padding: '12px 24px',
                                                 borderRadius: '8px',

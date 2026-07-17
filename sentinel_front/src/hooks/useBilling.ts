@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { API, getAuthHeaders } from "../api/fetch-helpers";
+import { API, fetchJSON, getAuthHeaders } from "../api/fetch-helpers";
 
 /* ======================================================
    QUERY KEYS
@@ -10,16 +10,6 @@ export const billingKeys = {
   subscription: () => [...billingKeys.all, "subscription"] as const,
   paymentHistory: () => [...billingKeys.all, "paymentHistory"] as const,
 };
-
-/* ======================================================
-   FETCHERS
-====================================================== */
-
-async function fetchJSON<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-  return res.json();
-}
 
 /* ======================================================
    BILLING TYPES
@@ -52,50 +42,6 @@ export interface Payment {
   description: string;
   createdAt: string;
 }
-
-/* ======================================================
-   MOCK FALLBACK DATA
-====================================================== */
-
-const MOCK_PLANS: Plan[] = [
-  {
-    id: "FREE",
-    name: "Free",
-    price: 0,
-    period: "month",
-    features: ["0 Workspaces", "0 Proyectos", "Soporte comunidad"],
-    maxProjects: 0,
-    maxScansPerMonth: 0,
-  },
-  {
-    id: "PRO",
-    name: "Professional",
-    price: 120000,
-    period: "month",
-    features: [
-      "Proyectos ilimitados",
-      "Escaneos ilimitados",
-      "Soporte prioritario",
-      "Análisis avanzado",
-    ],
-    maxProjects: -1,
-    maxScansPerMonth: -1,
-  },
-  {
-    id: "ENTERPRISE",
-    name: "Enterprise",
-    price: 400000,
-    period: "month",
-    features: [
-      "Todo en Pro",
-      "Soporte dedicado",
-      "Integraciones personalizadas",
-      "Garantía SLA",
-    ],
-    maxProjects: -1,
-    maxScansPerMonth: -1,
-  },
-];
 
 /* ======================================================
    TRANSFORMERS
@@ -140,13 +86,9 @@ export function usePlans() {
   return useQuery({
     queryKey: billingKeys.plans(),
     queryFn: async (): Promise<Plan[]> => {
-      try {
-        const json = await fetchJSON<any>(`${API}/api/billing/plans`);
-        const rawData = Array.isArray(json) ? json : json?.content ?? [];
-        return rawData.map(transformRawPlan);
-      } catch {
-        return MOCK_PLANS;
-      }
+      const json = await fetchJSON<any>(`${API}/api/billing/plans`);
+      const rawData = Array.isArray(json) ? json : json?.content ?? [];
+      return rawData.map(transformRawPlan);
     },
     staleTime: 5 * 60 * 1000,
   });

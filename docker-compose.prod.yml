@@ -133,9 +133,12 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
     ports:
       - "8000:8000"
       - "8001:8001"
+    volumes:
+      - ./API-Gateway/kong.yml:/etc/kong/kong.yml:ro
     networks:
       - sentinel-network
     depends_on:
@@ -202,6 +205,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
     networks:
@@ -235,6 +239,7 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
     networks:
@@ -306,6 +311,7 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
     networks:
@@ -329,8 +335,8 @@ services:
 
   backend-for-frontend-service:
     build:
-      context: ./backend-for-frontend-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend-for-frontend-service/Dockerfile
     container_name: sentinel-bff-service
     restart: always
     environment:
@@ -370,6 +376,12 @@ services:
     container_name: sentinel-results-aggregator
     restart: always
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_scans?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
@@ -377,7 +389,11 @@ services:
     networks:
       - sentinel-network
     depends_on:
+      postgres:
+        condition: service_healthy
       mongodb:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8087/actuator/health || exit 1"]
@@ -398,13 +414,18 @@ services:
     container_name: sentinel-vulnerability
     restart: always
     environment:
-      ConnectionStrings__MongoDb: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_scans?authSource=admin
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=${DB_USER};Password=${DB_PASSWORD};"
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5001
     networks:
       - sentinel-network
     depends_on:
       mongodb:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
@@ -425,13 +446,18 @@ services:
     container_name: sentinel-code-quality
     restart: always
     environment:
-      ConnectionStrings__MongoDb: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_scans?authSource=admin
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=${DB_USER};Password=${DB_PASSWORD};"
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5001
     networks:
       - sentinel-network
     depends_on:
       mongodb:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
@@ -452,10 +478,10 @@ services:
     container_name: sentinel-security-gate
     restart: always
     environment:
-      ConnectionStrings__MongoDb: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_scans?authSource=admin
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USERNAME: ${RABBITMQ_USER}
-      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=sentinel_db;User Id=${DB_USER};Password=${DB_PASSWORD};"
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Username: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5001
     networks:
@@ -487,9 +513,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USERNAME: ${RABBITMQ_USER}
-      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"

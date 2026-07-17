@@ -178,7 +178,7 @@ export default function ScanDetailPage() {
                     : scan.status === "FAILED"
                     ? 'var(--color-danger)'
                     : 'var(--color-warning)',
-                color: "#fff",
+                color: "var(--color-on-primary)",
               }}
             >
               {scan.status}
@@ -268,7 +268,7 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: 'var(--color-bg-severity-critical, #FEE2E2)',
+                  background: 'var(--color-bg-severity-critical)',
                   border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
@@ -286,7 +286,7 @@ export default function ScanDetailPage() {
                 >
                   Critical
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-critical, #EF4444)' }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-critical)' }}>
                   {scan.findings.critical}
                 </span>
               </div>
@@ -295,7 +295,7 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: 'var(--color-bg-severity-high, #FFEDD5)',
+                  background: 'var(--color-bg-severity-high)',
                   border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
@@ -313,7 +313,7 @@ export default function ScanDetailPage() {
                 >
                   High
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-high, #F97316)' }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-severity-high)' }}>
                   {scan.findings.high}
                 </span>
               </div>
@@ -322,7 +322,7 @@ export default function ScanDetailPage() {
                 style={{
                   padding: "16px 24px",
                   borderRadius: 12,
-                  background: 'var(--color-bg-success, #D1FAE5)',
+                  background: 'var(--color-bg-success)',
                   border: '1px solid var(--color-border-light)',
                   textAlign: "center",
                   flex: 1,
@@ -340,7 +340,7 @@ export default function ScanDetailPage() {
                 >
                   Medium
                 </span>
-                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-success, #10B981)' }}>
+                <span style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-success)' }}>
                   {scan.findings.medium}
                 </span>
               </div>

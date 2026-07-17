@@ -9,12 +9,12 @@ namespace Sentinel.SecurityGate.Service.Controllers
     public class ScanController : ControllerBase
     {
         private readonly ILogger<ScanController> _logger;
-        private readonly IScanOrchestrator _orchestrator;
+        private readonly HttpScanOrchestrator _orchestrator;
         private readonly IRabbitMqService _rabbitMqService;
 
         public ScanController(
             ILogger<ScanController> logger,
-            IScanOrchestrator orchestrator,
+            HttpScanOrchestrator orchestrator,
             IRabbitMqService rabbitMqService)
         {
             _logger = logger;

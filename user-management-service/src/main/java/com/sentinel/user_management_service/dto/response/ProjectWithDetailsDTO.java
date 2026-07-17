@@ -1,6 +1,6 @@
 package com.sentinel.user_management_service.dto.response;
 
-import com.sentinel.user_management_service.enums.ProjectRole;
+import com.sentinel.common.security.enums.ProjectRole;
 import lombok.*;
 
 import java.time.LocalDateTime;

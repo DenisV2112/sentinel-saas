@@ -4,23 +4,17 @@ import { useProjects } from "@/hooks/useProjects"; // Using absolute alias
 import { Plus, Box, Loader2 } from "lucide-react";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
 import toast from "react-hot-toast";
-
-// Plan limits configuration (matches backend UserLimitsService)
-const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> = {
-    FREE: { maxTenants: 0, maxProjects: 0 },
-    PRO: { maxTenants: 3, maxProjects: 6 },
-    PROFESSIONAL: { maxTenants: 3, maxProjects: 6 },
-    ENTERPRISE: { maxTenants: 6, maxProjects: 12 },
-};
+import { PLAN_LIMITS } from "@/constants/planLimits";
 
 export function ProjectsList({ workspaceId }: { workspaceId: string }) {
     const navigate = useNavigate();
-    const { projects, loading, error, createProject, refetch } = useProjects(workspaceId);
+    const { projects, isLoading: loading, error, createProject, refetch } = useProjects(workspaceId);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [creating, setCreating] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     // Get user plan from session/localStorage
     const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
@@ -41,7 +35,8 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
             setDescription("");
             // refetch handles update automatically via state, but explicit refetch ensures sync
         } catch (err: any) {
-            console.error("Failed to create project", err);
+            const errorMsg = err?.message ?? "Failed to create project";
+            setFormError(errorMsg);
             // Check if backend returned limit error (402)
             if (err.message?.includes("limit") || err.message?.includes("402")) {
                 setIsCreateModalOpen(false);
@@ -165,6 +160,11 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
                         }}
                     >
                         <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>New Project</h2>
+                        {formError && (
+                            <div style={{ color: 'var(--color-danger)', fontSize: 14, marginBottom: 12, padding: '8px 12px', borderRadius: 8, background: 'var(--color-bg-severity-critical)' }}>
+                                {formError}
+                            </div>
+                        )}
                         <div style={{ marginBottom: 16 }}>
                             <label style={{ display: "block", color: 'var(--color-text-secondary)', marginBottom: 8, fontSize: 14 }}>
                                 Project Name

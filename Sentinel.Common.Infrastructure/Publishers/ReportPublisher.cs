@@ -47,9 +47,6 @@ public class ReportPublisher<T> : IReportPublisher<T>, IDisposable where T : IHa
         // Connection is established lazily on first PublishFinalResultAsync call.
     }
 
-    public Task<bool> TryEnsureConnectionAsync()
-        => TryEnsureConnectionInternalAsync();
-
     private async Task<bool> TryEnsureConnectionInternalAsync()
     {
         if (_connection != null && _connection.IsOpen && _channel != null && _channel.IsOpen)

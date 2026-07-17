@@ -1,21 +1,17 @@
-import { motion, type TargetAndTransition } from "framer-motion";
+import { motion } from "framer-motion";
+import { pulse } from "@/constants/animations";
 
 export interface TableSkeletonProps {
   columns?: number;
   rows?: number;
 }
 
-const pulse: TargetAndTransition = {
-  opacity: [0.4, 0.8, 0.4],
-  transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-};
-
 export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => (
   <div
     style={{
       borderRadius: "12px",
-      background: "#1a1a1a",
-      border: "1px solid #2a2a2a",
+      background: "var(--color-surface)",
+      border: "1px solid var(--color-border)",
       overflow: "hidden",
     }}
   >
@@ -25,8 +21,8 @@ export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => 
         display: "grid",
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
         padding: "12px 16px",
-        borderBottom: "1px solid #2a2a2a",
-        background: "#222",
+        borderBottom: "1px solid var(--color-border)",
+        background: "var(--color-surface-light)",
         gap: "8px",
       }}
     >
@@ -36,7 +32,7 @@ export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => 
           style={{
             height: "14px",
             borderRadius: "4px",
-            background: "#333",
+            background: "var(--color-surface-light)",
           }}
           animate={pulse}
         />
@@ -51,7 +47,7 @@ export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => 
           display: "grid",
           gridTemplateColumns: `repeat(${columns}, 1fr)`,
           padding: "12px 16px",
-          borderBottom: rowIdx < rows - 1 ? "1px solid #2a2a2a" : "none",
+          borderBottom: rowIdx < rows - 1 ? "1px solid var(--color-border)" : "none",
           gap: "8px",
         }}
       >
@@ -61,7 +57,7 @@ export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => 
             style={{
               height: "12px",
               borderRadius: "4px",
-              background: "#2a2a2a",
+              background: "var(--color-surface-light)",
               width: colIdx === 1 ? "90%" : colIdx === 2 ? "70%" : "100%",
             }}
             animate={pulse}

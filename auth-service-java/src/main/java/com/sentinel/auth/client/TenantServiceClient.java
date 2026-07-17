@@ -1,7 +1,7 @@
 package com.sentinel.auth.client;
 
 import com.sentinel.auth.client.dto.TenantCreationRequest;
-import com.sentinel.auth.client.dto.TenantDTO;
+import com.sentinel.common.security.dto.TenantDTO;
 import com.sentinel.auth.config.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

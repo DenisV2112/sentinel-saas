@@ -3,6 +3,7 @@ using Sentinel.CodeQuality.Service.DTOs;
 using Sentinel.CodeQuality.Service.Models;
 using Sentinel.CodeQuality.Service.Services;
 using Sentinel.Common.Infrastructure.Publishers;
+using Sentinel.Common.Infrastructure.Services;
 
 namespace Sentinel.CodeQuality.Service.Controllers
 {
@@ -10,7 +11,7 @@ namespace Sentinel.CodeQuality.Service.Controllers
     [Route("api/n8n")]
     public class N8nNotificationController : ControllerBase
     {
-        private readonly IResultReader _reader;
+        private readonly VolumeFileReader _reader;
         private readonly SemgrepMapper _mapper;
         private readonly QualityGateEvaluator _evaluator;
         private readonly IReportPublisher<ScanFinalResultDto> _publisher;
@@ -18,7 +19,7 @@ namespace Sentinel.CodeQuality.Service.Controllers
         private readonly string _allowedBasePath;
 
         public N8nNotificationController(
-            IResultReader reader,
+            VolumeFileReader reader,
             SemgrepMapper mapper,
             QualityGateEvaluator evaluator,
             IReportPublisher<ScanFinalResultDto> publisher,
@@ -86,7 +87,7 @@ namespace Sentinel.CodeQuality.Service.Controllers
                 _logger.LogInformation("Procesando semgrep result: ScanId={ScanId}, File={File}", dto.ScanId, normalizedRequested);
 
                 // 1. Leer el contenido
-                var raw = await _reader.ReadAsync<SemgrepRawOutput>(normalizedRequested);
+                var raw = await _reader.ReadJsonAsync<SemgrepRawOutput>(normalizedRequested);
 
                 // 2. Mapear
                 var scanResult = _mapper.Map(raw, dto.ScanId);

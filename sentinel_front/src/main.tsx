@@ -5,7 +5,6 @@ import App from './App.tsx'
 import ToastProvider from './components/commons/ToastProvider'
 import ErrorBoundary from './components/commons/ErrorBoundary'
 import './utils/i18n/i18n.ts'
-import 'bulma/css/bulma.min.css'
 import './index.css'
 
 const queryClient = new QueryClient({

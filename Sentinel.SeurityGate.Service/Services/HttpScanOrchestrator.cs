@@ -7,7 +7,7 @@ namespace Sentinel.SecurityGate.Service.Services
 {
 
 
-    public class HttpScanOrchestrator : IScanOrchestrator
+    public class HttpScanOrchestrator
     {
         private readonly ILogger<HttpScanOrchestrator> _logger;
         private readonly IHttpClientFactory _httpClientFactory;

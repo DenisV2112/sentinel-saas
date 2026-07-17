@@ -2,7 +2,7 @@ package com.sentinel.billing.controller;
 
 import com.sentinel.billing.dto.PlanLimitsDTO;
 import com.sentinel.billing.dto.SubscriptionDTO;
-import com.sentinel.billing.dto.TenantSubscriptionLimitsDTO;
+import com.sentinel.common.security.dto.TenantSubscriptionLimitsDTO;
 import com.sentinel.billing.model.PlanEntity;
 import com.sentinel.billing.model.SubscriptionEntity;
 import com.sentinel.billing.model.SubscriptionStatus;

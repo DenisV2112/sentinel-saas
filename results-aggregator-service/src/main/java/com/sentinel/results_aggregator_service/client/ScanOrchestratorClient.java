@@ -1,6 +1,6 @@
 package com.sentinel.results_aggregator_service.client;
 
-import com.sentinel.results_aggregator_service.domain.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanStatus;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;

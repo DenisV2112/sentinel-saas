@@ -1,20 +1,16 @@
-import { motion, type TargetAndTransition } from "framer-motion";
+import { motion } from "framer-motion";
+import { pulse } from "@/constants/animations";
 
 export interface DetailSkeletonProps {
   rows?: number;
 }
 
-const pulse: TargetAndTransition = {
-  opacity: [0.4, 0.8, 0.4],
-  transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-};
-
 export const DetailSkeleton = ({ rows = 6 }: DetailSkeletonProps) => (
   <div
     style={{
       borderRadius: "12px",
-      background: "#1a1a1a",
-      border: "1px solid #2a2a2a",
+      background: "var(--color-surface)",
+      border: "1px solid var(--color-border)",
       padding: "20px",
       display: "flex",
       flexDirection: "column",
@@ -29,7 +25,7 @@ export const DetailSkeleton = ({ rows = 6 }: DetailSkeletonProps) => (
             height: "12px",
             width: "30%",
             borderRadius: "4px",
-            background: "#333",
+            background: "var(--color-surface-light)",
           }}
           animate={pulse}
         />
@@ -39,7 +35,7 @@ export const DetailSkeleton = ({ rows = 6 }: DetailSkeletonProps) => (
             height: "16px",
             width: `${60 + (i % 3) * 15}%`,
             borderRadius: "4px",
-            background: "#2a2a2a",
+            background: "var(--color-border)",
           }}
           animate={pulse}
           transition={{ ...pulse.transition, delay: i * 0.1 }}

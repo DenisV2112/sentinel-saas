@@ -93,7 +93,7 @@ export default function ProjectsPage() {
       setEditName("");
       setEditDesc("");
     } catch (e: any) {
-      console.error("Failed to update project:", e);
+      setFormError(e?.message ?? "Failed to update project");
     }
   };
 
@@ -102,7 +102,7 @@ export default function ProjectsPage() {
     try {
       await deleteProject(projectId);
     } catch (e: any) {
-      console.error("Failed to delete project:", e);
+      setFormError(e?.message ?? "Failed to delete project");
     }
   };
 
@@ -248,7 +248,7 @@ export default function ProjectsPage() {
               padding: "12px 20px",
               borderRadius: 12,
               background: theme.colors.danger,
-              color: theme.colors.onPrimary || "#fff",
+              color: theme.colors.onPrimary || "var(--color-on-primary)",
               fontSize: 14,
             }}
           >

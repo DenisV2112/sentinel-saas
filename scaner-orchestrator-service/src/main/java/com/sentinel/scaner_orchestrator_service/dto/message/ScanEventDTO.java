@@ -1,6 +1,6 @@
 package com.sentinel.scaner_orchestrator_service.dto.message;
 
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanType;
+import com.sentinel.common.security.enums.ScanType;
 import lombok.Builder;
 import lombok.Data;
 import java.util.UUID;

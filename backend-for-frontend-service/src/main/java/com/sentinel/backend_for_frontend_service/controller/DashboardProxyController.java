@@ -36,16 +36,4 @@ public class DashboardProxyController {
         }
     }
 
-    @GetMapping("/summary")
-    public ResponseEntity<?> getDashboardSummary(
-            @RequestHeader(value = "Authorization", required = false) String token) {
-        log.info("📊 BFF: Getting dashboard summary...");
-        return ResponseEntity.ok(Map.of(
-                "totalProjects", 0,
-                "totalScans", 0,
-                "criticalVulnerabilities", 0,
-                "highVulnerabilities", 0,
-                "mediumVulnerabilities", 0,
-                "lowVulnerabilities", 0));
-    }
 }

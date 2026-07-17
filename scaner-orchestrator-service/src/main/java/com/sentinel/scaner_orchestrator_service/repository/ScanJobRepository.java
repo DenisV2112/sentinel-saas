@@ -3,7 +3,7 @@ package com.sentinel.scaner_orchestrator_service.repository;
 import com.sentinel.scaner_orchestrator_service.domain.ScanJob;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

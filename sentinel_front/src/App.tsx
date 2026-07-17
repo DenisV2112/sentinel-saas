@@ -1,7 +1,6 @@
 import { Outlet, RouterProvider } from 'react-router-dom';
 import { router } from './utils/router';
 import { ThemeProvider } from './utils/store/themeContext';
-import './App.css';
 
 export function AppContent() {
   return (

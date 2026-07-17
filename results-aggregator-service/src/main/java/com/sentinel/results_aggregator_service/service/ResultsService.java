@@ -3,7 +3,7 @@ package com.sentinel.results_aggregator_service.service;
 import com.sentinel.results_aggregator_service.client.ScanOrchestratorClient;
 import com.sentinel.results_aggregator_service.domain.ScanResult;
 import com.sentinel.results_aggregator_service.domain.Vulnerability;
-import com.sentinel.results_aggregator_service.domain.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanStatus;
 import com.sentinel.results_aggregator_service.dto.ScanResultEventDTO;
 import com.sentinel.results_aggregator_service.repository.ScanResultRepository;
 import lombok.RequiredArgsConstructor;

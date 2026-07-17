@@ -1,7 +1,7 @@
 package com.sentinel.tenant_service.client;
 
 import com.sentinel.tenant_service.client.dto.PlanLimitsDTO;
-import com.sentinel.tenant_service.client.dto.TenantSubscriptionLimitsDTO;
+import com.sentinel.common.security.dto.TenantSubscriptionLimitsDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { API, getAuthHeaders } from "../api/fetch-helpers";
+import { API, fetchJSON, getAuthHeaders } from "../api/fetch-helpers";
 import { dashboardKeys } from "./useDashboard";
 
 /* ======================================================
@@ -10,16 +10,6 @@ export const workspacesKeys = {
   all: ["workspaces"] as const,
   list: () => [...workspacesKeys.all, "list"] as const,
 };
-
-/* ======================================================
-   FETCHERS
-====================================================== */
-
-async function fetchJSON<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-  return res.json();
-}
 
 /* ======================================================
    WORKSPACE (TENANT) TYPES

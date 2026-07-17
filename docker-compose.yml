@@ -510,8 +510,8 @@ services:
 
   backend-for-frontend-service:
     build:
-      context: ./backend-for-frontend-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend-for-frontend-service/Dockerfile
     container_name: sentinel-bff-service
     ports:
       - "8080:8080"
@@ -532,12 +532,6 @@ services:
       APP_SERVICES_TENANT-URL: http://tenant-service:8082
       APP_SERVICES_PROJECT-URL: http://project-service:8083
       APP_SERVICES_AUTH-URL: http://auth-service:8081
-      
-      # Legacy
-      SERVICES_AUTH_URL: http://auth-service:8081
-      SERVICES_TENANT_URL: http://tenant-service:8082
-      SERVICES_PROJECT_URL: http://project-service:8083
-      SERVICES_BILLING_URL: http://billing-service:8084
       
       # JWT
       JWT_SECRET: ${JWT_SECRET:-X9q2N8ZCnO3Tj48p1Fk6B2V0x8Teq9gHBV0SX1e2p6U=}
@@ -713,9 +707,6 @@ services:
     container_name: sentinel-front
     ports:
       - "3001:80"
-    environment:
-      VITE_API_URL: https://service.sentinel.crudzaso.com
-      VITE_MERCADOPAGO_PUBLIC_KEY: ${VITE_MERCADOPAGO_PUBLIC_KEY}
     depends_on:
       - kong
       - auth-service

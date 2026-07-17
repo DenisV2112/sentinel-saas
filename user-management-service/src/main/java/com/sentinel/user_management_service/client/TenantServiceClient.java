@@ -1,7 +1,7 @@
 package com.sentinel.user_management_service.client;
 
 import com.sentinel.user_management_service.client.dto.LimitValidationResponse;
-import com.sentinel.user_management_service.client.dto.TenantDTO;
+import com.sentinel.common.security.dto.TenantDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.openfeign.FeignClient;

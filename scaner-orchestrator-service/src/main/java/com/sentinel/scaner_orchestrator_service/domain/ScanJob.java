@@ -1,7 +1,7 @@
 package com.sentinel.scaner_orchestrator_service.domain;
 
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus;
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanType;
+import com.sentinel.common.security.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

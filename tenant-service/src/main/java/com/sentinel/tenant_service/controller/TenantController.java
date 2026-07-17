@@ -2,7 +2,7 @@ package com.sentinel.tenant_service.controller;
 
 import com.sentinel.tenant_service.dto.request.CreateTenantRequest;
 import com.sentinel.tenant_service.dto.request.UpdateTenantRequest;
-import com.sentinel.tenant_service.dto.response.TenantDTO;
+import com.sentinel.common.security.dto.TenantDTO;
 import com.sentinel.tenant_service.service.TenantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

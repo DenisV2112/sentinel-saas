@@ -17,14 +17,7 @@ import UpgradePlanModal from "@/ui/components/UpgradePlanModal";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
 import { motion } from "framer-motion";
 import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
-
-// Plan limits configuration (matches backend UserLimitsService)
-const PLAN_LIMITS: Record<string, { maxTenants: number; maxProjects: number }> = {
-    FREE: { maxTenants: 0, maxProjects: 0 },
-    PRO: { maxTenants: 3, maxProjects: 6 },
-    PROFESSIONAL: { maxTenants: 3, maxProjects: 6 },
-    ENTERPRISE: { maxTenants: 6, maxProjects: 12 },
-};
+import { PLAN_LIMITS } from "@/constants/planLimits";
 
 export default function WorkspacesPage() {
     const navigate = useNavigate();
@@ -37,6 +30,7 @@ export default function WorkspacesPage() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [newName, setNewName] = useState("");
     const [newDesc, setNewDesc] = useState("");
+    const [createError, setCreateError] = useState<string | null>(null);
 
     // Retrieve user from session or local storage for fallback plan check
     const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
@@ -59,7 +53,8 @@ export default function WorkspacesPage() {
             setNewDesc("");
             refetch(); // Refresh list
         } catch (err) {
-            console.error("Failed to create workspace", err);
+            const errorMsg = err instanceof Error ? err.message : "Failed to create workspace";
+            setCreateError(errorMsg);
             // Check if it's an upgrade required error (402)
             if (upgradeRequired) {
                 setShowUpgradeModal(true);
@@ -211,6 +206,7 @@ export default function WorkspacesPage() {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                             }}
+                                            aria-label={`Settings for ${workspace.name}`}
                                             style={{
                                                 background: "transparent",
                                                 border: "none",
@@ -343,6 +339,11 @@ export default function WorkspacesPage() {
                             <h2 style={{ color: 'var(--color-text-primary)', marginTop: 0 }}>
                                 New Workspace
                             </h2>
+                            {createError && (
+                                <div style={{ color: 'var(--color-danger)', fontSize: 14, marginBottom: 12, padding: '8px 12px', borderRadius: 8, background: 'var(--color-bg-severity-critical)' }}>
+                                    {createError}
+                                </div>
+                            )}
                             <div style={{ marginBottom: 16 }}>
                                 <label
                                     style={{

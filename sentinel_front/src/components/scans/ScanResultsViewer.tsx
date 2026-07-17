@@ -1,14 +1,109 @@
 import React, { useState } from 'react';
-import { UnifiedVulnerability } from '../../types/scanResults';
-import {
-    parseScanResults,
-    getSeverityColor,
-    getSeverityBgColor,
-    getStatTintColor,
-    groupBySeverity,
-    getSeverityStats,
-} from '../../utils/scanResultsParser';
+import type { UnifiedVulnerability, SASTResults, DASTResults, ContainerResults } from '../../types/scanResults';
 import { AlertTriangle, CheckCircle, Info, XCircle, ChevronDown, ChevronRight, Code, FileText, Package, Globe } from 'lucide-react';
+
+// ponytail: inlined from dead scanResultsParser.ts — single-use, no need for separate file
+
+type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+
+const SEVERITY_COLORS: Record<Severity, string> = {
+    CRITICAL: 'var(--color-danger)',
+    HIGH: 'var(--color-warning)',
+    MEDIUM: 'var(--color-info)',
+    LOW: 'var(--color-success)',
+    INFO: 'var(--color-text-tertiary)',
+};
+const SEVERITY_BG: Record<Severity, string> = {
+    CRITICAL: 'var(--color-bg-severity-critical)',
+    HIGH: 'var(--color-bg-severity-high)',
+    MEDIUM: 'var(--color-bg-severity-medium)',
+    LOW: 'var(--color-bg-severity-low)',
+    INFO: 'var(--color-surface)',
+};
+const SEVERITY_TINT: Record<Severity, string> = {
+    CRITICAL: 'rgba(239,68,68,0.08)',
+    HIGH: 'rgba(249,115,22,0.08)',
+    MEDIUM: 'rgba(234,179,8,0.08)',
+    LOW: 'rgba(34,197,94,0.08)',
+    INFO: 'rgba(100,116,139,0.08)',
+};
+
+function getSeverityColor(s: string): string { return SEVERITY_COLORS[s as Severity] ?? SEVERITY_COLORS.INFO; }
+function getSeverityBgColor(s: string): string { return SEVERITY_BG[s as Severity] ?? SEVERITY_BG.INFO; }
+function getStatTintColor(s: string): string { return SEVERITY_TINT[s as Severity] ?? SEVERITY_TINT.INFO; }
+function groupBySeverity(vulns: UnifiedVulnerability[]): Record<string, UnifiedVulnerability[]> {
+    const g: Record<string, UnifiedVulnerability[]> = {};
+    for (const v of vulns) { (g[v.severity] ??= []).push(v); }
+    return g;
+}
+function getSeverityStats(vulns: UnifiedVulnerability[]): Record<string, number> {
+    const s: Record<string, number> = { TOTAL: vulns.length, CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0, INFO: 0 };
+    for (const v of vulns) { s[v.severity] = (s[v.severity] ?? 0) + 1; }
+    return s;
+}
+
+function parseScanResults(scan: any): UnifiedVulnerability[] {
+    const results: UnifiedVulnerability[] = [];
+    const raw = scan?.results ?? scan?.findings;
+    if (!raw) return results;
+
+    // SAST (Semgrep)
+    const semgrep = (raw as SASTResults)?.results;
+    if (semgrep?.length) {
+        for (const f of semgrep) {
+            results.push({
+                id: f.check_id,
+                title: f.extra?.message ?? f.check_id,
+                severity: (f.extra?.severity === 'ERROR' ? 'HIGH' : f.extra?.severity === 'WARNING' ? 'MEDIUM' : 'INFO') as Severity,
+                description: f.extra?.message ?? '',
+                file: f.path,
+                line: f.start?.line,
+                code: f.extra?.lines,
+            });
+        }
+    }
+
+    // DAST (ZAP)
+    const dast = raw as DASTResults;
+    if (dast?.Site?.[0]?.Alerts?.length) {
+        for (const a of dast.Site[0].Alerts) {
+            const sev = a.Risk === 'Informational' ? 'INFO' : a.Risk.toUpperCase() as Severity;
+            for (const inst of (a.Instances ?? [{ Uri: '', Method: 'GET' }])) {
+                results.push({
+                    id: `${a.Alert}-${inst.Uri}`,
+                    title: a.Alert,
+                    severity: sev,
+                    description: a.Description ?? '',
+                    solution: a.Solution,
+                    url: inst.Uri,
+                    method: inst.Method,
+                    param: inst.Param,
+                });
+            }
+        }
+    }
+
+    // Container (Trivy)
+    const trivy = raw as ContainerResults;
+    if (trivy?.Results?.length) {
+        for (const r of trivy.Results) {
+            for (const v of (r.Vulnerabilities ?? [])) {
+                results.push({
+                    id: v.VulnerabilityID,
+                    title: v.Title ?? v.VulnerabilityID,
+                    severity: (v.Severity === 'UNKNOWN' ? 'INFO' : v.Severity) as Severity,
+                    description: v.Description ?? '',
+                    package: v.PkgName,
+                    version: v.InstalledVersion,
+                    fixedVersion: v.FixedVersion,
+                    cve: v.VulnerabilityID?.startsWith('CVE') ? v.VulnerabilityID : undefined,
+                });
+            }
+        }
+    }
+
+    return results;
+}
 
 interface ScanResultsViewerProps {
     scan: any;
@@ -112,10 +207,10 @@ export const ScanResultsViewer: React.FC<ScanResultsViewerProps> = ({ scan }) =>
                     padding: '40px',
                     textAlign: 'center',
                     borderRadius: '8px',
-                    border: '1px solid var(--color-border, #2A2A2A)',
-                    backgroundColor: 'var(--color-surface-light, #2D2D2D)',
+                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--color-surface-light)',
                 }}>
-                    <CheckCircle size={48} style={{ color: 'var(--color-success, #10B981)', margin: '0 auto 16px' }} />
+                    <CheckCircle size={48} style={{ color: 'var(--color-success)', margin: '0 auto 16px' }} />
                     <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
                         No vulnerabilities found
                     </p>
@@ -160,8 +255,8 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, severity, active, onC
             style={{
                 padding: '16px',
                 borderRadius: '8px',
-                border: `2px solid ${active ? color : 'var(--color-border, #2A2A2A)'}`,
-                backgroundColor: active ? bgTint : 'var(--color-surface, #1A1A1A)',
+                border: `2px solid ${active ? color : 'var(--color-border)'}`,
+                backgroundColor: active ? bgTint : 'var(--color-surface)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
             }}
@@ -189,10 +284,10 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
 
     return (
         <div style={{
-            border: '1px solid var(--color-border, #2A2A2A)',
+            border: '1px solid var(--color-border)',
             borderRadius: '8px',
             overflow: 'hidden',
-            backgroundColor: 'var(--color-surface, #1A1A1A)',
+            backgroundColor: 'var(--color-surface)',
         }}>
             {/* Header */}
             <div
@@ -203,7 +298,7 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    backgroundColor: expanded ? 'var(--color-surface-light, #2D2D2D)' : 'var(--color-surface, #1A1A1A)',
+                    backgroundColor: expanded ? 'var(--color-surface-light)' : 'var(--color-surface)',
                     transition: 'background-color 0.2s',
                 }}
             >
@@ -256,13 +351,13 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
 
             {/* Expanded Details */}
             {expanded && (
-                <div style={{ padding: '16px', borderTop: '1px solid var(--color-border, #2A2A2A)', backgroundColor: 'var(--color-surface-light, #2D2D2D)' }}>
+                <div style={{ padding: '16px', borderTop: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-light)' }}>
                     {/* Description */}
                     <div style={{ marginBottom: '16px' }}>
                         <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
                             Description
                         </h4>
-                        <p style={{ fontSize: '14px', color: 'var(--color-text-primary, #FFFFFF)', lineHeight: '1.6' }}>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-primary)', lineHeight: '1.6' }}>
                             {vulnerability.description}
                         </p>
                     </div>
@@ -275,8 +370,8 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                                 Code
                             </h4>
                             <pre style={{
-                                backgroundColor: 'var(--color-bg-code, #1F2937)',
-                                color: 'var(--color-text-on-code, #F3F4F6)',
+                                backgroundColor: 'var(--color-bg-code)',
+                                color: 'var(--color-text-on-code)',
                                 padding: '12px',
                                 borderRadius: '4px',
                                 fontSize: '13px',
@@ -296,8 +391,8 @@ const VulnerabilityCard: React.FC<VulnerabilityCardProps> = ({ vulnerability, ex
                             </h4>
                             <p style={{
                                 fontSize: '14px',
-                                color: 'var(--color-success, #10B981)',
-                                backgroundColor: 'var(--color-bg-success, #D1FAE5)',
+                                color: 'var(--color-success)',
+                                backgroundColor: 'var(--color-bg-success)',
                                 padding: '12px',
                                 borderRadius: '4px',
                                 lineHeight: '1.6',

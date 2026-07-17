@@ -2,7 +2,7 @@ package com.sentinel.scaner_orchestrator_service.service;
 
 import com.sentinel.scaner_orchestrator_service.client.TenantClient;
 import com.sentinel.scaner_orchestrator_service.domain.ScanJob;
-import com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus;
+import com.sentinel.common.security.enums.ScanStatus;
 import com.sentinel.scaner_orchestrator_service.dto.message.ScanEventDTO;
 import com.sentinel.scaner_orchestrator_service.dto.request.ScanRequestDTO;
 import com.sentinel.scaner_orchestrator_service.dto.response.ScanResponseDTO;
@@ -29,9 +29,6 @@ public class ScanService {
     private final ScanJobRepository scanJobRepository;
     private final ScanPublisher scanPublisher;
     private final TenantClient tenantClient;
-
-    @Value("${app.scan.auto-complete-timeout-seconds:300}")
-    private int autoCompleteTimeoutSeconds;
 
     @Transactional
     public ScanResponseDTO createScan(ScanRequestDTO request, UUID tenantId, UUID userId) {
@@ -62,34 +59,6 @@ public class ScanService {
         scanPublisher.publishScanRequested(event);
 
         return mapToDTO(job);
-    }
-
-    /**
-     * Auto-progress PENDING scans to RUNNING and RUNNING to COMPLETED.
-     * Runs every 15 seconds. MVP approach — in production, external scanners update status via RabbitMQ.
-     */
-    @Scheduled(fixedRate = 15000)
-    @Transactional
-    public void autoProgressScans() {
-        List<ScanJob> pendingScans = scanJobRepository.findByStatus(ScanStatus.PENDING);
-        for (ScanJob job : pendingScans) {
-            job.setStatus(ScanStatus.RUNNING);
-            job.setStartedAt(LocalDateTime.now());
-            scanJobRepository.save(job);
-            log.info("Auto-progressed scan {} to RUNNING", job.getId());
-        }
-
-        List<ScanJob> runningScans = scanJobRepository.findByStatus(ScanStatus.RUNNING);
-        for (ScanJob job : runningScans) {
-            // Auto-complete scans that have been running for N+ seconds
-            if (job.getStartedAt() != null &&
-                    job.getStartedAt().plusSeconds(autoCompleteTimeoutSeconds).isBefore(LocalDateTime.now())) {
-                job.setStatus(ScanStatus.COMPLETED);
-                job.setFinishedAt(LocalDateTime.now());
-                scanJobRepository.save(job);
-                log.info("Auto-completed scan {} (timeout: {}s)", job.getId(), autoCompleteTimeoutSeconds);
-            }
-        }
     }
 
     public Page<ScanResponseDTO> getScans(UUID tenantId, Pageable pageable,
