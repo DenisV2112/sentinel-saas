@@ -45,44 +45,69 @@ export function RecentScansTable({
           </h3>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              {["Project", "Type", "Status", "Quality Gate", ""].map((h) => (
-                <th key={h} style={{ color: "var(--color-text-secondary)" }}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {scans.map((scan) => (
-              <tr key={scan.scanId}>
-                <td style={{ color: "var(--color-text-primary)" }}>{scan.projectName}</td>
-                <td>
-                  <span className="tag">{scan.scanType}</span>
-                </td>
-                <td style={{ color: "var(--color-text-secondary)" }}>{scan.status}</td>
-                <td>
-                  <span
-                    className="badge"
+        <div style={{ overflowX: "auto" }}>
+          <table>
+            <thead>
+              <tr>
+                {["Project", "Type", "Status", "Quality Gate", ""].map((h, i) => (
+                  <th
+                    key={h}
                     style={{
-                      background: scan.qualityGatePassed
-                        ? "var(--color-success)"
-                        : "var(--color-danger)",
-                      color: "var(--color-on-primary)",
+                      color: "var(--color-text-secondary)",
+                      ...(i === 0
+                        ? {
+                            position: "sticky" as const,
+                            left: 0,
+                            zIndex: 1,
+                            background: "var(--color-surface)",
+                          }
+                        : {}),
                     }}
                   >
-                    {scan.qualityGatePassed ? "PASS" : "FAIL"}
-                  </span>
-                </td>
-                <td>
-                  <button className="btn-sm">View</button>
-                </td>
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {scans.map((scan) => (
+                <tr key={scan.scanId}>
+                  <td
+                    style={{
+                      color: "var(--color-text-primary)",
+                      position: "sticky",
+                      left: 0,
+                      zIndex: 0,
+                      background: "var(--color-surface)",
+                    }}
+                  >
+                    {scan.projectName}
+                  </td>
+                  <td>
+                    <span className="tag">{scan.scanType}</span>
+                  </td>
+                  <td style={{ color: "var(--color-text-secondary)" }}>{scan.status}</td>
+                  <td>
+                    <span
+                      className="badge"
+                      style={{
+                        background: scan.qualityGatePassed
+                          ? "var(--color-success)"
+                          : "var(--color-danger)",
+                        color: "var(--color-on-primary)",
+                      }}
+                    >
+                      {scan.qualityGatePassed ? "PASS" : "FAIL"}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="btn-sm">View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </StateWrapper>
   );
