@@ -106,14 +106,14 @@ public class TenantService {
         TenantEntity tenant = TenantEntity.builder()
                 .name(request.getName())
                 .slug(slug)
-                .type(request.getType().name())
+                .type(request.getType())
                 .ownerId(request.getOwnerId() != null ? request.getOwnerId() : userId)
                 .ownerEmail(ownerEmail) // CORRECTION: Use the resolved local variable
                 .businessName(request.getBusinessName())
                 .nit(request.getNit())
                 .planId(null) // Sin plan hasta que compre suscripción
                 .subscriptionStatus("PENDING") // Esperando suscripción
-                .status(TenantStatus.ACTIVE.name())
+                .status(TenantStatus.ACTIVE)
                 // Límites según el plan del usuario
                 .maxUsers(userLimitsService.getMaxUsersForPlan(userPlan))
                 .maxProjects(userLimitsService.getMaxProjectsPerTenantForPlan(userPlan))
@@ -180,12 +180,12 @@ public class TenantService {
         TenantEntity tenant = TenantEntity.builder()
                 .name(workspaceName)
                 .slug(slug)
-                .type(TenantType.PERSONAL.name())
+                .type(TenantType.PERSONAL)
                 .ownerId(userId)
-                .ownerEmail(userEmail)
+                .ownerEmail(email)
                 .planId(null) // Sin plan - debe comprar suscripción
                 .subscriptionStatus("PENDING")
-                .status(TenantStatus.ACTIVE.name())
+                .status(TenantStatus.ACTIVE)
                 // Límites mínimos
                 .maxUsers(1)
                 .maxProjects(5)

@@ -67,8 +67,7 @@ public class ScanService {
         // REQ-NEW-4: Apply filters when present; use basic tenant query when no filters
         if (status != null && !status.isEmpty()) {
             try {
-                com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus scanStatus =
-                        com.sentinel.scaner_orchestrator_service.domain.enums.ScanStatus.valueOf(status.toUpperCase());
+                ScanStatus scanStatus = ScanStatus.valueOf(status.toUpperCase());
                 return scanJobRepository.findByTenantIdAndStatus(tenantId, scanStatus, pageable)
                         .map(this::mapToDTO);
             } catch (IllegalArgumentException e) {

@@ -1,5 +1,6 @@
 package com.sentinel.user_management_service.exception;
 
+import java.util.Map;
 import com.sentinel.common.security.exception.BaseGlobalExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

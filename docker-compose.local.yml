@@ -352,7 +352,7 @@ services:
     container_name: sentinel-auth-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -407,7 +407,7 @@ services:
     container_name: sentinel-tenant-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -450,7 +450,7 @@ services:
     container_name: sentinel-project-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -493,7 +493,7 @@ services:
     container_name: sentinel-user-management-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -544,7 +544,7 @@ services:
     container_name: sentinel-bff-service
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -598,7 +598,7 @@ services:
     container_name: sentinel-billing
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -644,7 +644,7 @@ services:
     container_name: sentinel-results-aggregator
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
@@ -690,7 +690,7 @@ services:
     container_name: sentinel-scaner-orchestrator
     restart: unless-stopped
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m -XX:+UseG1GC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
