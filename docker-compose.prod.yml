@@ -174,7 +174,9 @@ services:
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -187,7 +189,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -207,7 +209,9 @@ services:
       MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -218,7 +222,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -241,7 +245,9 @@ services:
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -254,7 +260,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -277,7 +283,9 @@ services:
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -287,10 +295,7 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -313,7 +318,9 @@ services:
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -323,10 +330,7 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -349,7 +353,10 @@ services:
       SERVICES_ORCHESTRATOR_URL: http://scaner-orchestrator-service:8086
       SERVICES_RESULTS_AGGREGATOR_URL: http://results-aggregator-service:8087
       JWT_SECRET: ${JWT_SECRET}
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JavaBFF__WebhookUrl: "http://backend-for-frontend-service:8080/api/bff/scans/webhook"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
     networks:
       - sentinel-network
     depends_on:
@@ -362,7 +369,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -385,7 +392,9 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_scans?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -400,7 +409,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
@@ -518,7 +527,9 @@ services:
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
+      SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
     networks:
       - sentinel-network
     depends_on:
@@ -528,10 +539,7 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8086/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      start_period: 180s
     deploy:
       resources:
         limits:
