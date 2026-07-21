@@ -8,14 +8,17 @@ public class SemgrepMapper
     {
         var result = new ScanResult { ScanId = scanId };
 
-        result.Findings = raw.Results.Select(r => new Finding
+        // ponytail: null guard — JSON con "results": null rompe sin esto (.Select NPE)
+        var findings = (raw.Results ?? new()).Select(r => new Finding
         {
             Rule = r.CheckId,
             File = r.Path,
             Severity = r.Extra?.Severity,
-            Description = r.Extra?.Metadata?.FirstOrDefault().Value
+            // ponytail: JsonElement.ToString() maneja arrays/objects en metadata sin JsonException
+            Description = r.Extra?.Metadata?.FirstOrDefault().Value.ToString() ?? ""
         }).ToList();
 
+        result.Findings = findings;
         return result;
     }
 }

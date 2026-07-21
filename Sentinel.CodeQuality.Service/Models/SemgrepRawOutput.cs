@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Sentinel.CodeQuality.Service.Models;
 
 public class SemgrepRawOutput
@@ -15,5 +17,6 @@ public class SemgrepFinding
 public class SemgrepExtra
 {
     public string Severity { get; set; }
-    public Dictionary<string, string> Metadata { get; set; }
+    // ponytail: Semgrep metadata values pueden ser arrays/objects (cwe, references), no solo strings
+    public Dictionary<string, JsonElement> Metadata { get; set; }
 }
