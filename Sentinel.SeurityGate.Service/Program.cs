@@ -38,12 +38,17 @@ builder.Services.AddScoped<HttpScanOrchestrator>();
 builder.Services.AddHostedService<ScanResultListener>();
 builder.Services.AddHostedService<ScanRequestListener>();
 
-// CORS (si es necesario para tu Java BFF)
+// CORS: fail closed — sin JavaBFF:Origin configurado, rechaza en vez de abrir a "*"
+var javaBffOrigin = builder.Configuration["JavaBFF:Origin"];
+if (string.IsNullOrWhiteSpace(javaBffOrigin))
+{
+    throw new InvalidOperationException("JavaBFF:Origin no configurado — CORS rechazado por fail-closed");
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowJavaBFF", policy =>
     {
-        policy.WithOrigins(builder.Configuration["JavaBFF:Origin"] ?? "*")
+        policy.WithOrigins(javaBffOrigin)
             .AllowAnyMethod()
             .AllowAnyHeader();
     });

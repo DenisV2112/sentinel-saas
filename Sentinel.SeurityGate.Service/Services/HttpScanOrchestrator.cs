@@ -46,40 +46,57 @@ namespace Sentinel.SecurityGate.Service.Services
                 var httpClient = _httpClientFactory.CreateClient();
                 httpClient.Timeout = TimeSpan.FromMinutes(command.TimeoutMinutes ?? 30);
 
-                var jsonContent = new StringContent(
-                    JsonSerializer.Serialize(payload, new JsonSerializerOptions 
-                    { 
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        WriteIndented = true 
-                    }),
-                    Encoding.UTF8,
-                    "application/json");
-
-                _logger.LogDebug("Payload enviado a n8n: {Payload}", 
-                    SanitizePayload(payload));
-
                 // Trigger del workflow en n8n
-                var response = await httpClient.PostAsync(n8nWebhookUrl, jsonContent);
-
-                if (response.IsSuccessStatusCode)
+                // ponytail: 3 retries with exp backoff; add Polly if circuit-breaking matters
+                const int maxAttempts = 3;
+                var delaysMs = new[] { 2000, 4000, 8000 };
+                for (int attempt = 1; attempt <= maxAttempts; attempt++)
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    _logger.LogInformation(
-                        "Workflow de n8n iniciado exitosamente. ScanId: {ScanId}",
-                        scanId);
+                    try
+                    {
+                        // HttpContent is disposed by PostAsync; recreate per attempt
+                        using var attemptContent = new StringContent(
+                            JsonSerializer.Serialize(payload, new JsonSerializerOptions
+                            {
+                                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                WriteIndented = true
+                            }),
+                            Encoding.UTF8,
+                            "application/json");
 
-                    return scanId;
+                        _logger.LogDebug("Payload enviado a n8n (attempt {Attempt}): {Payload}",
+                            attempt, SanitizePayload(payload));
+
+                        var response = await httpClient.PostAsync(n8nWebhookUrl, attemptContent);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            _logger.LogInformation(
+                                "Workflow de n8n iniciado exitosamente. ScanId: {ScanId}",
+                                scanId);
+
+                            return scanId;
+                        }
+
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        _logger.LogError(
+                            "Error al iniciar workflow en n8n. Status: {StatusCode}, Error: {Error}",
+                            response.StatusCode,
+                            errorContent);
+
+                        throw new HttpRequestException($"Error al iniciar workflow en n8n: {response.StatusCode} - {errorContent}");
+                    }
+                    catch (HttpRequestException ex) when (attempt < maxAttempts)
+                    {
+                        var delay = delaysMs[attempt - 1];
+                        _logger.LogWarning(ex,
+                            "n8n webhook attempt {Attempt}/{Max} failed, retrying in {Delay}ms",
+                            attempt, maxAttempts, delay);
+                        await Task.Delay(delay);
+                    }
                 }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    _logger.LogError(
-                        "Error al iniciar workflow en n8n. Status: {StatusCode}, Error: {Error}",
-                        response.StatusCode,
-                        errorContent);
-                    
-                    throw new Exception($"Error al iniciar workflow en n8n: {response.StatusCode} - {errorContent}");
-                }
+
+                throw new HttpRequestException("n8n webhook failed after all retries");
             }
             catch (Exception ex)
             {
@@ -214,16 +231,16 @@ namespace Sentinel.SecurityGate.Service.Services
             };
         }
 
-        public async Task UpdateScanStatusAsync(Guid scanId, string status)
+        public async Task<bool> UpdateScanStatusAsync(Guid scanId, string status)
         {
             try
             {
                 var baseUrl = _configuration["ScannerOrchestrator:BaseUrl"];
                 var endpoint = _configuration["ScannerOrchestrator:UpdateStatusEndpoint"]?
                     .Replace("{scanId}", scanId.ToString());
-                
+
                 var url = $"{baseUrl}{endpoint}";
-                
+
                 var payload = new { status = status };
                 var jsonContent = new StringContent(
                     JsonSerializer.Serialize(payload),
@@ -233,19 +250,20 @@ namespace Sentinel.SecurityGate.Service.Services
                 var httpClient = _httpClientFactory.CreateClient();
                 var response = await httpClient.PutAsync(url, jsonContent);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("Failed to update status for scan {ScanId} to {Status}. Code: {Code}", 
-                        scanId, status, response.StatusCode);
-                }
-                else 
+                if (response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation("Updated scan {ScanId} status to {Status}", scanId, status);
+                    return true;
                 }
+
+                _logger.LogError("Failed to update status for scan {ScanId} to {Status}. Code: {Code}",
+                    scanId, status, response.StatusCode);
+                return false;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception updating scan status");
+                return false;
             }
         }
 

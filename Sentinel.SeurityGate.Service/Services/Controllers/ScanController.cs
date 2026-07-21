@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Sentinel.Common.Infrastructure.Services;
 using Sentinel.SecurityGate.Service.Dtos;
 using Sentinel.SecurityGate.Service.Services;
 
@@ -11,15 +12,18 @@ namespace Sentinel.SecurityGate.Service.Controllers
         private readonly ILogger<ScanController> _logger;
         private readonly HttpScanOrchestrator _orchestrator;
         private readonly IRabbitMqService _rabbitMqService;
+        private readonly IConfiguration _configuration;
 
         public ScanController(
             ILogger<ScanController> logger,
             HttpScanOrchestrator orchestrator,
-            IRabbitMqService rabbitMqService)
+            IRabbitMqService rabbitMqService,
+            IConfiguration configuration)
         {
             _logger = logger;
             _orchestrator = orchestrator;
             _rabbitMqService = rabbitMqService;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -79,63 +83,55 @@ namespace Sentinel.SecurityGate.Service.Controllers
                     new { scanId },
                     acceptance);
             }
+            catch (ArgumentException ax)
+            {
+                _logger.LogWarning(ax, "Validación de solicitud de escaneo falló");
+                return BadRequest(new { error = ax.Message });
+            }
             catch (Exception ex)
             {
+                // ponytail: no leak ex.Message — log full detail server-side, return generic to client
                 _logger.LogError(ex, "Error procesando solicitud de escaneo");
-                return BadRequest(new
-                {
-                    error = "Error procesando solicitud de escaneo",
-                    message = ex.Message
-                });
+                return StatusCode(500, new { error = "Error interno procesando la solicitud" });
             }
         }
 
         /// <summary>
-        /// Endpoint para consultar el estado de un escaneo
+        /// Endpoint para consultar el estado de un escaneo.
+        /// ponytail: no implementado — el estado se publica via RabbitMQ y el Results Aggregator lo persiste.
+        /// Consultar /api/results/{scanId} en vez de este endpoint.
         /// </summary>
         [HttpGet("{scanId}/status")]
-        [ProducesResponseType(typeof(ScanStatusDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetScanStatus(Guid scanId)
+        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+        public IActionResult GetScanStatus(Guid scanId)
         {
-            try
+            // ponytail: antes devolvía mock con datos falsos. Estado real vive en Results Aggregator.
+            return StatusCode(501, new
             {
-                // Aquí deberías consultar el estado desde tu DB o cache
-                // Por ahora retornamos un ejemplo
-                
-                var status = new ScanStatusDto
-                {
-                    ScanId = scanId,
-                    Status = "IN_PROGRESS",
-                    ScanType = "SAST",
-                    Target = "https://github.com/example/repo",
-                    StartedAt = DateTime.UtcNow.AddMinutes(-5),
-                    ProgressPercentage = 45,
-                    StatusMessage = "Analizando código fuente...",
-                    CurrentStep = "code_analysis"
-                };
-
-                return Ok(status);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error consultando estado de escaneo {ScanId}", scanId);
-                return NotFound(new { error = $"Escaneo {scanId} no encontrado" });
-            }
+                error = "Use /api/results/{scanId} en Results Aggregator para estado real",
+                scanId
+            });
         }
 
         /// <summary>
-        /// Endpoint webhook para recibir resultados de n8n
+        /// Endpoint webhook para recibir resultados de n8n. Protegido con shared-secret.
         /// </summary>
         [HttpPost("webhook/result")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ReceiveScanResult([FromBody] object scanResult)
         {
+            // ponytail: shared-secret via X-Webhook-Secret header
+            if (!WebhookAuth.IsValid(_configuration, Request.Headers))
+            {
+                _logger.LogWarning("Webhook rechazado — X-Webhook-Secret inválido o ausente");
+                return Unauthorized();
+            }
+
             try
             {
                 _logger.LogInformation("Resultado de escaneo recibido desde n8n");
 
-                // Publicar el resultado en RabbitMQ
                 await _rabbitMqService.PublishScanResultAsync(scanResult);
 
                 return Ok(new { message = "Resultado recibido y procesado" });
@@ -143,7 +139,7 @@ namespace Sentinel.SecurityGate.Service.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error procesando resultado de escaneo");
-                return StatusCode(500, new { error = ex.Message                 });
+                return StatusCode(500, new { error = "Error interno procesando resultado" });
             }
         }
 

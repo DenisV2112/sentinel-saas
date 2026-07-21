@@ -11,39 +11,48 @@ namespace Sentinel.CodeQuality.Service.Controllers
     [Route("api/n8n")]
     public class N8nNotificationController : ControllerBase
     {
-        private readonly VolumeFileReader _reader;
-        private readonly SemgrepMapper _mapper;
-        private readonly QualityGateEvaluator _evaluator;
-        private readonly IReportPublisher<ScanFinalResultDto> _publisher;
-        private readonly ILogger<N8nNotificationController> _logger;
-        private readonly string _allowedBasePath;
+private readonly VolumeFileReader _reader;
+    private readonly SemgrepMapper _mapper;
+    private readonly QualityGateEvaluator _evaluator;
+    private readonly IReportPublisher<ScanFinalResultDto> _publisher;
+    private readonly ILogger<N8nNotificationController> _logger;
+    private readonly string _allowedBasePath;
+    private readonly IConfiguration _configuration;
 
-        public N8nNotificationController(
-            VolumeFileReader reader,
-            SemgrepMapper mapper,
-            QualityGateEvaluator evaluator,
-            IReportPublisher<ScanFinalResultDto> publisher,
-            IConfiguration configuration,
-            ILogger<N8nNotificationController> logger)
+    public N8nNotificationController(
+        VolumeFileReader reader,
+        SemgrepMapper mapper,
+        QualityGateEvaluator evaluator,
+        IReportPublisher<ScanFinalResultDto> publisher,
+        IConfiguration configuration,
+        ILogger<N8nNotificationController> logger)
+    {
+        _reader = reader;
+        _mapper = mapper;
+        _evaluator = evaluator;
+        _publisher = publisher;
+        _logger = logger;
+        _configuration = configuration;
+
+        // Ruta base donde n8n deposita resultados - importante para evitar path traversal
+        _allowedBasePath = configuration["Semgrep:ResultsBasePath"] ?? "/mnt/semgrep/results";
+    }
+
+    [HttpPost("semgrep/result-ready")]
+    public async Task<IActionResult> OnSemgrepResultReady([FromBody] SemgrepNotificationDto dto)
+    {
+        // ponytail: shared-secret check via X-Webhook-Secret header
+        if (!WebhookAuth.IsValid(_configuration, Request.Headers))
         {
-            _reader = reader;
-            _mapper = mapper;
-            _evaluator = evaluator;
-            _publisher = publisher;
-            _logger = logger;
-
-            // Ruta base donde n8n deposita resultados - importante para evitar path traversal
-            _allowedBasePath = configuration["Semgrep:ResultsBasePath"] ?? "/mnt/semgrep/results";
+            _logger.LogWarning("Webhook rechazado — X-Webhook-Secret inválido o ausente");
+            return Unauthorized();
         }
 
-        [HttpPost("semgrep/result-ready")]
-        public async Task<IActionResult> OnSemgrepResultReady([FromBody] SemgrepNotificationDto dto)
+        if (dto == null)
         {
-            if (dto == null)
-            {
-                _logger.LogWarning("Payload n8n vacío");
-                return BadRequest("Payload vacío");
-            }
+            _logger.LogWarning("Payload n8n vacío");
+            return BadRequest("Payload vacío");
+        }
 
             if (!ModelState.IsValid)
             {

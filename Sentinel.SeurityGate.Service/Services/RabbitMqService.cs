@@ -25,6 +25,8 @@ namespace Sentinel.SecurityGate.Service.Services
         private IModel? _channel;
         private readonly SemaphoreSlim _channelLock = new(1, 1);
         private const int MaxRetries = 5;
+        private const int MaxMessageRetries = 3;
+        private const string RetryCountHeader = "x-retry-count";
         private bool _disposed;
 
         public RabbitMqService(
@@ -37,11 +39,11 @@ namespace Sentinel.SecurityGate.Service.Services
             // Connection is established on first use with retry + exponential backoff.
         }
 
-        private void EnsureConnected()
+        private async Task EnsureConnectedAsync()
         {
             if (_channel?.IsOpen == true) return;
 
-            _channelLock.Wait();
+            await _channelLock.WaitAsync();
             try
             {
                 if (_channel?.IsOpen == true) return; // double-check
@@ -61,7 +63,8 @@ namespace Sentinel.SecurityGate.Service.Services
                         _logger.LogWarning(ex,
                             "RabbitMQ connection attempt {Attempt}/{MaxRetries} failed, retrying in {Delay}s...",
                             attempt, MaxRetries, delayMs / 1000);
-                        Thread.Sleep(delayMs);
+                        // ponytail: await Task.Delay (not Thread.Sleep) avoids threadpool starvation under load
+                        await Task.Delay(delayMs);
                     }
                 }
 
@@ -130,7 +133,7 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public async Task PublishScanRequestAsync<T>(T message, string routingKey)
         {
-            EnsureConnected();
+            await EnsureConnectedAsync();
             await _channelLock.WaitAsync();
             try
             {
@@ -166,7 +169,7 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public async Task PublishScanResultAsync<T>(T message)
         {
-            EnsureConnected();
+            await EnsureConnectedAsync();
             await _channelLock.WaitAsync();
             try
             {
@@ -226,41 +229,44 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public void StartListeningForResults(Func<string, Task> messageHandler)
         {
-            EnsureConnected();
+            EnsureConnectedAsync().GetAwaiter().GetResult();
+            var channel = _channel;
             try
             {
-                var consumer = new AsyncEventingBasicConsumer(_channel);
-                
+                var consumer = new AsyncEventingBasicConsumer(channel);
+
                 consumer.Received += async (sender, eventArgs) =>
                 {
                     var body = eventArgs.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    
+
                     try
                     {
-                        _logger.LogInformation("Mensaje recibido de la cola {Queue}", 
+                        _logger.LogInformation("Mensaje recibido de la cola {Queue}",
                             _config.ScanResultQueue);
-                        
+
                         await messageHandler(message);
-                        
-                        // Acknowledge el mensaje solo si se procesó correctamente
-                        _channel!.BasicAck(eventArgs.DeliveryTag, false);
+
+                        // ponytail: capture channel local; if disposed mid-callback, skip ack to avoid NRE
+                        if (channel == null || channel.IsClosed) return;
+                        channel.BasicAck(eventArgs.DeliveryTag, false);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error procesando mensaje de RabbitMQ");
-                        
-                        // Reencolar el mensaje si falla
-                        _channel!.BasicNack(eventArgs.DeliveryTag, false, true);
+                        if (channel == null || channel.IsClosed) return;
+                        // ponytail: simple retry counter via header; add DLX queue if throughput matters
+                        var requeue = ShouldRetry(eventArgs.BasicProperties);
+                        channel.BasicNack(eventArgs.DeliveryTag, false, requeue);
                     }
                 };
 
-                _channel!.BasicConsume(
+                channel!.BasicConsume(
                     queue: _config.ScanResultQueue,
                     autoAck: false,
                     consumer: consumer);
 
-                _logger.LogInformation("Escuchando mensajes en la cola {Queue}", 
+                _logger.LogInformation("Escuchando mensajes en la cola {Queue}",
                     _config.ScanResultQueue);
             }
             catch (Exception ex)
@@ -272,10 +278,11 @@ namespace Sentinel.SecurityGate.Service.Services
 
         public void StartListeningForRequests(Func<string, Task> messageHandler)
         {
-            EnsureConnected();
+            EnsureConnectedAsync().GetAwaiter().GetResult();
+            var channel = _channel;
             try
             {
-                var consumer = new AsyncEventingBasicConsumer(_channel);
+                var consumer = new AsyncEventingBasicConsumer(channel);
 
                 consumer.Received += async (sender, eventArgs) =>
                 {
@@ -288,16 +295,21 @@ namespace Sentinel.SecurityGate.Service.Services
 
                         await messageHandler(message);
 
-                        _channel!.BasicAck(eventArgs.DeliveryTag, false);
+                        // ponytail: capture channel local; if disposed mid-callback, skip ack to avoid NRE
+                        if (channel == null || channel.IsClosed) return;
+                        channel.BasicAck(eventArgs.DeliveryTag, false);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error procesando solicitud de escaneo");
-                        _channel!.BasicNack(eventArgs.DeliveryTag, false, true);
+                        if (channel == null || channel.IsClosed) return;
+                        // ponytail: simple retry counter via header; add DLX queue if throughput matters
+                        var requeue = ShouldRetry(eventArgs.BasicProperties);
+                        channel.BasicNack(eventArgs.DeliveryTag, false, requeue);
                     }
                 };
 
-                _channel!.BasicConsume(
+                channel!.BasicConsume(
                     queue: _config.ScanRequestQueue,
                     autoAck: false,
                     consumer: consumer);
@@ -309,6 +321,25 @@ namespace Sentinel.SecurityGate.Service.Services
                 _logger.LogError(ex, "Error al iniciar listener de solicitudes");
                 throw;
             }
+        }
+
+        // ponytail: simple retry counter via header; add DLX queue if throughput matters
+        private bool ShouldRetry(IBasicProperties? properties)
+        {
+            var headers = properties?.Headers;
+            int retryCount = 0;
+            if (headers != null && headers.TryGetValue(RetryCountHeader, out var rcObj) && rcObj is byte[] rcBytes)
+            {
+                int.TryParse(Encoding.UTF8.GetString(rcBytes), out retryCount);
+            }
+            retryCount++;
+            properties ??= _channel?.CreateBasicProperties();
+            if (properties != null)
+            {
+                properties.Headers ??= new Dictionary<string, object?>();
+                properties.Headers[RetryCountHeader] = Encoding.UTF8.GetBytes(retryCount.ToString());
+            }
+            return retryCount < MaxMessageRetries;
         }
 
         public void Dispose()

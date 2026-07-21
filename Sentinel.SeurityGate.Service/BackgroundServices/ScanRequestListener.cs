@@ -60,7 +60,11 @@ public class ScanRequestListener : BackgroundService
             var orchestrator = serviceProvider.GetRequiredService<HttpScanOrchestrator>();
             
             // Actualizar estado a RUNNING
-            await orchestrator.UpdateScanStatusAsync(cmd.ScanId, "RUNNING");
+            var updated = await orchestrator.UpdateScanStatusAsync(cmd.ScanId, "RUNNING");
+            if (!updated)
+            {
+                _logger.LogWarning("Scan status update to RUNNING failed for {ScanId} — continuing to workflow trigger", cmd.ScanId);
+            }
             
             await orchestrator.StartScanWorkflowAsync(cmd);
 
@@ -69,6 +73,8 @@ public class ScanRequestListener : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error procesando solicitud de escaneo desde RabbitMQ");
+            // ponytail: re-throw matches ScanResultListener pattern; add DLQ if message loss matters
+            throw;
         }
     }
 }
