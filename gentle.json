@@ -90,7 +90,7 @@
       "service_discovery": "Services reference each other by Docker container name (e.g., http://auth-service:8081), NOT localhost.",
       "java_memory_local": "-Xms64m -Xmx128m via JAVA_TOOL_OPTIONS in local compose.",
       "java_memory_base": "-Xms128m -Xmx256m in base compose.",
-      "env_files": ".env.local and .env.production are gitignored. Template at .env.production.template.",
+      "env_files": ".env.local and .env.production are gitignored. Template at .env.production.example.",
       "csharp_internal_port": "All C# services listen on port 5001 internally. External ports 5001/5002/5003 map to internal 5001.",
       "user_management_port": "External 8088 → Internal 8083. The app listens on 8083, mapped to 8088 externally."
     }
