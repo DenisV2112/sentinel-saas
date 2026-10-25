@@ -37,9 +37,6 @@ const StatCard = React.memo(function StatCard({
   theme,
 }: StatCardProps) {
   
-  // VERIFICACIÓN DE SEGURIDAD
-  if (!theme || !theme.colors) return null;
-
   // ALIAS CORRECTO: Accede directamente a theme.colors
   const c = theme.colors; 
   

@@ -11,7 +11,6 @@ export const dashboardKeys = {
   recentScans: (limit: number) => [...dashboardKeys.all, "recentScans", limit] as const,
   trends: (range: string) => [...dashboardKeys.all, "trends", range] as const,
   riskProjects: () => [...dashboardKeys.all, "riskProjects"] as const,
-  notifications: () => [...dashboardKeys.all, "notifications"] as const,
 };
 
 /* ======================================================
@@ -70,13 +69,6 @@ export interface TopRiskProject {
   project: string;
   critical: number;
   high: number;
-}
-
-export interface DashboardNotification {
-  id: string;
-  severity: "INFO" | "WARNING" | "CRITICAL";
-  message: string;
-  createdAt: string;
 }
 
 /* ======================================================
@@ -189,15 +181,5 @@ export function useTopRiskProjects() {
         .slice(0, 5);
     },
     staleTime: 60_000,
-  });
-}
-
-/** Dashboard notifications — polls every 20s */
-export function useDashboardNotifications() {
-  return useQuery({
-    queryKey: dashboardKeys.notifications(),
-    queryFn: () => fetchJSON<DashboardNotification[]>(`${API}/api/bff/notifications?type=dashboard`),
-    refetchInterval: 20_000,
-    staleTime: 10_000,
   });
 }
