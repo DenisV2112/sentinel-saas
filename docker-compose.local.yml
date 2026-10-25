@@ -188,64 +188,14 @@ services:
   # KONG API GATEWAY
   # ===========================================================================
 
-  kong-db:
-    image: postgres:13-alpine
-    container_name: sentinel-kong-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: kong
-      POSTGRES_PASSWORD: kong123
-      POSTGRES_DB: kong
-    ports:
-      - "5433:5432"
-    volumes:
-      - kong_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kong"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    logging: *infra-logging
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-    networks:
-      - sentinel-network
-
-  kong-migration:
-    image: kong:alpine
-    container_name: sentinel-kong-migration-local
-    restart: "no"
-    command: kong migrations bootstrap
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-db
-      KONG_PG_USER: kong
-      KONG_PG_PASSWORD: kong123
-    depends_on:
-      kong-db:
-        condition: service_healthy
-    logging: *infra-logging
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-    networks:
-      - sentinel-network
-
   kong:
     image: kong:alpine
     container_name: sentinel-kong
     restart: unless-stopped
     environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-db
-      KONG_PG_USER: kong
-      KONG_PG_PASSWORD: kong123
+      # DB-less: routes come from kong.yml on every start (DB mode ignores it)
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
       # Silence access logs ΓÇö they're noise in local dev
       KONG_PROXY_ACCESS_LOG: /dev/null
       KONG_ADMIN_ACCESS_LOG: /dev/null
@@ -260,9 +210,6 @@ services:
       - "8443:8443"
       - "8001:8001"
       - "8444:8444"
-    depends_on:
-      kong-migration:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8001/status || exit 1"]
       interval: 30s
@@ -359,7 +306,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: sentinel
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
@@ -411,7 +358,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -454,7 +401,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -497,7 +444,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -548,7 +495,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -602,7 +549,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -648,7 +595,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -694,7 +641,7 @@ services:
       SPRING_PROFILES_ACTIVE: local
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sentinel_db
       SPRING_DATASOURCE_USERNAME: sentinel
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
@@ -889,7 +836,6 @@ volumes:
   postgres_data:
   mongodb_data:
   rabbitmq_data:
-  kong_db_data:
   konga_db_data:
   n8n_data:
   semgrep_results:

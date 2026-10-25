@@ -33,9 +33,6 @@ docker exec sentinel-mongodb mongodump \
 docker cp sentinel-mongodb:/tmp/mongodb_$DATE.archive $BACKUP_DIR/ 2>&1 | tee -a $LOG_FILE
 docker exec sentinel-mongodb rm /tmp/mongodb_$DATE.archive
 
-# Backup de Kong (configuración del gateway)
-echo "[$DATE] Backing up Kong..." | tee -a $LOG_FILE
-docker exec sentinel-kong-db pg_dump -U kong kong | gzip > $BACKUP_DIR/kong_$DATE.sql.gz 2>&1 | tee -a $LOG_FILE
 
 # Limpiar backups antiguos (mantener últimos 7 días)
 echo "[$DATE] Limpiando backups antiguos..." | tee -a $LOG_FILE

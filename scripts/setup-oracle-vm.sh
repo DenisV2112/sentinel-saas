@@ -58,7 +58,7 @@ if [ ! -f .env.production ]; then
   echo "      nano $DEPLOY_PATH/.env.production"
   echo ""
   echo "   Required: DB_PASSWORD, MONGO_PASSWORD, RABBITMQ_PASSWORD,"
-  echo "             KONG_DB_PASSWORD, JWT_SECRET, MERCADOPAGO_ACCESS_TOKEN,"
+  echo "             JWT_SECRET, MERCADOPAGO_ACCESS_TOKEN,"
   echo "             MERCADOPAGO_PUBLIC_KEY, MAIL_PASSWORD, GOOGLE_CLIENT_SECRET"
   echo ""
   echo "   Generate secure passwords:"
