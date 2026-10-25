@@ -21,7 +21,7 @@ const skeletonItemStyle = {
 
 function RiskListSkeleton() {
   return (
-    <section className="card" style={cardStyle}>
+    <section className="card" style={cardStyle} role="status" aria-busy="true" aria-label="Loading">
       <h3 style={{ display: "flex", gap: 8, color: "var(--color-text-primary)" }}>
         <Flame size={18} />
         Top Risk Projects

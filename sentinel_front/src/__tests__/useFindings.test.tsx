@@ -128,7 +128,7 @@ describe('useFindings', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.error).toBeTruthy();
-    expect((result.current.error as Error).message).toBe('Failed to load scans');
+    expect((result.current.error as Error).message).toContain('500');
   });
 
   it('filters out non-completed scans', async () => {
@@ -225,5 +225,19 @@ describe('useFindings', () => {
     await waitFor(() => {
       expect(result.current.scans).toHaveLength(2);
     });
+  });
+
+  it('sends shared auth headers and no "Bearer null" without a token', async () => {
+    localStorage.removeItem('accessToken');
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ content: [] }) });
+
+    const { result } = renderHook(() => useFindings(), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const headers = mockFetch.mock.calls[0][1].headers;
+    expect(headers['X-Tenant-Id']).toBe('tenant-1');
+    expect(headers.Authorization).toBeUndefined();
+    expect(Object.values(headers)).not.toContain('Bearer null');
   });
 });

@@ -42,8 +42,8 @@ function setLoggedInState() {
   localStorage.setItem('refreshToken', 'mock-refresh-token');
   localStorage.setItem('userId', 'user-1');
   localStorage.setItem('tenantId', 'tenant-1');
+  localStorage.setItem('user', JSON.stringify({ name: 'Test User' }));
   sessionStorage.setItem('user', JSON.stringify({ name: 'Test User' }));
-  sessionStorage.setItem('token', 'session-token');
 }
 
 describe('Sidebar accessibility', () => {
@@ -91,14 +91,21 @@ describe('Sidebar logout', () => {
     expect(localStorage.getItem('tenantId')).toBeNull();
   });
 
-  it('clears sessionStorage on logout', () => {
+  it('clears the stored user from both storages on logout', () => {
     setLoggedInState();
     render(<Sidebar activeItem="dashboard" />);
 
     fireEvent.click(screen.getByTitle('Cerrar sesión'));
 
     expect(sessionStorage.getItem('user')).toBeNull();
-    expect(sessionStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('shows the user stored only in localStorage', () => {
+    localStorage.setItem('user', JSON.stringify({ name: 'Local User' }));
+    render(<Sidebar activeItem="dashboard" />);
+
+    expect(screen.getByText('Local User')).toBeInTheDocument();
   });
 
   it('redirects to /auth after logout', () => {

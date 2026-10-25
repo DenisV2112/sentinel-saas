@@ -18,6 +18,7 @@ import LimitReachedModal from "@/ui/components/LimitReachedModal";
 import { motion } from "framer-motion";
 import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
 import { PLAN_LIMITS } from "@/constants/planLimits";
+import { getStoredUser } from "@/api/fetch-helpers";
 
 export default function WorkspacesPage() {
     const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function WorkspacesPage() {
     const [createError, setCreateError] = useState<string | null>(null);
 
     // Retrieve user from session or local storage for fallback plan check
-    const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
+    const user = getStoredUser();
     const currentPlan = (subscription?.planId || user?.plan || "FREE").toUpperCase();
     const planLimits = PLAN_LIMITS[currentPlan] || PLAN_LIMITS.FREE;
     const currentWorkspaceCount = workspaces?.length || 0;
@@ -134,9 +135,9 @@ export default function WorkspacesPage() {
 
                     {/* Error State */}
                     {error && (
-                        <div style={{ color: 'var(--color-danger)', padding: 20, textAlign: "center" }}>
-                            Error loading workspaces: {error}
-                            <button onClick={refetch} style={{ marginLeft: 10, color: 'var(--color-primary)' }}>
+                        <div role="alert" style={{ color: 'var(--color-danger)', padding: 20, textAlign: "center" }}>
+                            Error loading workspaces: {error.message}
+                            <button type="button" onClick={() => refetch()} style={{ marginLeft: 10, color: 'var(--color-primary)' }}>
                                 Retry
                             </button>
                         </div>

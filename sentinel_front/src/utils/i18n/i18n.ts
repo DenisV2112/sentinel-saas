@@ -15,4 +15,10 @@ i18n
     interpolation: { escapeValue: false },
   });
 
+// Keep <html lang> in sync so screen readers use the right pronunciation
+document.documentElement.lang = i18n.language || 'es';
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng;
+});
+
 export default i18n;

@@ -5,6 +5,7 @@ import { useTheme } from "@/utils/store/themeContext";
 import Sidebar from "@/components/commons/Sidebar";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
+import { DetailSkeleton } from "@/components/commons/skeletons/DetailSkeleton";
 
 /* ─── Types ───────────────────────────────────────────── */
 
@@ -52,8 +53,8 @@ export default function ScanDetailPage() {
       <div className="scans-layout">
         <Sidebar activeItem="scans" />
         <main className="scans-main" style={{ background: 'var(--color-surface)' }}>
-          <div style={{ padding: 40, textAlign: "center" }} className="text-secondary">
-            Loading scan details...
+          <div style={{ padding: 40 }}>
+            <DetailSkeleton />
           </div>
         </main>
       </div>

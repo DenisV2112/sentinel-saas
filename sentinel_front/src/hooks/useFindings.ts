@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { UnifiedVulnerability } from "../types/scanResults";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API, fetchJSON } from "../api/fetch-helpers";
 
 // ── Scan item (returned by the scans-only refactored hook) ──
 export interface ScanItem {
@@ -82,19 +81,10 @@ export function useFindings(): UseFindingsReturn {
   const query = useQuery({
     queryKey: findingsKeys.list(),
     queryFn: async (): Promise<ScanItem[]> => {
-      const token = localStorage.getItem("accessToken");
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-
       // Fetch scan list only — NO per-scan results
-      const scansRes = await fetch(
-        `${API}/api/bff/scans?size=50&sort=createdAt,desc`,
-        { headers }
+      const scansJson = await fetchJSON<any>(
+        `${API}/api/bff/scans?size=50&sort=createdAt,desc`
       );
-      if (!scansRes.ok) throw new Error("Failed to load scans");
-      const scansJson = await scansRes.json();
       const allScans = scansJson.content ?? scansJson.items ?? scansJson ?? [];
 
       // Filter to completed scans

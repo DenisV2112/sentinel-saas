@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useTheme } from "../../utils/store/themeContext";
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
@@ -12,6 +12,7 @@ export const Navbar = () => {
 
   const { i18n, t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   /* 🔥 Forzar tema según la ruta */
   useEffect(() => {
@@ -42,9 +43,12 @@ export const Navbar = () => {
       <div
         style={{ fontSize: "24px", fontWeight: "bold", letterSpacing: "2px" }}
       >
-        <Logo style={{ width: 24, height: 24,}} />
-        EN
-        <span style={{ color: 'var(--color-primary)' }}>TIN</span>EL
+        <Logo aria-hidden="true" style={{ width: 24, height: 24,}} />
+        <span aria-hidden="true">
+          EN
+          <span style={{ color: 'var(--color-primary)' }}>TIN</span>EL
+        </span>
+        <span className="sr-only">Sentinel</span>
       </div>
 
       <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
@@ -95,17 +99,16 @@ export const Navbar = () => {
           onClick={toggleLanguage}
           color={'var(--color-primary)'}
           size={18}
-          ariaLabel={`Current language: ${
-            i18n.language === "es" ? "Spanish" : "English"
-          }`}
+          ariaLabel={i18n.language === "es" ? "Switch to English" : "Cambiar a español"}
         />
     
         <Button
-          text="Sing In /"
+          text="Sign In /"
           icon="Up"
           iconPosition="right"
           variant="primary"
           pill={true}
+          onClick={() => navigate("/auth")}
         />
       </div>
     </nav>

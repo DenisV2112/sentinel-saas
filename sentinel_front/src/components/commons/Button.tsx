@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   iconPosition = 'right',
   pill = false,
 }) => {
-  const { theme, mode } = useTheme();
+  const { theme } = useTheme();
 
   const getColorByVariant = (variant: string): string => {
     const colorMap: Record<string, string> = {
@@ -54,10 +54,10 @@ export const Button: React.FC<ButtonProps> = ({
   const color = getColorByVariant(variant);
   const sizeStyles = getSizeStyles(size);
 
-  // Use variant color for button background, theme-aware text/icon colors
+  // Variant color for background; on-primary text/icon circle keeps contrast in both modes
   const buttonColor = color;
-  const iconCircleColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary)';
-  const textColor = mode === 'dark' ? theme.colors.primary : 'var(--color-text-primary)';
+  const iconCircleColor = 'var(--color-on-primary)';
+  const textColor = 'var(--color-on-primary)';
 
   const baseStyles: React.CSSProperties = {
     display: 'inline-flex',

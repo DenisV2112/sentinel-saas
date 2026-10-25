@@ -5,6 +5,8 @@ import { Plus, Box, Loader2 } from "lucide-react";
 import LimitReachedModal from "@/ui/components/LimitReachedModal";
 import toast from "react-hot-toast";
 import { PLAN_LIMITS } from "@/constants/planLimits";
+import { getStoredUser } from "@/api/fetch-helpers";
+import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
 
 export function ProjectsList({ workspaceId }: { workspaceId: string }) {
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
     const [formError, setFormError] = useState<string | null>(null);
 
     // Get user plan from session/localStorage
-    const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
+    const user = getStoredUser();
     const currentPlan = (user?.plan || "FREE").toUpperCase();
     const planLimits = PLAN_LIMITS[currentPlan] || PLAN_LIMITS.FREE;
     const currentProjectCount = projects?.length || 0;
@@ -56,7 +58,11 @@ export function ProjectsList({ workspaceId }: { workspaceId: string }) {
         setIsCreateModalOpen(true);
     };
 
-    if (loading && projects.length === 0) return <div style={{ padding: 20 }}>Loading projects...</div>;
+    if (loading && projects.length === 0) return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+            <CardSkeleton count={3} />
+        </div>
+    );
     if (error) return <div style={{ color: 'var(--color-danger)' }}>Error: {error}</div>;
 
     return (

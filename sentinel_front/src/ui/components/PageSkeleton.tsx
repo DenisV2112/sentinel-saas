@@ -3,7 +3,7 @@ import React from "react";
 /** Full-page skeleton shown during lazy route loading */
 export default React.memo(function PageSkeleton() {
   return (
-    <div className="app" style={{ minHeight: "100vh", padding: "2rem" }}>
+    <div className="app" style={{ minHeight: "100vh", padding: "2rem" }} role="status" aria-busy="true" aria-label="Loading">
       {/* Header skeleton */}
       <div
         className="skeleton-block"

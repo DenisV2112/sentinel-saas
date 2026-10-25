@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'framer-motion'
 import App from './App.tsx'
 import ToastProvider from './components/commons/ToastProvider'
 import ErrorBoundary from './components/commons/ErrorBoundary'
@@ -26,8 +27,10 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider />
-        <App />
+        <MotionConfig reducedMotion="user">
+          <ToastProvider />
+          <App />
+        </MotionConfig>
       </QueryClientProvider>
     </ErrorBoundary>
   </React.StrictMode>,

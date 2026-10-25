@@ -6,7 +6,7 @@ export interface CardSkeletonProps {
 }
 
 export const CardSkeleton = ({ count = 1 }: CardSkeletonProps) => (
-  <>
+  <div role="status" aria-busy="true" aria-label="Loading" style={{ display: "contents" }}>
     {Array.from({ length: count }).map((_, i) => (
       <div
         key={i}
@@ -54,5 +54,5 @@ export const CardSkeleton = ({ count = 1 }: CardSkeletonProps) => (
         />
       </div>
     ))}
-  </>
+  </div>
 );

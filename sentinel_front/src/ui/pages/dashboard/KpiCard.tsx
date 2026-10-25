@@ -21,6 +21,9 @@ export function KpiCard({
     return (
       <div
         className="kpi"
+        role="status"
+        aria-busy="true"
+        aria-label="Loading"
         style={{
           background: "var(--color-surface)",
           borderColor: "var(--color-border)",

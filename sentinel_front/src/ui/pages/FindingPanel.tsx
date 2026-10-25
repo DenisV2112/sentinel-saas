@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
+import { StateWrapper } from "@components/StateWrapper";
 
 /* ─── Severity value mapping: UnifiedVulnerability (UPPER) → Finding (Pascal) ─── */
 const SEVERITY_MAP: Record<string, Finding["severity"]> = {
@@ -140,17 +141,10 @@ export default function FindingsPage() {
   const {
     data: expandedFindings,
     isLoading: findingsLoading,
+    isError: findingsError,
+    refetch: refetchFindings,
   } = useFindingsByScan(expandedScanId, expandedScanId !== null);
-
-  // VERIFICACIÓN DE SEGURIDAD: Si theme no está disponible, mostrar error visible.
-  if (!theme || !theme.colors) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--color-background)', color: 'var(--color-text-primary)' }}>
-        <h1>Theme Unavailable</h1>
-        <p>Please check your ThemeProvider setup.</p>
-      </div>
-    );
-  }
+  const findingsReady = !findingsLoading && !findingsError;
 
   /* ─── Map expanded findings ─── */
   const allFindings: Finding[] = (expandedFindings ?? []).map(mapToFinding);
@@ -330,8 +324,19 @@ export default function FindingsPage() {
               {/* Findings loading */}
               {findingsLoading && <TableSkeleton columns={6} rows={4} />}
 
+              <StateWrapper
+                isLoading={false}
+                isError={findingsError}
+                isEmpty={false}
+                skeleton={null}
+                errorMessage="Failed to load findings for this scan"
+                onRetry={() => refetchFindings()}
+              >
+                {null}
+              </StateWrapper>
+
               {/* Statistics Row */}
-              {!findingsLoading && (
+              {findingsReady && (
                 <div className="stats-grid kpis">
                   {stats.map((stat, index) => (
                     <StatCard key={index} {...stat} theme={theme} />
@@ -340,7 +345,7 @@ export default function FindingsPage() {
               )}
 
               {/* Filters & Actions Toolbar */}
-              {!findingsLoading && (
+              {findingsReady && (
                 <div className="toolbar" style={{ marginTop: '0.5rem' }}>
                   <div className="filters-group">
                     <div style={{ position: "relative" }}>
@@ -425,7 +430,7 @@ export default function FindingsPage() {
               )}
 
               {/* Findings Data Table */}
-              {!findingsLoading && (
+              {findingsReady && (
                 <div
                   className="card"
                   style={{

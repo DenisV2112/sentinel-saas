@@ -172,4 +172,18 @@ describe('useFindingsByScan', () => {
 
     expect(result.current.data).toHaveLength(0);
   });
+
+  it('sends shared auth headers and no "Bearer null" without a token', async () => {
+    localStorage.removeItem('accessToken');
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ content: [] }) });
+
+    const { result } = renderHook(() => useFindingsByScan('scan-1', true), { wrapper: createWrapper() });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    const headers = mockFetch.mock.calls[0][1].headers;
+    expect(headers['X-Tenant-Id']).toBe('tenant-1');
+    expect(headers.Authorization).toBeUndefined();
+    expect(Object.values(headers)).not.toContain('Bearer null');
+  });
 });

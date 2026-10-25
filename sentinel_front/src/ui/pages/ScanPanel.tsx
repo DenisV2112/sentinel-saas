@@ -350,6 +350,7 @@ export default function ScansPage() {
 
         {combinedError && !isLoading && (
           <div
+            role="alert"
             style={{
               margin: 20,
               padding: "12px 20px",
@@ -359,7 +360,7 @@ export default function ScansPage() {
               fontSize: 14,
             }}
           >
-            {combinedError}
+            {combinedError instanceof Error ? combinedError.message : String(combinedError)}
           </div>
         )}
 

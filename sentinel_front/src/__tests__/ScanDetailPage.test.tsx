@@ -78,7 +78,7 @@ describe('ScanDetailPage — loading state', () => {
     renderWithQuery(<ScanDetailPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/loading/i)).toBeInTheDocument();
+      expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
     });
   });
 });

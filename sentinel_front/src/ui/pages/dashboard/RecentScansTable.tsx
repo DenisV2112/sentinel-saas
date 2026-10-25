@@ -23,7 +23,7 @@ export function RecentScansTable({
       isError={isError}
       isEmpty={!isLoading && !isError && scans.length === 0}
       skeleton={
-        <section className="card" style={cardStyle}>
+        <section className="card" style={cardStyle} role="status" aria-busy="true" aria-label="Loading">
           <div style={{ marginBottom: 16 }}>
             <h3 style={{ display: "flex", gap: 8, color: "var(--color-text-primary)" }}>
               <Clock size={18} />

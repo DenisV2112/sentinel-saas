@@ -12,13 +12,15 @@ import { usePlans, useSubscription, usePaymentHistory, useUpgradePlan } from "@h
 import { motion } from "framer-motion";
 import { CardSkeleton } from "@/components/commons/skeletons/CardSkeleton";
 import { TableSkeleton } from "@/components/commons/skeletons/TableSkeleton";
+import { getStoredUser } from "@/api/fetch-helpers";
+import { StateWrapper } from "@components/StateWrapper";
 // MercadoPago SDK not needed - we use redirect-based Checkout Pro
 // import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 // initMercadoPago('...', { locale: 'es-AR' });
 
 export default function BillingPage() {
     const { theme } = useTheme();
-    const { data: plans, isLoading: plansLoading } = usePlans();
+    const { data: plans, isLoading: plansLoading, isError: plansError, refetch: refetchPlans } = usePlans();
     const { data: subscription, isLoading: subLoading, refetch: refetchSubscription } = useSubscription();
     const { data: payments, isLoading: paymentsLoading } = usePaymentHistory();
     const { upgradeToPlan, isLoading: upgradeLoading } = useUpgradePlan();
@@ -27,7 +29,7 @@ export default function BillingPage() {
     const [initPoint, setInitPoint] = useState<string | null>(null);
 
     // Get user from session or local storage for fallback
-    const user = JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "{}");
+    const user = getStoredUser();
     const displayPlan = subscription?.planName || user?.plan || "Free";
     const formatPlan = (p: string) => p === "PRO" ? "Professional" : p;
 
@@ -84,6 +86,18 @@ export default function BillingPage() {
                             </div>
                         </>
                     )}
+
+                    {/* Plans error (subscription/payments hooks already fall back to empty) */}
+                    <StateWrapper
+                        isLoading={false}
+                        isError={!loading && plansError}
+                        isEmpty={false}
+                        skeleton={null}
+                        errorMessage="Failed to load plans"
+                        onRetry={() => refetchPlans()}
+                    >
+                        {null}
+                    </StateWrapper>
 
                     {!loading && (
                         <>

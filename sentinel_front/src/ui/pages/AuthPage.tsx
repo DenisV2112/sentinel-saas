@@ -145,6 +145,7 @@ export default function AuthPage() {
         {/* Error display */}
         {error && (
           <div
+            role="alert"
             style={{
               position: "absolute",
               top: "10px",
@@ -162,14 +163,17 @@ export default function AuthPage() {
         )}
 
         {/* LOGIN */}
-        <div className="form-box login">
+        <div className="form-box login" inert={active}>
           <form onSubmit={handleLogin}>
             <h1>Login</h1>
 
             <div className="input-box">
+              <label htmlFor="login-identifier" className="sr-only">Email or Username</label>
               <input
+                id="login-identifier"
                 type="text"
                 placeholder="Email or Username"
+                autoComplete="username"
                 required
                 value={loginData.email}
                 onChange={(e) =>
@@ -180,9 +184,12 @@ export default function AuthPage() {
             </div>
 
             <div className="input-box">
+              <label htmlFor="login-password" className="sr-only">Password</label>
               <input
+                id="login-password"
                 type="password"
                 placeholder="Password"
+                autoComplete="current-password"
                 required
                 value={loginData.password}
                 onChange={(e) =>
@@ -203,7 +210,8 @@ export default function AuthPage() {
             <p>or login with social platforms</p>
             <div className="social-icons" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', width: '100%' }}>
               <button
-                onClick={(e) => { e.preventDefault(); handleGoogleLogin(); }}
+                type="button"
+                onClick={handleGoogleLogin}
                 className="google-btn"
                 style={{
                   display: 'flex',
@@ -239,14 +247,17 @@ export default function AuthPage() {
         </div>
 
         {/* REGISTER */}
-        <div className="form-box register">
+        <div className="form-box register" inert={!active}>
           <form onSubmit={handleRegister}>
             <h1>Registration</h1>
 
             <div className="input-box">
+              <label htmlFor="register-username" className="sr-only">Username</label>
               <input
+                id="register-username"
                 type="text"
                 placeholder="Username"
+                autoComplete="username"
                 required
                 value={registerData.username}
                 onChange={(e) =>
@@ -257,9 +268,12 @@ export default function AuthPage() {
             </div>
 
             <div className="input-box">
+              <label htmlFor="register-email" className="sr-only">Email</label>
               <input
+                id="register-email"
                 type="email"
                 placeholder="Email"
+                autoComplete="email"
                 required
                 value={registerData.email}
                 onChange={(e) =>
@@ -270,9 +284,12 @@ export default function AuthPage() {
             </div>
 
             <div className="input-box">
+              <label htmlFor="register-password" className="sr-only">Password</label>
               <input
+                id="register-password"
                 type="password"
                 placeholder="Password"
+                autoComplete="new-password"
                 required
                 value={registerData.password}
                 onChange={(e) =>
@@ -289,7 +306,8 @@ export default function AuthPage() {
             <p>or register with social platforms</p>
             <div className="social-icons" style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', width: '100%' }}>
               <button
-                onClick={(e) => { e.preventDefault(); handleGoogleLogin(); }}
+                type="button"
+                onClick={handleGoogleLogin}
                 className="google-btn"
                 style={{
                   display: 'flex',
@@ -326,7 +344,7 @@ export default function AuthPage() {
 
         {/* TOGGLE */}
         <div className="toggle-box">
-          <div className="toggle-panel toggle-left">
+          <div className="toggle-panel toggle-left" inert={active}>
             <h1>Welcome Back!</h1>
             <p>Don't have an account?</p>
 
@@ -339,7 +357,7 @@ export default function AuthPage() {
             </button>
           </div>
 
-          <div className="toggle-panel toggle-right">
+          <div className="toggle-panel toggle-right" inert={!active}>
             <h1>Hello, Welcome!</h1>
             <p>Already have an account?</p>
 

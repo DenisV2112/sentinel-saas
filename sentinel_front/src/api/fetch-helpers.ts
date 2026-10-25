@@ -25,4 +25,13 @@ export async function fetchJSON<T>(url: string, options?: RequestInit): Promise<
   return res.json();
 }
 
+/** Logged-in user saved at login: sessionStorage first, then localStorage; null if missing or invalid. */
+export function getStoredUser(): any | null {
+  try {
+    return JSON.parse(sessionStorage.getItem("user") || localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
 export { API };

@@ -11,6 +11,7 @@ import {
   LogOut,
   CreditCard,
 } from "lucide-react";
+import { getStoredUser } from "../../api/fetch-helpers";
 
 type SidebarProps = {
   activeItem?: string;
@@ -20,8 +21,7 @@ type SidebarProps = {
 export default function Sidebar({ activeItem = "dashboard", children }: SidebarProps) {
   const navigate = useNavigate();
 
-  // 👉 Usuario desde sessionStorage
-  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const user = getStoredUser();
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -37,8 +37,8 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userId');
     localStorage.removeItem('tenantId');
+    localStorage.removeItem('user');
     sessionStorage.removeItem('user');
-    sessionStorage.removeItem('token');
     navigate('/auth');
   };
 
@@ -86,7 +86,7 @@ export default function Sidebar({ activeItem = "dashboard", children }: SidebarP
               })}
             >
               <Icon size={18} />
-              {label}
+              <span className="nav-label">{label}</span>
             </NavLink>
           ))}
         </nav>

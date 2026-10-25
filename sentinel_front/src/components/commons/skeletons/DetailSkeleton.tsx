@@ -7,6 +7,9 @@ export interface DetailSkeletonProps {
 
 export const DetailSkeleton = ({ rows = 6 }: DetailSkeletonProps) => (
   <div
+    role="status"
+    aria-busy="true"
+    aria-label="Loading"
     style={{
       borderRadius: "12px",
       background: "var(--color-surface)",

@@ -14,14 +14,19 @@ import type { RecentScan, VulnerabilityTrend } from "@hooks/useDashboard";
 import DashboardContainer from "../DashboardContainer";
 
 /* ── Mock hooks used by DashboardContainer ── */
+const defaultSummary = {
+  data: { exposedPorts: 12, criticalFindingsOpen: 3, qualityGatePassRate: 85, projectsMonitored: 7 },
+  isLoading: false,
+  isError: false,
+  refetch: jest.fn(),
+};
+const mockUseDashboardSummary = jest.fn(() => defaultSummary);
+
 jest.mock("@hooks/useDashboard", () => {
   const actual = jest.requireActual("@hooks/useDashboard");
   return {
     ...actual,
-    useDashboardSummary: () => ({
-      data: { exposedPorts: 12, criticalFindingsOpen: 3, qualityGatePassRate: 85, projectsMonitored: 7 },
-      isLoading: false,
-    }),
+    useDashboardSummary: () => mockUseDashboardSummary(),
     useActiveScans: () => ({
       data: [],
       isLoading: false,
@@ -291,5 +296,28 @@ describe("Dashboard grid structure supports responsive breakpoints", () => {
     expect(screen.getByText("3")).toBeInTheDocument();    // criticalFindingsOpen
     expect(screen.getByText("85%")).toBeInTheDocument();  // qualityGatePassRate
     expect(screen.getByText("7")).toBeInTheDocument();    // projectsMonitored
+  });
+});
+
+describe("Dashboard KPI summary error state", () => {
+  afterEach(() => mockUseDashboardSummary.mockImplementation(() => defaultSummary));
+
+  it("shows an alert with retry instead of zero-valued KPIs when the summary fails", () => {
+    const refetch = jest.fn();
+    mockUseDashboardSummary.mockImplementation(() => ({
+      data: undefined as any,
+      isLoading: false,
+      isError: true,
+      refetch,
+    }));
+
+    render(<DashboardContainer />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Failed to load dashboard summary");
+    expect(screen.queryByText("Exposed Ports")).not.toBeInTheDocument();
+    expect(screen.queryByText("0%")).not.toBeInTheDocument();
+
+    screen.getByRole("button", { name: /retry/i }).click();
+    expect(refetch).toHaveBeenCalled();
   });
 });

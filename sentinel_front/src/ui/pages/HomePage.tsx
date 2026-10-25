@@ -1,15 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Crosshair } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Sentinel from '@/components/commons/Sentinel';
-
+import Footer from '@/components/commons/Footer';
 import { Navbar } from '@/components/commons/Navbar';
 
 
 export default function HomePage() {
 
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
 
 
@@ -58,7 +60,7 @@ export default function HomePage() {
             {t('hero.description')}
           </p>
 
-          <button style={{
+          <button onClick={() => navigate('/auth')} style={{
             backgroundColor: 'var(--color-primary)',
             color: 'var(--color-on-primary)',
             border: 'none',
@@ -99,7 +101,7 @@ export default function HomePage() {
             maxWidth: '1400px',
             margin: '0 auto'
           }}>
-            <h3 style={{
+            <h2 style={{
               fontSize: '48px',
               fontWeight: 'bold',
               textAlign: 'center',
@@ -108,7 +110,7 @@ export default function HomePage() {
               {t('services.title.part1')} <span style={{ color: 'var(--color-primary)' }}>{t('services.title.highlight')}</span>
               <br />
               <span style={{ color: 'var(--color-primary)' }}>{t('services.title.part2')}</span> {t('services.title.part3')}
-            </h3>
+            </h2>
 
           </div>
         </div>
@@ -122,7 +124,7 @@ export default function HomePage() {
           <Sentinel />
 
           {/* Título */}
-          <h3 style={{
+          <h2 style={{
             fontSize: '56px',
             fontWeight: 'bold',
             lineHeight: '1.2',
@@ -132,7 +134,7 @@ export default function HomePage() {
             <span style={{ color: 'var(--color-primary)' }}>{t('services.title.highlight')}</span>
             <br />
             <span style={{ color: 'var(--color-text-primary)' }}>{t('services.title.part2')}</span>
-          </h3>
+          </h2>
 
           {/* Grid de servicios */}
           <div
@@ -164,7 +166,6 @@ export default function HomePage() {
                   color: 'var(--color-secondary-dark)',
                   textAlign: 'center',
                   transition: 'all 0.3s ease',
-                  cursor: 'pointer',
                   border: '2px solid var(--color-border)',
                   minHeight: '220px',
                   display: 'flex',
@@ -260,6 +261,8 @@ export default function HomePage() {
 
 
       </motion.div>
+
+      <Footer />
 
     </>
   );

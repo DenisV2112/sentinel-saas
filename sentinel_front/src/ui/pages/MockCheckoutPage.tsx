@@ -5,6 +5,7 @@ import { useTheme } from '@/utils/store/themeContext';
 import { CreditCard, CheckCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { API, getAuthHeaders } from '@/api/fetch-helpers';
 
 export default function MockCheckoutPage() {
     const { theme } = useTheme();
@@ -29,19 +30,15 @@ export default function MockCheckoutPage() {
         setProcessing(true);
 
         try {
-            const token = localStorage.getItem('accessToken');
             const paymentId = 'test_' + Date.now();
 
             // Call the BFF webhook test endpoint to simulate MP payment approval
             // This proxies to billing-service which updates user plan via RabbitMQ event
             const res = await fetch(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/subscriptions/webhook/test?paymentId=${paymentId}&planId=${planId.toUpperCase()}&userId=${userId}`,
+                `${API}/api/subscriptions/webhook/test?paymentId=${paymentId}&planId=${planId.toUpperCase()}&userId=${userId}`,
                 {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                 }
             );
 

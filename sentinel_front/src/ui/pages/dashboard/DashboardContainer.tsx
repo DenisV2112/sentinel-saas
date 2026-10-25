@@ -13,6 +13,7 @@ import {
   useRecentScans,
   useTopRiskProjects,
 } from "@hooks/useDashboard";
+import { StateWrapper } from "@components/StateWrapper";
 import { DashboardHeader } from "./DashboardHeader";
 import { KpiCard } from "./KpiCard";
 import { VulnerabilityChart } from "./VulnerabilityChart";
@@ -26,6 +27,8 @@ export default function DashboardContainer() {
   const {
     data: summary,
     isLoading: summaryLoading,
+    isError: summaryError,
+    refetch: refetchSummary,
   } = useDashboardSummary();
   const {
     data: activeScans,
@@ -63,6 +66,14 @@ export default function DashboardContainer() {
         <main className="main">
           <DashboardHeader />
           <section className="content">
+            <StateWrapper
+              isLoading={false}
+              isError={summaryError}
+              isEmpty={false}
+              skeleton={null}
+              errorMessage="Failed to load dashboard summary"
+              onRetry={() => refetchSummary()}
+            >
             <div className="kpis">
               <KpiCard
                 title="Exposed Ports"
@@ -90,6 +101,7 @@ export default function DashboardContainer() {
                 isLoading={summaryLoading}
               />
             </div>
+            </StateWrapper>
 
             <div className="dashboard-grid">
               <div className="left">

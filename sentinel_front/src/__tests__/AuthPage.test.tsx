@@ -52,3 +52,47 @@ describe('AuthPage', () => {
     expect(screen.getByText('Registration')).toBeInTheDocument();
   });
 });
+
+describe('AuthPage accessibility', () => {
+  afterEach(() => window.history.pushState({}, '', '/'));
+
+  it('associates a label, autocomplete and required with every input', () => {
+    render(<AuthPage />);
+
+    const expected: [RegExp, string, number][] = [
+      [/email or username/i, 'username', 0],
+      [/^password$/i, 'current-password', 0],
+      [/^username$/i, 'username', 0],
+      [/^email$/i, 'email', 0],
+      [/^password$/i, 'new-password', 1],
+    ];
+
+    for (const [label, autoComplete, index] of expected) {
+      const input = screen.getAllByLabelText(label)[index];
+      expect(input).toHaveAttribute('autocomplete', autoComplete);
+      expect(input).toBeRequired();
+    }
+  });
+
+  it('announces errors with role="alert"', () => {
+    window.history.pushState({}, '', '/auth?error=denied');
+    render(<AuthPage />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/social login failed: denied/i);
+  });
+
+  it('makes the off-screen register form inert while login is shown', () => {
+    render(<AuthPage />);
+
+    expect(screen.getByLabelText(/^username$/i).closest('[inert]')).not.toBeNull();
+    expect(screen.getByLabelText(/email or username/i).closest('[inert]')).toBeNull();
+  });
+
+  it('uses type="button" for Google buttons inside forms', () => {
+    render(<AuthPage />);
+
+    for (const btn of screen.getAllByRole('button', { name: /continue with google/i })) {
+      expect(btn).toHaveAttribute('type', 'button');
+    }
+  });
+});

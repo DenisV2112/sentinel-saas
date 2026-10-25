@@ -376,3 +376,20 @@ describe('ScanPanel — auto-refetch after scan creation', () => {
     expect(mockStartScan).not.toHaveBeenCalled();
   });
 });
+
+// ══════════════════════════════════════════════════════════════
+// SCENARIO: Query error renders its message instead of crashing
+// ══════════════════════════════════════════════════════════════
+describe('ScanPanel — error state', () => {
+  it('renders the Error message in an alert', () => {
+    mockUseActiveScans.mockReturnValue({
+      data: [],
+      loading: false,
+      error: new Error('Network down') as any,
+    });
+
+    renderPage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Network down');
+  });
+});

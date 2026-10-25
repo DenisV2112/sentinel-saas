@@ -7,6 +7,8 @@ import { useTheme } from '@/utils/store/themeContext';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { DetailSkeleton } from '@/components/commons/skeletons/DetailSkeleton';
+import { TableSkeleton } from '@/components/commons/skeletons/TableSkeleton';
+import { StateWrapper } from '@components/StateWrapper';
 
 export const ProjectDetailPage = () => {
     const { projectId } = useParams<{ projectId: string }>();
@@ -15,7 +17,7 @@ export const ProjectDetailPage = () => {
     const currentTenantId = localStorage.getItem('tenantId');
 
     const { projects, isLoading: projectsLoading, projectsMap, updateProject, deleteProject, error, refetch } = useProjects(currentTenantId || '');
-    const { scans, isLoading: scansLoading, startScan, refetch: refetchScans } = useScans(currentTenantId);
+    const { scans, isLoading: scansLoading, error: scansError, startScan, refetch: refetchScans } = useScans(currentTenantId);
 
     const [activeTab, setActiveTab] = useState<'overview' | 'scans' | 'domains' | 'repos'>('overview');
     const [project, setProject] = useState<any>(null);
@@ -397,15 +399,17 @@ export const ProjectDetailPage = () => {
 
                             {activeTab === 'scans' && (
                                 <div>
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-xl font-semibold">Security Scans</h2>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                                        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Security Scans</h2>
                                         <button
                                             onClick={() => setShowScanModal(true)}
                                             disabled={startingScan}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                             style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 8,
                                                 background: 'var(--color-primary)',
-                                                color: 'white',
+                                                color: 'var(--color-on-primary)',
                                                 padding: '8px 16px',
                                                 borderRadius: 8,
                                                 border: 'none',
@@ -535,7 +539,18 @@ export const ProjectDetailPage = () => {
                                     )}
 
                                     {scansLoading ? (
-                                        <p className="text-secondary">Loading scans...</p>
+                                        <TableSkeleton columns={4} rows={3} />
+                                    ) : scansError ? (
+                                        <StateWrapper
+                                            isLoading={false}
+                                            isError
+                                            isEmpty={false}
+                                            skeleton={null}
+                                            errorMessage={`Failed to load scans: ${scansError}`}
+                                            onRetry={() => refetchScans()}
+                                        >
+                                            {null}
+                                        </StateWrapper>
                                     ) : projectScans.length === 0 ? (
                                         <p className="text-secondary">No scans yet. Start your first scan!</p>
                                     ) : (

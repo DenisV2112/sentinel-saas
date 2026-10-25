@@ -8,6 +8,9 @@ export interface TableSkeletonProps {
 
 export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => (
   <div
+    role="status"
+    aria-busy="true"
+    aria-label="Loading"
     style={{
       borderRadius: "12px",
       background: "var(--color-surface)",
@@ -32,7 +35,7 @@ export const TableSkeleton = ({ columns = 6, rows = 4 }: TableSkeletonProps) => 
           style={{
             height: "14px",
             borderRadius: "4px",
-            background: "var(--color-surface-light)",
+            background: "var(--color-border)",
           }}
           animate={pulse}
         />
