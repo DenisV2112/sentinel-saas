@@ -7,7 +7,7 @@ version: '3.8'
 # Differences from local:
 #   - restart: always
 #   - All credentials via env vars (${VAR}), never hardcoded
-#   - No exposed infra ports (Postgres, Mongo, RabbitMQ internal only)
+#   - Only Caddy is public (80/443, auto HTTPS); Kong, frontend and infra are internal
 #   - SPRING_PROFILES_ACTIVE=prod, ASPNETCORE_ENVIRONMENT=Production
 #   - Real SMTP config instead of MailHog
 #   - No MailHog, no Konga, no konga-db (dev tools only)
@@ -172,62 +172,13 @@ services:
   # KONG API GATEWAY
   # ===========================================================================
 
-  kong-db:
-    image: postgres:15-alpine
-    container_name: sentinel-kong-db
-    restart: always
-    environment:
-      POSTGRES_USER: kong
-      POSTGRES_PASSWORD: ${KONG_DB_PASSWORD}
-      POSTGRES_DB: kong
-    volumes:
-      - kong_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kong"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    logging: *infra-logging
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-    networks:
-      - sentinel-network
-
-  kong-migration:
-    image: kong:3.4-alpine
-    container_name: sentinel-kong-migration
-    restart: on-failure
-    command: kong migrations bootstrap
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-db
-      KONG_PG_USER: kong
-      KONG_PG_PASSWORD: ${KONG_DB_PASSWORD}
-    depends_on:
-      kong-db:
-        condition: service_healthy
-    logging: *infra-logging
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-    networks:
-      - sentinel-network
-
   kong:
-    image: kong:3.4-alpine
+    image: kong:3.4
     container_name: sentinel-kong
     restart: always
     environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-db
-      KONG_PG_USER: kong
-      KONG_PG_PASSWORD: ${KONG_DB_PASSWORD}
+      # DB-less: routes come from kong.yml on every start (DB mode ignores it)
+      KONG_DATABASE: "off"
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
@@ -237,16 +188,9 @@ services:
       KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
     volumes:
       - ./API-Gateway/kong.yml:/etc/kong/kong.yml:ro
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-    depends_on:
-      kong-db:
-        condition: service_healthy
-      kong-migration:
-        condition: service_completed_successfully
+    # No published ports: Caddy is the only public entrypoint (admin API stays internal)
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8001/status || exit 1"]
+      test: ["CMD", "kong", "health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -324,6 +268,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      APP_URL: ${APP_URL}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -364,6 +310,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -404,6 +351,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      INVITATION_BASE_URL: ${APP_URL}/invitations/accept
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -450,6 +399,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -463,13 +413,8 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/sentinel_bff_cache?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
       # Service discovery URLs
-      SERVICES_AUTH_URL: http://auth-service:8081
+      # Only services.tenant.url is read via env; app.services.*-url defaults in application.properties are correct
       SERVICES_TENANT_URL: http://tenant-service:8082
-      SERVICES_PROJECT_URL: http://project-service:8083
-      SERVICES_USER_MGMT_URL: http://user-management-service:8083
-      SERVICES_BILLING_URL: http://billing-service:8084
-      SERVICES_ORCHESTRATOR_URL: http://scaner-orchestrator-service:8086
-      SERVICES_RESULTS_AGGREGATOR_URL: http://results-aggregator-service:8087
       JavaBFF__WebhookUrl: http://backend-for-frontend-service:8080/api/bff/scans/webhook
     depends_on:
       postgres:
@@ -502,6 +447,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -547,6 +493,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -590,6 +537,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m -XX:+UseG1GC"
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_CONNECTTIMEOUT: "30000"
       SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_DEFAULT_READTIMEOUT: "60000"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -745,8 +693,6 @@ services:
         VITE_MERCADOPAGO_PUBLIC_KEY: ${MERCADOPAGO_PUBLIC_KEY}
     container_name: sentinel-front
     restart: always
-    ports:
-      - "3001:80"
     depends_on:
       kong:
         condition: service_healthy
@@ -765,6 +711,39 @@ services:
     networks:
       - sentinel-network
 
+  # ===========================================================================
+  # PUBLIC ENTRYPOINT — HTTPS reverse proxy (automatic Let's Encrypt certs)
+  # ===========================================================================
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: sentinel-caddy
+    restart: always
+    environment:
+      FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:-sentinel.crudzaso.com}
+      API_DOMAIN: ${API_DOMAIN:-service.sentinel.crudzaso.com}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      sentinel-front:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+    logging: *infra-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sentinel-network
+
 # =============================================================================
 # VOLUMES & NETWORKS
 # =============================================================================
@@ -773,10 +752,11 @@ volumes:
   postgres_data:
   mongodb_data:
   rabbitmq_data:
-  kong_db_data:
   n8n_data:
   semgrep_results:
   vuln_results:
+  caddy_data:
+  caddy_config:
 
 networks:
   sentinel-network:

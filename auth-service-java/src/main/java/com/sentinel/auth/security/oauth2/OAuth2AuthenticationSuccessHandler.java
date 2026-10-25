@@ -50,6 +50,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private long refreshTokenExpiration;
     @Value("${jwt.expiration:3600000}")
     private long jwtExpiration;
+    @Value("${app.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(
@@ -99,7 +101,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             // ✅ Para desarrollo local: enviar tokens en URL
             // En producción con HTTPS, usar cookies con Secure flag
             log.info("🔀 Redirecting to frontend callback with tokens in URL");
-            String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/auth")
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth")
                     .queryParam("token", accessToken)
                     .queryParam("refreshToken", refreshToken)
                     .build()
@@ -239,7 +241,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
      */
     private void redirectToError(HttpServletRequest request, HttpServletResponse response, String error)
             throws IOException {
-        String errorUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/auth")
+        String errorUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth")
                 .queryParam("error", "oauth2_" + error)
                 .build()
                 .toUriString();

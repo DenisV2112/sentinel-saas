@@ -28,6 +28,9 @@ public class UserManagementEventPublisher {
     @Value("${spring.rabbitmq.routing-key.invitation-accepted:user.invitation.accepted}")
     private String invitationAcceptedKey;
 
+    @Value("${invitation.base.url:http://localhost:3000/invitations/accept}")
+    private String invitationBaseUrl;
+
     /**
      * Publica: user.invited
      * Consumidor: notification-service (enviar email)
@@ -48,7 +51,7 @@ public class UserManagementEventPublisher {
             data.put("inviterEmail", invitation.getInviterEmail());
             data.put("role", invitation.getRole());
             data.put("invitationToken", invitation.getToken());
-            data.put("invitationUrl", "http://localhost:3000/invitations/accept?token=" + invitation.getToken());
+            data.put("invitationUrl", invitationBaseUrl + "?token=" + invitation.getToken());
             data.put("expiresAt", invitation.getExpiresAt().toString());
             
             event.put("data", data);

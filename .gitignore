@@ -33,3 +33,6 @@ Thumbs.db
 **/build_error_log.txt
 # Gentle AI
 .atl/
+
+# CodeGraph local index
+.codegraph/

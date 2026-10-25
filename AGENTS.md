@@ -94,16 +94,9 @@ Config file: `API-Gateway/kong.yml`. Kong CORS origins include `localhost:3000`,
 
 ## Critical Gotchas
 
-### Service discovery is WRONG in default `application.properties`
+### Service discovery and profiles
 
-The `local` profile has correct Docker container names. The default profile has **wrong** hostnames:
-
-| Service | Default (WRONG) | Local profile (CORRECT) |
-|---------|-----------------|-------------------------|
-| Tenant | `http://sentinel-tenant-service:8082` | `http://tenant-service:8082` |
-| User Mgmt | `http://sentinel-user-management:8085` | `http://user-management-service:8083` |
-
-Always run with `SPRING_PROFILES_ACTIVE=local` in Docker. The default properties reference wrong container names AND a wrong port for user-management.
+Default `application.properties` now use the correct Docker service names (`tenant-service:8082`, `user-management-service:8083`, ...). Production runs `SPRING_PROFILES_ACTIVE=prod` with no `application-prod.*` files, so it relies on those defaults plus env overrides. Frontend-facing URLs (`APP_URL`, `APP_CORS_ALLOWED_ORIGINS`, `INVITATION_BASE_URL`) must be set via env in prod — every Java service reads `APP_CORS_ALLOWED_ORIGINS`, otherwise Spring rejects browser requests forwarded by Kong.
 
 ### All Java services share one database
 
@@ -138,7 +131,7 @@ In `docker-compose.local.yml`, BFF defines both `APP_SERVICES_AUTH-URL` (kebab) 
 ### Other gotchas
 
 - **C# services**: All three listen on port `5001` internally. Docker maps 5001→5001, 5002→5001, 5003→5001. The `ASPNETCORE_URLS` env var is `http://+:5001`.
-- **Kong migration**: One-shot container (`kong migrations bootstrap`) must complete before Kong starts.
+- **Kong is DB-less** (`KONG_DATABASE: "off"`): routes load from `API-Gateway/kong.yml` on every start. Edit that file and restart Kong; Admin API is read-only.
 - **`ddl-auto=update`** in local Docker compose — schema is auto-created. In production, use `validate` or migrations.
 - **`docker-compose.yml.new`** at root — stale/draft file, ignore.
 - **`add_logging_limits.py`** and **`add-logging.ps1`** — one-off scripts, not part of workflow.
@@ -182,9 +175,10 @@ sentinel_front/src/
 ## CI/CD
 
 - **Trigger:** push to `main` or manual `workflow_dispatch`
-- **Deploys to VPS** at `/home/samuel/sentinel-deployment` via SSH
-- **Workflow:** `git reset --hard origin/main` → `docker-compose build --no-cache` → `up -d`
-- **Required secrets:** `VPS_HOST`, `VPS_USER`, `SSH_PRIVATE_KEY`
+- **Deploys to Oracle Cloud VM** (Ampere A1, Always Free = 2 OCPU / 12 GB) at `/home/$ORACLE_USER/sentinel-deployment` via SSH
+- **Workflow:** `git reset --hard origin/main` → `docker compose build --no-cache` → `up -d`. Uncommitted/unpushed changes are NOT deployed.
+- **Required secrets:** `ORACLE_HOST`, `ORACLE_USER`, `SSH_PRIVATE_KEY`
+- **Public entrypoint:** Caddy (`Caddyfile`) on 80/443 with automatic HTTPS → `sentinel-front` and `kong:8000`. Nothing else is published.
 - **Health check:** curls frontend and API after 30s wait
 - **Production URLs:** Frontend `https://sentinel.crudzaso.com`, API `https://service.sentinel.crudzaso.com`
 

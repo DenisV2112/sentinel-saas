@@ -1,0 +1,13 @@
+# Public entrypoint for production (docker-compose.prod.yml).
+# Caddy obtains and renews Let's Encrypt certificates automatically:
+# both domains must point (DNS A record) to the server and ports 80/443 must be open.
+
+{$FRONTEND_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy sentinel-front:80
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy kong:8000
+}

@@ -4,6 +4,7 @@ import com.sentinel.common.security.jwt.JwtAuthenticationFilter;
 import com.sentinel.auth.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,6 +24,9 @@ public class SecurityConfig {
         private final com.sentinel.auth.security.filters.RateLimitingFilter rateLimitingFilter;
         private final AuthenticationProvider authenticationProvider;
         private final OAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
+
+        @Value("${app.url:http://localhost:3000}")
+        private String frontendUrl;
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -64,7 +68,7 @@ public class SecurityConfig {
                                                 .redirectionEndpoint(redirection -> redirection
                                                                 .baseUri("/api/auth/oauth2/callback/*"))
                                                 .successHandler(oauth2SuccessHandler)
-                                                .failureUrl("http://localhost:5173/auth?error=oauth2_failed"))
+                                                .failureUrl(frontendUrl + "/auth?error=oauth2_failed"))
 
                                 .exceptionHandling(e -> e
                                                 .authenticationEntryPoint(
