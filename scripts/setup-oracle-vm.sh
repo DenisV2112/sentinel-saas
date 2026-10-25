@@ -68,14 +68,26 @@ else
   echo "✅ .env.production already exists"
 fi
 
-# --- Firewall reminder ---
+# --- Host firewall ---
+# Oracle's Ubuntu images ship iptables rules that REJECT everything except SSH,
+# even when the VCN security list allows it. Caddy needs 80/443 for HTTPS certs.
+echo ""
+echo "🔥 Opening ports 80/443 in the host firewall..."
+if ! sudo iptables -C INPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j ACCEPT 2>/dev/null; then
+  sudo iptables -I INPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW -j ACCEPT
+fi
+if command -v netfilter-persistent &>/dev/null; then
+  sudo netfilter-persistent save
+fi
+echo "✅ Host firewall allows 80/443"
+
 echo ""
 echo "============================================"
 echo " ✅ VM SETUP COMPLETE"
 echo ""
 echo " Next steps:"
 echo "   1. Edit .env.production with real secrets"
-echo "   2. Open Oracle VCN ports: 80, 443, 8000"
+echo "   2. Open Oracle VCN ports: 80, 443 (skip if oracle-a1-retry.sh created the VCN)"
 echo "      OCI Console → Networking → Virtual Cloud Networks → Security Lists"
 echo "   3. Run first deploy:"
 echo "      cd $DEPLOY_PATH && bash scripts/first-deploy.sh"
